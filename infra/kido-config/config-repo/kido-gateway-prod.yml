@@ -1,0 +1,33 @@
+server:
+  port: 8080
+
+spring:
+  cloud:
+    gateway:
+      server:
+        webmvc:
+          routes:
+            - id: kido-cursos
+              uri: lb://kido-curso-ms
+              predicates:
+                - Path=/api/v1/cursos/**
+            - id: kido-inscripciones
+              uri: lb://kido-inscripcion-ms
+              predicates:
+                - Path=/api/v1/inscripciones/**
+
+eureka:
+  instance:
+    instance-id: ${spring.application.name}:${random.value}
+  client:
+    service-url:
+      defaultZone: http://kido-eureka:8761/eureka
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: never

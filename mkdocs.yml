@@ -1,0 +1,13 @@
+site_name: Kido - Desarrollo de aplicaciones distribuidas
+theme:
+  name: material
+  palette:
+    primary: blue grey
+    accent: blue
+nav:
+  - Inicio: index.md
+  - Brief técnico: brief-tecnico.md
+  - Producto Unidad 1: u1-producto.md
+  - Guía S5: guia-s5.md
+  - Preparación de GitHub: github.md
+  - Continuación Midwar: continuacion-midwar.md

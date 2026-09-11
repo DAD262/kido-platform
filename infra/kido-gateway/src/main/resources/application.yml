@@ -1,0 +1,7 @@
+spring:
+  application:
+    name: kido-gateway
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
+  config:
+    import: "configserver:${CONFIG_SERVER_URL:http://localhost:18888}"

@@ -1,0 +1,18 @@
+name: kido-curso-dev
+
+services:
+  postgres-curso-dev:
+    image: postgres:16-alpine
+    container_name: kido-postgres-curso-dev
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: kido_curso_db
+      POSTGRES_USER: ${DB_USER:-kido}
+      POSTGRES_PASSWORD: ${DB_PASS:?Define DB_PASS en .env}
+    ports:
+      - "15432:5432"
+    volumes:
+      - kido_curso_dev_data:/var/lib/postgresql/data
+
+volumes:
+  kido_curso_dev_data:
