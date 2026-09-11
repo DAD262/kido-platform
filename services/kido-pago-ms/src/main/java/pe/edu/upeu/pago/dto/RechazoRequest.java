@@ -1,0 +1,1 @@
+package pe.edu.upeu.pago.dto; import jakarta.validation.constraints.NotBlank; public record RechazoRequest(@NotBlank String motivo){}
