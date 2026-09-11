@@ -115,3 +115,8 @@ kido-platform/
 - [Aporte de Midwar](docs/continuacion-midwar.md)
 - [Avance técnico de Midwar](docs/avance-midwar.md)
 - [Lista de microservicios](LISTA_MICROSERVICIOS.md)
+
+
+## Seguridad Keycloak
+
+La continuación incorpora Keycloak (realm `kido`) y JWT en el Gateway con roles `ADMIN`, `DOCENTE` y `ESTUDIANTE`. Ver `docs/seguridad-keycloak.md` y ejecutar `scripts/demo-security.ps1`.

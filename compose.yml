@@ -1,6 +1,19 @@
 name: kido-platform
 
 services:
+  kido-keycloak:
+    image: quay.io/keycloak/keycloak:26.7.3
+    container_name: kido-keycloak
+    command: ["start-dev", "--import-realm"]
+    ports:
+      - "19090:8080"
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: ${KEYCLOAK_ADMIN:-admin}
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:-Admin123!}
+    volumes:
+      - ./infra/keycloak:/opt/keycloak/data/import:ro
+    networks: [kido-net]
+
   kido-config:
     build: ./infra/kido-config
     container_name: kido-config
@@ -204,7 +217,9 @@ services:
       SPRING_PROFILES_ACTIVE: prod
       CONFIG_SERVER_URL: http://kido-config:8888
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://kido-eureka:8761/eureka
+      KEYCLOAK_JWK_SET_URI: http://kido-keycloak:8080/realms/kido/protocol/openid-connect/certs
     depends_on:
+      kido-keycloak: {condition: service_started}
       kido-eureka: {condition: service_started}
       kido-curso-1: {condition: service_started}
       kido-curso-2: {condition: service_started}
