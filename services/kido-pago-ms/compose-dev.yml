@@ -1,0 +1,11 @@
+services:
+  postgres-pago:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: kido_pago_db
+      POSTGRES_USER: ${DB_USER:-kido}
+      POSTGRES_PASSWORD: ${DB_PASS:?Define DB_PASS en .env}
+    ports: ["15435:5432"]
+    volumes: [kido_pago_dev:/var/lib/postgresql/data]
+volumes:
+  kido_pago_dev:

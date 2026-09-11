@@ -1,0 +1,1 @@
+package pe.edu.upeu.pago.dto; import java.math.BigDecimal; import java.time.LocalDateTime; public record RetiroResponse(Long id,Long docenteId,BigDecimal monto,String medio,String destino,String estado,String codigoOperacion,String motivoRechazo,LocalDateTime fechaSolicitud,LocalDateTime fechaProceso){}

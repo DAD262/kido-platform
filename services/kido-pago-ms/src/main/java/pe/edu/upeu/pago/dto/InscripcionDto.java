@@ -1,0 +1,1 @@
+package pe.edu.upeu.pago.dto; import java.time.LocalDateTime; import java.util.List; public record InscripcionDto(Long id,Long estudianteId,Long cursoId,String tipoAcceso,String estado,LocalDateTime fechaInscripcion,int porcentajeProgreso,List<Object> progresos){}

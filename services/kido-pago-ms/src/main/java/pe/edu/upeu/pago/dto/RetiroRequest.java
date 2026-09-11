@@ -1,0 +1,1 @@
+package pe.edu.upeu.pago.dto; import jakarta.validation.constraints.*; import java.math.BigDecimal; public record RetiroRequest(@NotNull @Positive Long docenteId,@NotNull @DecimalMin("50.00") BigDecimal monto,@NotBlank String medio,@NotBlank @Size(max=160) String destino){}

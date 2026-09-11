@@ -3,7 +3,7 @@
 ## Antes del primer push
 
 1. Descomprime el proyecto.
-2. Abre una terminal dentro de `kido-adan-s5`.
+2. Abre una terminal dentro de la carpeta raíz `kido-platform`.
 3. Verifica que `.env` no aparezca en Git. Solo debe subirse `.env.example`.
 4. Crea un repositorio vacío llamado `kido`.
 5. Ejecuta los comandos siguientes y reemplaza la URL por la de tu repositorio.
@@ -11,7 +11,7 @@
 ```bash
 git init
 git add .
-git commit -m "feat: base distribuida de cursos e inscripciones para S5"
+git commit -m "feat: base distribuida de Kido"
 git branch -M main
 git remote add origin https://github.com/USUARIO/kido.git
 git push -u origin main
@@ -38,7 +38,7 @@ Adan realiza el primer commit con esta base. Midwar debe clonar el repositorio, 
 ```bash
 git checkout -b feature/pagos-notificaciones
 git add .
-git commit -m "feat: agrega pagos y notificaciones"
+git commit -m "feat(midwar): agrega pagos retiros reembolsos y notificaciones"
 git push -u origin feature/pagos-notificaciones
 ```
 

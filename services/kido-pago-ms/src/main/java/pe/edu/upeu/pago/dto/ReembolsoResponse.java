@@ -1,0 +1,1 @@
+package pe.edu.upeu.pago.dto; import java.math.BigDecimal; import java.time.LocalDateTime; public record ReembolsoResponse(Long id,Long ordenId,Long estudianteId,Long cursoId,BigDecimal monto,String motivo,Integer porcentajeProgreso,String estado,LocalDateTime fechaSolicitud,LocalDateTime fechaProceso,String motivoRechazo){}
