@@ -1,0 +1,1 @@
+package pe.edu.upeu.notificacion; import org.springframework.boot.*; import org.springframework.boot.autoconfigure.SpringBootApplication; @SpringBootApplication public class KidoNotificacionApplication{public static void main(String[]a){SpringApplication.run(KidoNotificacionApplication.class,a);}}

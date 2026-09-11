@@ -1,0 +1,11 @@
+services:
+  postgres-notificacion:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: kido_notificacion_db
+      POSTGRES_USER: ${DB_USER:-kido}
+      POSTGRES_PASSWORD: ${DB_PASS:?Define DB_PASS en .env}
+    ports: ["15436:5432"]
+    volumes: [kido_notificacion_dev:/var/lib/postgresql/data]
+volumes:
+  kido_notificacion_dev:
