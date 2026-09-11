@@ -15,6 +15,22 @@ spring:
               uri: lb://kido-inscripcion-ms
               predicates:
                 - Path=/api/v1/inscripciones/**
+            - id: kido-pagos
+              uri: lb://kido-pago-ms
+              predicates:
+                - Path=/api/v1/pagos/**
+            - id: kido-retiros
+              uri: lb://kido-pago-ms
+              predicates:
+                - Path=/api/v1/retiros/**
+            - id: kido-reembolsos
+              uri: lb://kido-pago-ms
+              predicates:
+                - Path=/api/v1/reembolsos/**
+            - id: kido-notificaciones
+              uri: lb://kido-notificacion-ms
+              predicates:
+                - Path=/api/v1/notificaciones/**
 
 eureka:
   instance:

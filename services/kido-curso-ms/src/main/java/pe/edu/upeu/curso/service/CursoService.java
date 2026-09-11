@@ -17,6 +17,7 @@ import java.util.List;
 public class CursoService {
     private final CursoRepository cursoRepository;
     private final CategoriaRepository categoriaRepository;
+    private final LeccionRepository leccionRepository;
     private final CursoMapper mapper;
 
     @Transactional(readOnly = true)
@@ -26,6 +27,17 @@ public class CursoService {
 
     @Transactional(readOnly = true)
     public CursoResponse obtener(Long id) { return mapper.toResponse(buscar(id)); }
+
+
+    @Transactional(readOnly = true)
+    public CursoCompraResponse resumenCompra(Long id) {
+        Curso curso = buscar(id);
+        return new CursoCompraResponse(
+                curso.getId(), curso.getTitulo(), curso.getTipo().name(), curso.getPrecio(),
+                curso.getDocenteId(), curso.getEstado().name(),
+                leccionRepository.findIdsByCursoId(id)
+        );
+    }
 
     @Transactional
     public CursoResponse crear(CursoRequest request) {

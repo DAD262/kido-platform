@@ -1,0 +1,1 @@
+package pe.edu.upeu.pago.dto; import jakarta.validation.constraints.*; public record ReembolsoRequest(@NotNull @Positive Long ordenId,@NotBlank @Size(max=500) String motivo){}

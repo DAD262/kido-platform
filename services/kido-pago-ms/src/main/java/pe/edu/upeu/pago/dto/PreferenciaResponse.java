@@ -1,0 +1,1 @@
+package pe.edu.upeu.pago.dto; public record PreferenciaResponse(String preferenceId,String initPoint,String sandboxInitPoint){}

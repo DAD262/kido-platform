@@ -1,41 +1,39 @@
-# Kido - avance de Adan para S5
+# Kido Platform
 
-Kido es una plataforma distribuida de cursos gratuitos y pagados. Este repositorio contiene el avance de **Yana Rojas Adan** para la Evaluación de la Unidad I: dos microservicios persistentes y la infraestructura compartida necesaria para configuración centralizada, descubrimiento, Gateway y balanceo.
+Kido es una plataforma distribuida para cursos digitales gratuitos y pagados. Este repositorio conserva el avance de **Yana Rojas Adan** y continúa con el aporte de **Coila Mamani Jhoel Midwar** sobre la misma arquitectura.
 
-## Qué funciona en este avance
+## Estado actual
 
-| Componente | Tipo | Estado S5 |
+| Componente | Responsable | Estado |
 |---|---|---|
-| `kido-curso-ms` | Microservicio de Adan | CRUD REST completo de cursos, categorías, módulos y lecciones persistidos |
-| `kido-inscripcion-ms` | Microservicio transaccional de Adan | Inscripción con cabecera y detalle de progreso por lección |
-| `kido-config` | Infraestructura compartida | Configuración DEV y PROD fuera del código |
-| `kido-eureka` | Infraestructura compartida | Registro y descubrimiento dinámico |
-| `kido-gateway` | Infraestructura compartida | Punto único de acceso y balanceo `lb://` |
+| `kido-curso-ms` | Adan | Implementado |
+| `kido-inscripcion-ms` | Adan | Implementado |
+| `kido-pago-ms` | Midwar | Implementado |
+| `kido-notificacion-ms` | Midwar | Implementado |
+| `kido-config` | Compartido | Implementado |
+| `kido-eureka` | Compartido | Implementado |
+| `kido-gateway` | Compartido | Implementado |
 
-La instancia de `kido-curso-ms` devuelve el encabezado `X-Instance-ID`. Al ejecutar dos copias, las peticiones consecutivas mediante Gateway permiten demostrar el balanceo solicitado en S5.
+La evaluación S5 pide un sistema distribuido base funcional con REST persistente, Config Server, Eureka, Gateway y múltiples instancias. Esa evidencia continúa intacta y el aporte de Midwar agrega la segunda mitad funcional del backend de negocio.
 
-## Microservicios del proyecto completo
+## Reglas de Kido implementadas
 
-| Microservicio | Responsable previsto | Momento |
-|---|---|---|
-| `kido-curso-ms` | Adan | Implementado en esta entrega |
-| `kido-inscripcion-ms` | Adan | Implementado en esta entrega |
-| `kido-pago-ms` | Midwar | Unidad 2; Mercado Pago, órdenes, comisión, retiros y reembolsos |
-| `kido-notificacion-ms` | Midwar | Unidad 2; eventos y avisos |
-| `kido-auth-ms` | Ambos | Unidad 2; Spring Security, JWT y roles |
+- Cursos gratuitos y pagados.
+- Comisión de Kido: **10 %**.
+- Neto del docente: **90 %**.
+- Saldo docente pendiente: **7 días**.
+- Retiro mínimo: **S/ 50**.
+- Retiro por `CUENTA_BANCARIA`, `YAPE` o `PLIN`.
+- Estados de retiro: `PENDING`, `APPROVED`, `PAID`, `REJECTED`.
+- Reembolso: máximo 7 días y hasta 20 % de progreso.
+- Pago aprobado: crea inscripción `COMPRA` y habilita acceso.
+- Reembolso aprobado: revoca la inscripción y revierte el saldo de la venta.
+- Mercado Pago sandbox: integración HTTP real cuando se configura un token `TEST-...`.
+- Notificaciones internas y correo configurable por SMTP.
 
-El certificado digital se incorporará después del flujo de progreso completo. Puede vivir inicialmente dentro de Inscripciones o separarse como `kido-certificado-ms` si el docente aprueba ampliar el número de servicios.
+## Arranque completo con Docker
 
-## Requisitos
-
-- Java 21.
-- Docker Desktop con Docker Compose.
-- Git.
-- Puertos libres: 18080, 18761, 18888, 15432 y 15434.
-
-## Arranque completo para S5
-
-En PowerShell:
+Requisitos: Docker Desktop, Docker Compose y Git.
 
 ```powershell
 Copy-Item .env.example .env
@@ -44,71 +42,76 @@ docker compose up -d --build
 docker compose ps
 ```
 
-En `.env`, reemplaza el texto de ejemplo de `DB_PASS` por una contraseña local. Este archivo ya está ignorado por Git y no debe subirse.
+Como mínimo reemplaza `DB_PASS` en `.env`. El archivo `.env` está ignorado por Git.
 
-Accesos:
+Accesos principales:
 
-- Gateway: <http://localhost:18080>
-- Eureka: <http://localhost:18761>
-- Config Server: <http://localhost:18888/kido-curso-ms/prod>
-- Cursos por Gateway: <http://localhost:18080/api/v1/cursos>
-- Inscripciones por Gateway: <http://localhost:18080/api/v1/inscripciones>
+- Gateway: http://localhost:18080
+- Eureka: http://localhost:18761
+- Config Server: http://localhost:18888/kido-pago-ms/prod
+- Cursos: http://localhost:18080/api/v1/cursos
+- Inscripciones: http://localhost:18080/api/v1/inscripciones
+- Pagos: http://localhost:18080/api/v1/pagos/ordenes
+- Retiros: http://localhost:18080/api/v1/retiros
+- Reembolsos: http://localhost:18080/api/v1/reembolsos
+- Notificaciones: http://localhost:18080/api/v1/notificaciones
 
-La primera construcción descarga dependencias y puede tardar varios minutos.
+## Mercado Pago sandbox
 
-## Ejecución DEV como en las sesiones del docente
+Para usar el flujo real agrega a `.env` un Access Token de prueba proporcionado por Mercado Pago:
 
-Primero crea `.env`, define la contraseña e inicia las dos bases:
-
-```powershell
-docker compose -f .\services\kido-curso-ms\compose-dev.yml --env-file .env up -d
-docker compose -f .\services\kido-inscripcion-ms\compose-dev.yml --env-file .env up -d
-$env:DB_USER="kido"
-$env:DB_PASS="TU_CLAVE_LOCAL"
+```env
+MERCADO_PAGO_ACCESS_TOKEN=TEST-xxxxxxxx
 ```
 
-Luego abre seis terminales, entra en la carpeta indicada y ejecuta cada comando en este orden:
+El token nunca debe subirse a GitHub. Para la demo local, `compose.yml` habilita la aprobación simulada sin credenciales. En un despliegue real usa:
 
-| Orden | Carpeta | Comando |
-|---:|---|---|
-| 1 | `infra/kido-config` | `.\mvnw.cmd spring-boot:run` |
-| 2 | `infra/kido-eureka` | `.\mvnw.cmd spring-boot:run` |
-| 3 | `services/kido-curso-ms` | `.\mvnw.cmd spring-boot:run` |
-| 4 | `services/kido-curso-ms` | `.\mvnw.cmd spring-boot:run "-Dspring-boot.run.arguments=--server.port=8081"` |
-| 5 | `services/kido-inscripcion-ms` | `.\mvnw.cmd spring-boot:run` |
-| 6 | `infra/kido-gateway` | `.\mvnw.cmd spring-boot:run` |
+```env
+KIDO_PAGOS_PERMITIR_SIMULACION=false
+```
 
-En DEV, Swagger queda disponible en `http://localhost:8080/swagger-ui.html` para Cursos y `http://localhost:8082/swagger-ui.html` para Inscripciones. El tráfico de la demostración debe entrar por Gateway en el puerto 18080.
+## Demo del aporte de Midwar
 
-## Prueba rápida
+Con el stack iniciado:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\demo-midwar.ps1
+```
+
+El script crea una orden para el curso pagado sembrado por Flyway, aprueba el pago en modo local, comprueba la inscripción creada, consulta el saldo pendiente del docente y revisa las notificaciones generadas.
+
+## Prueba S5 original
+
+La demostración de Unidad I de Adan sigue disponible:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\scripts\demo-s5.ps1
 ```
 
-El script muestra configuración centralizada, CRUD, error 400, dos instancias y balanceo por el encabezado `X-Instance-ID`.
+## Estructura
 
-## Detener el proyecto
-
-```powershell
-docker compose down
-```
-
-Para borrar también los datos de prueba:
-
-```powershell
-docker compose down -v
+```text
+kido-platform/
+├── infra/
+│   ├── kido-config/
+│   ├── kido-eureka/
+│   └── kido-gateway/
+├── services/
+│   ├── kido-curso-ms/
+│   ├── kido-inscripcion-ms/
+│   ├── kido-pago-ms/
+│   └── kido-notificacion-ms/
+├── docs/
+├── scripts/
+├── compose.yml
+└── mkdocs.yml
 ```
 
 ## Documentación
 
 - [Brief técnico](docs/brief-tecnico.md)
-- [Producto de Unidad 1](docs/u1-producto.md)
-- [Guía para sustentar S5](docs/guia-s5.md)
-- [Lista completa de microservicios](LISTA_MICROSERVICIOS.md)
-- [Preparación y colaboración en GitHub](docs/github.md)
-- [Trabajo que continúa Midwar](docs/continuacion-midwar.md)
-
-## Decisión propia defendible
-
-Pagatu vende productos físicos. Kido adapta el mismo patrón a cursos digitales: Curso reemplaza Producto e Inscripción con ProgresoLeccion reemplaza la operación transaccional de Orden con DetalleOrden. Cada microservicio conserva su propia base; los identificadores de curso y estudiante en Inscripciones no son claves foráneas hacia bases externas.
+- [Producto Unidad I](docs/u1-producto.md)
+- [Guía S5](docs/guia-s5.md)
+- [Aporte de Midwar](docs/continuacion-midwar.md)
+- [Avance técnico de Midwar](docs/avance-midwar.md)
+- [Lista de microservicios](LISTA_MICROSERVICIOS.md)

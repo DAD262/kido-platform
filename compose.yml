@@ -1,4 +1,4 @@
-name: kido-s5
+name: kido-platform
 
 services:
   kido-config:
@@ -114,6 +114,87 @@ services:
       kido-eureka: {condition: service_started}
     networks: [kido-net]
 
+
+  postgres-pago:
+    image: postgres:16-alpine
+    container_name: kido-postgres-pago
+    environment:
+      POSTGRES_DB: kido_pago_db
+      POSTGRES_USER: ${DB_USER:-kido}
+      POSTGRES_PASSWORD: ${DB_PASS:?Define DB_PASS en .env}
+    ports:
+      - "15435:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-kido} -d kido_pago_db"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    volumes: [kido_pago_data:/var/lib/postgresql/data]
+    networks: [kido-net]
+
+  postgres-notificacion:
+    image: postgres:16-alpine
+    container_name: kido-postgres-notificacion
+    environment:
+      POSTGRES_DB: kido_notificacion_db
+      POSTGRES_USER: ${DB_USER:-kido}
+      POSTGRES_PASSWORD: ${DB_PASS:?Define DB_PASS en .env}
+    ports:
+      - "15436:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-kido} -d kido_notificacion_db"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    volumes: [kido_notificacion_data:/var/lib/postgresql/data]
+    networks: [kido-net]
+
+  kido-notificacion-ms:
+    build: ./services/kido-notificacion-ms
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      CONFIG_SERVER_URL: http://kido-config:8888
+      DB_HOST: postgres-notificacion
+      DB_PORT: 5432
+      DB_NAME: kido_notificacion_db
+      DB_USER: ${DB_USER:-kido}
+      DB_PASS: ${DB_PASS:?Define DB_PASS en .env}
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://kido-eureka:8761/eureka
+      SMTP_ENABLED: ${SMTP_ENABLED:-false}
+      SMTP_HOST: ${SMTP_HOST:-localhost}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASS: ${SMTP_PASS:-}
+      SMTP_AUTH: ${SMTP_AUTH:-false}
+      SMTP_STARTTLS: ${SMTP_STARTTLS:-false}
+      SMTP_FROM: ${SMTP_FROM:-no-reply@kido.local}
+    depends_on:
+      postgres-notificacion: {condition: service_healthy}
+      kido-eureka: {condition: service_started}
+    networks: [kido-net]
+
+  kido-pago-ms:
+    build: ./services/kido-pago-ms
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      CONFIG_SERVER_URL: http://kido-config:8888
+      DB_HOST: postgres-pago
+      DB_PORT: 5432
+      DB_NAME: kido_pago_db
+      DB_USER: ${DB_USER:-kido}
+      DB_PASS: ${DB_PASS:?Define DB_PASS en .env}
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://kido-eureka:8761/eureka
+      MERCADO_PAGO_ACCESS_TOKEN: ${MERCADO_PAGO_ACCESS_TOKEN:-}
+      MERCADO_PAGO_NOTIFICATION_URL: ${MERCADO_PAGO_NOTIFICATION_URL:-}
+      KIDO_PAGOS_PERMITIR_SIMULACION: ${KIDO_PAGOS_PERMITIR_SIMULACION:-true}
+    depends_on:
+      postgres-pago: {condition: service_healthy}
+      kido-eureka: {condition: service_started}
+      kido-curso-1: {condition: service_started}
+      kido-inscripcion-ms: {condition: service_started}
+      kido-notificacion-ms: {condition: service_started}
+    networks: [kido-net]
+
   kido-gateway:
     build: ./infra/kido-gateway
     container_name: kido-gateway
@@ -128,11 +209,15 @@ services:
       kido-curso-1: {condition: service_started}
       kido-curso-2: {condition: service_started}
       kido-inscripcion-ms: {condition: service_started}
+      kido-pago-ms: {condition: service_started}
+      kido-notificacion-ms: {condition: service_started}
     networks: [kido-net]
 
 volumes:
   kido_curso_data:
   kido_inscripcion_data:
+  kido_pago_data:
+  kido_notificacion_data:
 
 networks:
   kido-net:

@@ -1,0 +1,1 @@
+package pe.edu.upeu.notificacion.dto; import java.time.*; public record NotificacionResponse(Long id,Long usuarioId,String tipo,String canal,String asunto,String mensaje,String estado,boolean leida,LocalDateTime fechaCreacion,LocalDateTime fechaEnvio,String detalleEnvio){}

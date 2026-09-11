@@ -42,9 +42,10 @@ Estas cantidades son reglas del prototipo académico. Más adelante podrán conv
 
 | Unidad | Resultado esperado |
 |---|---|
-| Unidad 1, avance actual | Curso, Inscripción, PostgreSQL, Flyway, Config Server, Eureka, Gateway y balanceo |
-| Unidad 2 | Auth/JWT, Pago, Notificación, Kafka, OpenFeign y Resilience4j |
-| Unidad 3 | Angular, Docker Compose final, Prometheus, Grafana, Loki, pruebas y documentación completa |
+| Unidad 1 | Curso, Inscripción, PostgreSQL, Flyway, Config Server, Eureka, Gateway y balanceo |
+| Continuación de Midwar | Pago y Notificación integrados al backend existente; comisión, saldo, retiro y reembolso |
+| Unidad 2 compartida | Auth/JWT, Kafka y Resilience4j sobre los servicios ya existentes |
+| Unidad 3 | Angular, observabilidad completa, pruebas y documentación final |
 
 ## Tecnología definida
 
