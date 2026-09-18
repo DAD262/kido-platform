@@ -1,0 +1,17 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: kido-gateway
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: ['kido-gateway:8080']
+
+  - job_name: kido-services
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets:
+          - 'kido-curso-1:8080'
+          - 'kido-inscripcion-ms:8080'
+          - 'kido-pago-ms:8080'
+          - 'kido-notificacion-ms:8080'
