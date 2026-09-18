@@ -1,6 +1,19 @@
 name: kido-platform
 
 services:
+  kido-keycloak:
+    image: quay.io/keycloak/keycloak:26.7.3
+    container_name: kido-keycloak
+    command: ["start-dev", "--import-realm"]
+    ports:
+      - "19090:8080"
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+    volumes:
+      - ./infra/keycloak:/opt/keycloak/data/import:ro
+    networks: [kido-net]
+
   kido-config:
     build: ./infra/kido-config
     container_name: kido-config
@@ -204,13 +217,40 @@ services:
       SPRING_PROFILES_ACTIVE: prod
       CONFIG_SERVER_URL: http://kido-config:8888
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://kido-eureka:8761/eureka
+      KEYCLOAK_JWK_SET_URI: http://kido-keycloak:8080/realms/kido/protocol/openid-connect/certs
     depends_on:
+      kido-keycloak: {condition: service_started}
       kido-eureka: {condition: service_started}
       kido-curso-1: {condition: service_started}
       kido-curso-2: {condition: service_started}
       kido-inscripcion-ms: {condition: service_started}
       kido-pago-ms: {condition: service_started}
       kido-notificacion-ms: {condition: service_started}
+    networks: [kido-net]
+
+
+  kido-prometheus:
+    image: prom/prometheus:v3.5.0
+    container_name: kido-prometheus
+    ports:
+      - "19091:9090"
+    volumes:
+      - ./infra/monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    networks: [kido-net]
+
+  kido-grafana:
+    image: grafana/grafana:12.1.1
+    container_name: kido-grafana
+    ports:
+      - "13000:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+    volumes:
+      - ./infra/monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./infra/monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    depends_on:
+      - kido-prometheus
     networks: [kido-net]
 
 volumes:
