@@ -9,6 +9,8 @@ import pe.edu.upeu.pago.client.*;
 import pe.edu.upeu.pago.dto.*;
 import pe.edu.upeu.pago.entity.*;
 import pe.edu.upeu.pago.exception.ResourceNotFoundException;
+import pe.edu.upeu.pago.event.PagoAprobadoEvento;
+import pe.edu.upeu.pago.messaging.PagoEventosProducer;
 import pe.edu.upeu.pago.repository.*;
 import java.math.*;
 import java.time.*;
@@ -20,7 +22,7 @@ public class PagoService {
  private final MovimientoSaldoRepository movimientoRepo;
  private final CursoClient cursoClient;
  private final InscripcionClient inscripcionClient;
- private final NotificacionClient notificacionClient;
+ private final PagoEventosProducer pagoEventosProducer;
  private final MercadoPagoClient mercadoPagoClient;
  @Value("${kido.pagos.comision:0.10}") private BigDecimal comision;
  @Value("${kido.pagos.dias-retencion:7}") private long diasRetencion;
@@ -89,8 +91,20 @@ public class PagoService {
      MovimientoSaldo m=new MovimientoSaldo(); m.setDocenteId(o.getDocenteId()); m.setOrdenId(o.getId()); m.setTipo(MovimientoSaldo.TipoMovimiento.VENTA); m.setEstado(MovimientoSaldo.EstadoMovimiento.PENDIENTE); m.setMonto(o.getMontoDocente()); m.setFechaDisponible(o.getFechaAprobacion().plusDays(diasRetencion)); m.setFechaCreacion(LocalDateTime.now()); m.setDescripcion("90% de venta del curso "+o.getCursoTitulo()); movimientoRepo.save(m);
    }
    sincronizarInscripcion(o);
-   notificacionClient.enviar(o.getEstudianteId(),"PAGO_APROBADO","Pago aprobado","Tu compra de "+o.getCursoTitulo()+" fue aprobada.");
-   notificacionClient.enviar(o.getDocenteId(),"NUEVA_VENTA","Nueva venta","Tienes una nueva venta. Tu saldo neto es S/ "+o.getMontoDocente()+" y se libera en "+diasRetencion+" días.");
+   pagoEventosProducer.publicarTrasCommit(PagoAprobadoEvento.builder()
+       .tipoEvento("pago.aprobado")
+       .ordenId(o.getId())
+       .estudianteId(o.getEstudianteId())
+       .docenteId(o.getDocenteId())
+       .cursoId(o.getCursoId())
+       .cursoTitulo(o.getCursoTitulo())
+       .montoTotal(o.getMontoTotal())
+       .montoDocente(o.getMontoDocente())
+       .diasRetencion(diasRetencion)
+       .estado(o.getEstado().name())
+       .origen("kido-pago-ms")
+       .timestamp(Instant.now().toEpochMilli())
+       .build());
    return map(o);
  }
 

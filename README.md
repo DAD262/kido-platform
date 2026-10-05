@@ -120,3 +120,20 @@ kido-platform/
 ## Seguridad Keycloak
 
 La continuación incorpora Keycloak (realm `kido`) y JWT en el Gateway con roles `ADMIN`, `DOCENTE` y `ESTUDIANTE`. Ver `docs/seguridad-keycloak.md` y ejecutar `scripts/demo-security.ps1`.
+
+## Tarea S08 - Kafka
+
+Se añadió mensajería asíncrona con Kafka para el evento propio `pago.aprobado`: `kido-pago-ms` publica después del commit y `kido-notificacion-ms` consume con su propio grupo. Kafka UI queda en `http://localhost:18085`.
+
+```powershell
+docker compose up -d --build
+powershell -ExecutionPolicy Bypass -File .\scripts\demo-s8.ps1
+```
+
+Para la evidencia de desacople:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\demo-s8-desacople.ps1
+```
+
+La guía exacta de capturas y el contrato están en `docs/s08-mensajeria-asincrona.md`.

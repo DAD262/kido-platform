@@ -1,0 +1,64 @@
+KIDO - TAREA S08 MENSAJERIA ASINCRONA CON KAFKA
+================================================
+
+QUE SE IMPLEMENTO
+- Kafka + Kafka UI en Docker Compose.
+- Topic: kido-pago-eventos (3 particiones).
+- Evento propio: pago.aprobado.
+- Productor: kido-pago-ms.
+- Consumidor: kido-notificacion-ms.
+- Group ID del consumidor: kido-notificacion-ms.
+- Key del mensaje: ordenId.
+- Publicacion DESPUES del commit de la transaccion.
+- El flujo de PAGO APROBADO ya no llama por HTTP a kido-notificacion-ms.
+- Prueba automatizada de desacople.
+
+PARA LEVANTAR TODO
+1. Abre PowerShell dentro de la carpeta kido-platform.
+2. Ejecuta:
+
+   docker compose up -d --build
+   docker compose ps
+
+3. Espera a que termine de construir/arrancar.
+
+PAGINAS QUE DEBES ABRIR
+- Kafka UI: http://localhost:18085
+- Eureka:   http://localhost:18761
+- Gateway:  http://localhost:18080
+- Keycloak: http://localhost:19090
+
+PRUEBA NORMAL
+powershell -ExecutionPolicy Bypass -File .\scripts\demo-s8.ps1
+
+PRUEBA DE DESACOPLE
+powershell -ExecutionPolicy Bypass -File .\scripts\demo-s8-desacople.ps1
+
+IMPORTANTE: la prueba de desacople se detiene a mitad para que saques la captura con
+kido-notificacion-ms apagado y el lag pendiente. Luego presionas ENTER y el servicio
+se vuelve a levantar para consumir el evento.
+
+CAPTURAS RECOMENDADAS
+1. docker compose ps con Kafka/Kafka UI y servicios UP.
+2. Kafka UI -> Topics -> kido-pago-eventos mostrando 3 particiones.
+3. Eureka mostrando KIDO-PAGO-MS y KIDO-NOTIFICACION-MS.
+4. Log de kido-pago-ms con eventType=pago.aprobado y status=published.
+5. Kafka UI -> Messages mostrando JSON, key=ordenId, partition y offset.
+6. Log de kido-notificacion-ms con status=consumed y status=processed.
+7. Notificacion del estudiante creada luego de consumir el evento.
+8. Desacople: notificacion apagada + orden APROBADA + lag > 0.
+9. Luego de encender notificacion: evento consumido y lag = 0.
+
+COMANDOS DE LOG
+
+docker compose logs --tail=100 kido-pago-ms | Select-String "component=producer|pago.aprobado"
+
+docker compose logs --tail=100 kido-notificacion-ms | Select-String "component=consumer|component=processor|pago.aprobado"
+
+docker exec kido-kafka /opt/kafka/bin/kafka-consumer-groups.sh --bootstrap-server kido-kafka:9092 --group kido-notificacion-ms --describe
+
+DOCUMENTACION COMPLETA
+Ver: docs/s08-mensajeria-asincrona.md
+
+RECUERDA PARA EL PDF
+Las capturas deben mostrar sin recortar el reloj/fecha-hora del sistema y tu usuario o perfil visible.

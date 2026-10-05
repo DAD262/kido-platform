@@ -30,6 +30,13 @@ spring:
       resourceserver:
         jwt:
           jwk-set-uri: ${KEYCLOAK_JWK_SET_URI:http://kido-keycloak:8080/realms/kido/protocol/openid-connect/certs}
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:kido-kafka:9092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JacksonJsonSerializer
+      properties:
+        spring.json.add.type.headers: false
 kido:
   pagos:
     comision: 0.10
@@ -41,6 +48,10 @@ kido:
   mercadopago:
     access-token: ${MERCADO_PAGO_ACCESS_TOKEN:}
     notification-url: ${MERCADO_PAGO_NOTIFICATION_URL:}
+app:
+  kafka:
+    topic:
+      pagos: kido-pago-eventos
 springdoc:
   swagger-ui:
     enabled: false

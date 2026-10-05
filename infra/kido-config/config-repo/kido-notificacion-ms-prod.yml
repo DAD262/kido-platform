@@ -21,10 +21,26 @@ spring:
     properties:
       mail.smtp.auth: ${SMTP_AUTH:false}
       mail.smtp.starttls.enable: ${SMTP_STARTTLS:false}
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:kido-kafka:9092}
+    consumer:
+      group-id: kido-notificacion-ms
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+      properties:
+        spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JacksonJsonDeserializer
+        spring.json.value.default.type: pe.edu.upeu.notificacion.event.PagoAprobadoEvento
+        spring.json.trusted.packages: pe.edu.upeu.notificacion.event
+        spring.json.use.type.headers: false
 kido:
   notificaciones:
     email-habilitado: ${SMTP_ENABLED:false}
     from: ${SMTP_FROM:no-reply@kido.local}
+app:
+  kafka:
+    topic:
+      pagos: kido-pago-eventos
 springdoc:
   swagger-ui:
     enabled: false
