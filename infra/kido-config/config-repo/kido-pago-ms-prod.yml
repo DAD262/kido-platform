@@ -13,6 +13,23 @@ spring:
     hibernate:
       ddl-auto: validate
     show-sql: false
+  cloud:
+    openfeign:
+      circuitbreaker:
+        enabled: true
+      client:
+        config:
+          default:
+            connectTimeout: 1000
+            readTimeout: 3000
+    circuitbreaker:
+      resilience4j:
+        enabled: true
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: ${KEYCLOAK_JWK_SET_URI:http://kido-keycloak:8080/realms/kido/protocol/openid-connect/certs}
 kido:
   pagos:
     comision: 0.10
@@ -30,10 +47,13 @@ springdoc:
   api-docs:
     enabled: false
 management:
+  health:
+    circuitbreakers:
+      enabled: true
   endpoints:
     web:
       exposure:
-        include: health,info,metrics,prometheus
+        include: health,info,metrics,prometheus,circuitbreakers,circuitbreakerevents
   endpoint:
     health:
       show-details: never
@@ -43,3 +63,43 @@ eureka:
   client:
     service-url:
       defaultZone: http://kido-eureka:8761/eureka
+resilience4j:
+  circuitbreaker:
+    instances:
+      KidoCursoObtener:
+        slidingWindowSize: 5
+        minimumNumberOfCalls: 3
+        failureRateThreshold: 60
+        waitDurationInOpenState: 10s
+        permittedNumberOfCallsInHalfOpenState: 2
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        ignoreExceptions:
+          - feign.FeignException$NotFound
+      KidoInscripcionCrearCompra:
+        slidingWindowSize: 5
+        minimumNumberOfCalls: 3
+        failureRateThreshold: 60
+        waitDurationInOpenState: 10s
+        permittedNumberOfCallsInHalfOpenState: 2
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+      KidoInscripcionBuscar:
+        slidingWindowSize: 5
+        minimumNumberOfCalls: 3
+        failureRateThreshold: 60
+        waitDurationInOpenState: 10s
+        permittedNumberOfCallsInHalfOpenState: 2
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+      KidoInscripcionRevocar:
+        slidingWindowSize: 5
+        minimumNumberOfCalls: 3
+        failureRateThreshold: 60
+        waitDurationInOpenState: 10s
+        permittedNumberOfCallsInHalfOpenState: 2
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+      KidoNotificacionEnviar:
+        slidingWindowSize: 5
+        minimumNumberOfCalls: 3
+        failureRateThreshold: 60
+        waitDurationInOpenState: 10s
+        permittedNumberOfCallsInHalfOpenState: 2
+        automaticTransitionFromOpenToHalfOpenEnabled: true

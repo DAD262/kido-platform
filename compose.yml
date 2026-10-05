@@ -197,12 +197,14 @@ services:
       DB_USER: ${DB_USER:-kido}
       DB_PASS: ${DB_PASS:?Define DB_PASS en .env}
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://kido-eureka:8761/eureka
+      KEYCLOAK_JWK_SET_URI: http://kido-keycloak:8080/realms/kido/protocol/openid-connect/certs
       MERCADO_PAGO_ACCESS_TOKEN: ${MERCADO_PAGO_ACCESS_TOKEN:-}
       MERCADO_PAGO_NOTIFICATION_URL: ${MERCADO_PAGO_NOTIFICATION_URL:-}
       KIDO_PAGOS_PERMITIR_SIMULACION: ${KIDO_PAGOS_PERMITIR_SIMULACION:-true}
     depends_on:
       postgres-pago: {condition: service_healthy}
       kido-eureka: {condition: service_started}
+      kido-keycloak: {condition: service_started}
       kido-curso-1: {condition: service_started}
       kido-inscripcion-ms: {condition: service_started}
       kido-notificacion-ms: {condition: service_started}
