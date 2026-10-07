@@ -1,0 +1,1 @@
+package pe.edu.upeu.pago.dto; import java.math.BigDecimal; public record SaldoResponse(Long docenteId,BigDecimal pendiente,BigDecimal disponible,BigDecimal reservado,BigDecimal retirado){}
