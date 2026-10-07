@@ -1,0 +1,623 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.20">
+    
+    
+      
+        <title>Prácticas S6 y S7 adaptadas a Kido - Kido - Desarrollo de aplicaciones distribuidas</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.e53b48f4.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="blue-grey" data-md-color-accent="blue">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#practicas-s6-y-s7-adaptadas-a-kido" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Kido - Desarrollo de aplicaciones distribuidas" class="md-header__button md-logo" aria-label="Kido - Desarrollo de aplicaciones distribuidas" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Kido - Desarrollo de aplicaciones distribuidas
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Prácticas S6 y S7 adaptadas a Kido
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Kido - Desarrollo de aplicaciones distribuidas" class="md-nav__button md-logo" aria-label="Kido - Desarrollo de aplicaciones distribuidas" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Kido - Desarrollo de aplicaciones distribuidas
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Inicio
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../brief-tecnico/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Brief técnico
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../u1-producto/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Producto Unidad 1
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guia-s5/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Guía S5
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../github/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Preparación de GitHub
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../continuacion-midwar/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Aporte Midwar
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../avance-midwar/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Avance técnico Midwar
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api-midwar/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    API Midwar
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../seguridad-keycloak/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Seguridad Keycloak
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../s08-mensajeria-asincrona/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    S08 Mensajería asíncrona
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#s6-feign-y-circuit-breaker" class="md-nav__link">
+    <span class="md-ellipsis">
+      S6: Feign y Circuit Breaker
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="S6: Feign y Circuit Breaker">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#prueba-manual-de-resiliencia" class="md-nav__link">
+    <span class="md-ellipsis">
+      Prueba manual de resiliencia
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#s7-seguridad-distribuida" class="md-nav__link">
+    <span class="md-ellipsis">
+      S7: Seguridad distribuida
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="S7: Seguridad distribuida">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#prueba-de-acceso-directo" class="md-nav__link">
+    <span class="md-ellipsis">
+      Prueba de acceso directo
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="practicas-s6-y-s7-adaptadas-a-kido">Prácticas S6 y S7 adaptadas a Kido</h1>
+<p>Esta implementación adapta las dos tareas de Sistemas Distribuidos al proyecto Kido existente.</p>
+<h2 id="s6-feign-y-circuit-breaker">S6: Feign y Circuit Breaker</h2>
+<p>El flujo de pago consulta <code>kido-curso-ms</code> antes de guardar una orden. Esa comunicación ahora usa Spring Cloud OpenFeign con balanceo por Eureka y Circuit Breaker de Resilience4j. Se configuraron timeout de conexión de 1 s, lectura de 3 s, apertura al superar 60 % de fallos (ventana de 5 llamadas, mínimo 3) y espera abierta de 10 s antes de permitir llamadas de prueba.</p>
+<ul>
+<li>Si cursos no responde, la API devuelve HTTP 503 y no guarda una orden sin precio ni crea un pago ficticio.</li>
+<li>Si el curso no existe, se conserva el HTTP 404.</li>
+<li>Las llamadas de inscripción usan Feign; el flujo de aprobación conserva <code>inscripcionSincronizada=false</code> y permite reintentar la sincronización como ADMIN.</li>
+<li>Notificaciones usan Feign con fallback no bloqueante porque son accesorias después de aprobar un pago.</li>
+<li>Las conexiones Feign reenvían el JWT del usuario a otros servicios.</li>
+</ul>
+<p>Los estados y eventos se pueden observar en <code>/actuator/circuitbreakers</code> y <code>/actuator/circuitbreakerevents</code> dentro del servicio. Actuator también publica el estado de salud <code>circuitBreakers</code>.</p>
+<h3 id="prueba-manual-de-resiliencia">Prueba manual de resiliencia</h3>
+<ol>
+<li>Inicia los servicios según <code>README.md</code>, copiando <code>.env.example</code> a <code>.env</code> y configurando <code>DB_PASS</code>.</li>
+<li>Para hacer accesible el Resource Server de pagos solo en <code>localhost</code>, inicia Compose con ambos archivos: <code>docker compose -f compose.yml -f compose.security-test.yml up --build -d</code>.</li>
+<li>Consigue un token ESTUDIANTE como en <code>scripts/demo-security.ps1</code>. Usa el endpoint de órdenes de pago con un curso publicado y válido: <code>POST http://localhost:18080/api/v1/pagos/ordenes</code> con <code>{"estudianteId":1,"cursoId":1}</code>.</li>
+<li>Detén las instancias de cursos con <code>docker compose stop kido-curso-1 kido-curso-2</code> y repite la llamada de creación al menos tres veces. Se espera HTTP 503 y no debe aparecer una nueva orden persistida.</li>
+<li>Con un token ADMIN, revisa <code>GET http://localhost:18083/actuator/circuitbreakers</code> y <code>GET http://localhost:18083/actuator/circuitbreakerevents</code>. El circuito de <code>KidoCursoObtener</code> pasa de CLOSED a OPEN después de alcanzar el umbral. Tras 10 s hará pruebas HALF_OPEN cuando lleguen llamadas.</li>
+<li>Inicia cursos con <code>docker compose start kido-curso-1 kido-curso-2</code>; cuando las pruebas HALF_OPEN tengan éxito, el estado vuelve a CLOSED.</li>
+</ol>
+<p>Los IDs <code>KidoCursoObtener</code>, <code>KidoInscripcionCrearCompra</code>, <code>KidoInscripcionBuscar</code>, <code>KidoInscripcionRevocar</code> y <code>KidoNotificacionEnviar</code> se fijan con <code>CircuitBreakerNameResolver</code> y se configuran iguales en DEV y PROD.</p>
+<h2 id="s7-seguridad-distribuida">S7: Seguridad distribuida</h2>
+<p>El Gateway ya valida JWT de Keycloak y roles del realm. El microservicio de pagos ahora también valida directamente la firma JWT usando el JWK Set URI de Keycloak y aplica los mismos roles. Así, enviar una solicitud directamente a pagos no salta sus controles. Las llamadas Feign retransmiten el JWT para que el servicio receptor pueda validar al usuario.</p>
+<table>
+<thead>
+<tr>
+<th>Operación de pagos</th>
+<th>Acceso</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Crear órdenes y consultar órdenes propias</td>
+<td>ESTUDIANTE o ADMIN</td>
+</tr>
+<tr>
+<td>Saldo y órdenes de docente</td>
+<td>DOCENTE o ADMIN</td>
+</tr>
+<tr>
+<td>Simular aprobación, reintentar inscripción y liberar saldos</td>
+<td>ADMIN</td>
+</tr>
+<tr>
+<td>Retiros</td>
+<td>DOCENTE crea/consulta; ADMIN actualiza</td>
+</tr>
+<tr>
+<td>Reembolsos</td>
+<td>ESTUDIANTE crea; ADMIN consulta/actualiza</td>
+</tr>
+<tr>
+<td>Webhook Mercado Pago</td>
+<td>Público; debe validarse por la integración de Mercado Pago</td>
+</tr>
+</tbody>
+</table>
+<p>Las rutas <code>/internal/v1/**</code> son endpoints de red privada que no publica el Gateway; permanecen sin autenticación de usuario para permitir comunicación entre servicios. Los accesos externos pasan por el Gateway. El paso siguiente de endurecimiento sería autenticación máquina a máquina con credenciales de servicio.</p>
+<h3 id="prueba-de-acceso-directo">Prueba de acceso directo</h3>
+<p>Con el override <code>compose.security-test.yml</code> y los servicios levantados, ejecuta en PowerShell:</p>
+<pre><code class="language-powershell">./scripts/demo-tarea-s6-s7.ps1
+</code></pre>
+<p>Debe mostrar 401 sin token, 401 con token inválido, 403 al consultar el saldo de docente como estudiante y 200 como docente. El override publica el servicio de pagos únicamente en <code>127.0.0.1:18083</code> para esa prueba.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.973d3a69.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.f55a23d4.min.js"></script>
+      
+    
+  </body>
+</html>
