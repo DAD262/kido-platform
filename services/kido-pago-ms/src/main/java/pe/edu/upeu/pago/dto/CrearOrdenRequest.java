@@ -1,0 +1,1 @@
+package pe.edu.upeu.pago.dto; import jakarta.validation.constraints.*; public record CrearOrdenRequest(@NotNull @Positive Long estudianteId,@NotNull @Positive Long cursoId){}

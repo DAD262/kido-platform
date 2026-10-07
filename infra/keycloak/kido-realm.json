@@ -1,0 +1,109 @@
+{
+  "realm": "kido",
+  "enabled": true,
+  "displayName": "Kido",
+  "registrationAllowed": false,
+  "resetPasswordAllowed": true,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "roles": {
+    "realm": [
+      {
+        "name": "ADMIN",
+        "description": "Administración de la plataforma Kido"
+      },
+      {
+        "name": "DOCENTE",
+        "description": "Docente creador de cursos"
+      },
+      {
+        "name": "ESTUDIANTE",
+        "description": "Estudiante que consume cursos"
+      }
+    ]
+  },
+  "clients": [
+    {
+      "clientId": "kido-cli",
+      "name": "Kido CLI / Demo",
+      "enabled": true,
+      "publicClient": true,
+      "directAccessGrantsEnabled": true,
+      "standardFlowEnabled": false,
+      "protocol": "openid-connect"
+    },
+    {
+      "clientId": "kido-frontend",
+      "name": "Kido Frontend",
+      "enabled": true,
+      "publicClient": true,
+      "directAccessGrantsEnabled": false,
+      "standardFlowEnabled": true,
+      "protocol": "openid-connect",
+      "redirectUris": [
+        "http://localhost:4200/*",
+        "http://localhost:5173/*"
+      ],
+      "webOrigins": [
+        "http://localhost:4200",
+        "http://localhost:5173"
+      ]
+    }
+  ],
+  "users": [
+    {
+      "username": "admin",
+      "email": "admin@kido.local",
+      "firstName": "Admin",
+      "lastName": "Kido",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Admin123!",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "ADMIN"
+      ]
+    },
+    {
+      "username": "docente",
+      "email": "docente@kido.local",
+      "firstName": "Docente",
+      "lastName": "Demo",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Docente123!",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "DOCENTE"
+      ]
+    },
+    {
+      "username": "estudiante",
+      "email": "estudiante@kido.local",
+      "firstName": "Estudiante",
+      "lastName": "Demo",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Estudiante123!",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "ESTUDIANTE"
+      ]
+    }
+  ]
+}

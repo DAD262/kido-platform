@@ -1,0 +1,1 @@
+package pe.edu.upeu.notificacion.dto; import jakarta.validation.constraints.*; public record NotificacionRequest(@NotNull @Positive Long usuarioId,@NotBlank @Size(max=60)String tipo,@NotBlank String canal,@NotBlank @Size(max=180)String asunto,@NotBlank @Size(max=1200)String mensaje,String email){}

@@ -38,6 +38,50 @@ public class InscripcionService {
  }
 
  @Transactional
+ public InscripcionResponse crearPorCompra(CompraInscripcionRequest r){
+   Optional<Inscripcion> existente=repository.findByEstudianteIdAndCursoIdConProgresos(r.estudianteId(),r.cursoId());
+   if(existente.isPresent()){
+     Inscripcion actual=existente.get();
+     if(actual.getTipoAcceso()!=Inscripcion.TipoAcceso.COMPRA)
+       throw new IllegalStateException("Ya existe una inscripción gratuita para este estudiante y curso");
+     if(actual.getEstado()==Inscripcion.EstadoInscripcion.REVOCADA || actual.getEstado()==Inscripcion.EstadoInscripcion.CANCELADA){
+       actual.setEstado(Inscripcion.EstadoInscripcion.ACTIVA);
+       actual.getProgresos().forEach(p->{p.setCompletada(false);p.setFechaCompletada(null);});
+       Set<Long> existentes=actual.getProgresos().stream().map(ProgresoLeccion::getLeccionId).collect(java.util.stream.Collectors.toSet());
+       r.leccionIds().stream().filter(Objects::nonNull).filter(id->!existentes.contains(id)).distinct().forEach(leccionId->{
+         ProgresoLeccion p=new ProgresoLeccion(); p.setLeccionId(leccionId); p.setInscripcion(actual); actual.getProgresos().add(p);
+       });
+     }
+     return mapper.toResponse(repository.save(actual));
+   }
+   Inscripcion i=new Inscripcion();
+   i.setEstudianteId(r.estudianteId()); i.setCursoId(r.cursoId());
+   i.setTipoAcceso(Inscripcion.TipoAcceso.COMPRA);
+   i.setEstado(Inscripcion.EstadoInscripcion.ACTIVA);
+   i.setFechaInscripcion(LocalDateTime.now());
+   r.leccionIds().stream().filter(Objects::nonNull).distinct().forEach(leccionId->{
+     ProgresoLeccion p=new ProgresoLeccion(); p.setLeccionId(leccionId); p.setInscripcion(i); i.getProgresos().add(p);
+   });
+   return mapper.toResponse(repository.save(i));
+ }
+
+ @Transactional(readOnly=true)
+ public InscripcionResponse buscarPorEstudianteCurso(Long estudianteId, Long cursoId){
+   return mapper.toResponse(repository.findByEstudianteIdAndCursoIdConProgresos(estudianteId,cursoId)
+     .orElseThrow(()->new ResourceNotFoundException("Inscripción no encontrada para estudiante "+estudianteId+" y curso "+cursoId)));
+ }
+
+ @Transactional
+ public InscripcionResponse revocarPorReembolso(Long estudianteId, Long cursoId){
+   Inscripcion i=repository.findByEstudianteIdAndCursoIdConProgresos(estudianteId,cursoId)
+     .orElseThrow(()->new ResourceNotFoundException("Inscripción no encontrada para revocar"));
+   if(i.getTipoAcceso()!=Inscripcion.TipoAcceso.COMPRA)
+     throw new IllegalArgumentException("Solo una inscripción por compra puede revocarse por reembolso");
+   i.setEstado(Inscripcion.EstadoInscripcion.REVOCADA);
+   return mapper.toResponse(repository.save(i));
+ }
+
+ @Transactional
  public InscripcionResponse cambiarEstado(Long id, EstadoRequest r){
    Inscripcion i=buscar(id);
    try{i.setEstado(Inscripcion.EstadoInscripcion.valueOf(r.estado().toUpperCase()));}
