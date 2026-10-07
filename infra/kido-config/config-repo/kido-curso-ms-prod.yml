@@ -18,6 +18,11 @@ spring:
       hibernate:
         format_sql: false
 
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 55MB
+
 springdoc:
   swagger-ui:
     enabled: false
@@ -38,3 +43,8 @@ eureka:
   client:
     service-url:
       defaultZone: http://kido-eureka:8761/eureka
+
+kido:
+  storage:
+    materiales-dir: ${MATERIALES_DIR:/app/uploads}
+    max-bytes: 52428800

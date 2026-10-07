@@ -1,0 +1,1 @@
+package pe.edu.upeu.inscripcion.dto; import java.math.BigDecimal; import java.time.LocalDateTime; public record CertificadoResponse(Long id,Long inscripcionId,String codigo,String estado,BigDecimal costo,boolean pagoConfirmado,LocalDateTime fechaEmision){}

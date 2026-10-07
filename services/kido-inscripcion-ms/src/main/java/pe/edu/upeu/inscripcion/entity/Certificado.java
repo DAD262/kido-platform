@@ -1,0 +1,4 @@
+package pe.edu.upeu.inscripcion.entity;
+import jakarta.persistence.*; import lombok.*; import java.math.BigDecimal; import java.time.*;
+@Entity @Table(name="certificados") @Getter @Setter @NoArgsConstructor
+public class Certificado { @Id @GeneratedValue(strategy=GenerationType.IDENTITY) private Long id; @Column(name="inscripcion_id",nullable=false,unique=true) private Long inscripcionId; @Column(nullable=false,unique=true,length=80) private String codigo; @Enumerated(EnumType.STRING) @Column(nullable=false,length=20) private EstadoCertificado estado; @Column(name="costo",nullable=false,precision=10,scale=2) private BigDecimal costo; @Column(name="pago_confirmado",nullable=false) private boolean pagoConfirmado; @Column(name="fecha_emision") private LocalDateTime fechaEmision; public enum EstadoCertificado{NO_ELEGIBLE,PENDIENTE_PAGO,DISPONIBLE,ANULADO} }

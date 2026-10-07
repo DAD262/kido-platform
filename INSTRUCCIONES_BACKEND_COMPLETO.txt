@@ -1,0 +1,23 @@
+KIDO - BACKEND PRE-FRONTEND
+
+Base usada: S08 Kafka aprobada.
+No se agregó frontend.
+
+OBJETIVO
+Dejar la lógica central lista antes de construir interfaz: contenido, materiales, validación/publicación, progreso, asistencia, certificados y pago de certificados, conservando Curso/Inscripción/Pago/Notificación y la infraestructura existente.
+
+ANTES DE SUBIR A GITHUB
+1. Copiar el contenido de esta carpeta sobre tu repositorio local, estando en CambiosM.
+2. Revisar: git status
+3. Agregar: git add .
+4. Commit sugerido:
+   git commit -m "feat: completa backend funcional pre-frontend KIDO"
+5. Subir:
+   git push origin CambiosM
+6. Crear Pull Request: base main_p <- compare CambiosM.
+
+IMPORTANTE
+- No subas un archivo .env real. Este paquete lo excluye intencionalmente.
+- Conserva .env.example para documentar variables.
+- Las migraciones nuevas son incrementales y no reemplazan V1/V2 existentes.
+- Los materiales se guardan en el volumen Docker kido_materiales_data.

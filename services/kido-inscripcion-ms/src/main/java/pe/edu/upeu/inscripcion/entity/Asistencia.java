@@ -1,0 +1,4 @@
+package pe.edu.upeu.inscripcion.entity;
+import jakarta.persistence.*; import lombok.*; import java.time.*;
+@Entity @Table(name="asistencias",uniqueConstraints=@UniqueConstraint(columnNames={"inscripcion_id","fecha_clase"})) @Getter @Setter @NoArgsConstructor
+public class Asistencia { @Id @GeneratedValue(strategy=GenerationType.IDENTITY) private Long id; @ManyToOne(fetch=FetchType.LAZY,optional=false) @JoinColumn(name="inscripcion_id",nullable=false) private Inscripcion inscripcion; @Column(name="fecha_clase",nullable=false) private LocalDate fechaClase; @Enumerated(EnumType.STRING) @Column(nullable=false,length=12) private EstadoAsistencia estado; @Column(length=300) private String observacion; @Column(name="fecha_registro",nullable=false) private LocalDateTime fechaRegistro; public enum EstadoAsistencia{PRESENTE,TARDE,FALTA,JUSTIFICADA} }

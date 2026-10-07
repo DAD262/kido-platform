@@ -1,0 +1,1 @@
+package pe.edu.upeu.inscripcion.dto; public record EstadoAcademicoResponse(Long inscripcionId,int progreso,int asistencia,Integer progresoMinimo,Integer asistenciaMinima,boolean cumpleProgreso,boolean cumpleAsistencia,boolean elegibleCertificado,String estadoInscripcion){}

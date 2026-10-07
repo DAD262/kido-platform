@@ -1,0 +1,1 @@
+package pe.edu.upeu.curso.dto; import jakarta.validation.constraints.*; public record MaterialRequest(@NotBlank @Size(max=160) String nombre,@NotBlank String tipo,@NotBlank @Size(max=700) String url,@Size(max=500) String descripcion,boolean descargable){}

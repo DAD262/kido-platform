@@ -1,0 +1,1 @@
+package pe.edu.upeu.inscripcion.repository; import org.springframework.data.jpa.repository.JpaRepository; import pe.edu.upeu.inscripcion.entity.Certificado; import java.util.Optional; public interface CertificadoRepository extends JpaRepository<Certificado,Long>{Optional<Certificado> findByInscripcionId(Long inscripcionId);Optional<Certificado> findByCodigo(String codigo);}

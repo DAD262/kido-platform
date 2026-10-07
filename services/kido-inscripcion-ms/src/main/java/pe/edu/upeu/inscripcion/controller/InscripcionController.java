@@ -1,20 +1,11 @@
 package pe.edu.upeu.inscripcion.controller;
-
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.*;
-import org.springframework.web.bind.annotation.*;
-import pe.edu.upeu.inscripcion.dto.*;
-import pe.edu.upeu.inscripcion.service.InscripcionService;
-import java.util.List;
-
+import jakarta.validation.Valid; import lombok.RequiredArgsConstructor; import org.springframework.http.*; import org.springframework.web.bind.annotation.*; import pe.edu.upeu.inscripcion.dto.*; import pe.edu.upeu.inscripcion.service.InscripcionService; import java.util.*;
 @RestController @RequestMapping("/api/v1/inscripciones") @RequiredArgsConstructor
-public class InscripcionController {
- private final InscripcionService service;
- @GetMapping public List<InscripcionResponse> listar(){return service.listar();}
- @GetMapping("/{id}") public InscripcionResponse obtener(@PathVariable Long id){return service.obtener(id);}
- @PostMapping public ResponseEntity<InscripcionResponse> crear(@Valid @RequestBody InscripcionRequest r){return ResponseEntity.status(201).body(service.crear(r));}
- @PutMapping("/{id}/estado") public InscripcionResponse estado(@PathVariable Long id,@Valid @RequestBody EstadoRequest r){return service.cambiarEstado(id,r);}
- @PutMapping("/{id}/lecciones/{leccionId}/completar") public InscripcionResponse completar(@PathVariable Long id,@PathVariable Long leccionId){return service.completarLeccion(id,leccionId);}
+public class InscripcionController {private final InscripcionService service; private final pe.edu.upeu.inscripcion.service.CertificadoPdfService pdfService;
+ @GetMapping public List<InscripcionResponse> listar(){return service.listar();} @GetMapping("/{id}") public InscripcionResponse obtener(@PathVariable Long id){return service.obtener(id);} @GetMapping("/estudiante/{id}") public List<InscripcionResponse> estudiante(@PathVariable Long id){return service.porEstudiante(id);} @GetMapping("/curso/{id}") public List<InscripcionResponse> curso(@PathVariable Long id){return service.porCurso(id);}
+ @PostMapping public ResponseEntity<InscripcionResponse> crear(@Valid @RequestBody InscripcionRequest r){return ResponseEntity.status(201).body(service.crear(r));} @PutMapping("/{id}/estado") public InscripcionResponse estado(@PathVariable Long id,@Valid @RequestBody EstadoRequest r){return service.cambiarEstado(id,r);} @PutMapping("/{id}/lecciones/{leccionId}/completar") public InscripcionResponse completar(@PathVariable Long id,@PathVariable Long leccionId){return service.completarLeccion(id,leccionId);}
+ @PostMapping("/{id}/asistencias") public AsistenciaResponse asistencia(@PathVariable Long id,@Valid @RequestBody AsistenciaRequest r){return service.registrarAsistencia(id,r);} @GetMapping("/{id}/asistencias") public List<AsistenciaResponse> asistencias(@PathVariable Long id){return service.asistencias(id);} @GetMapping("/{id}/estado-academico") public EstadoAcademicoResponse academico(@PathVariable Long id){return service.estadoAcademico(id);}
+ @PostMapping("/{id}/certificado") public CertificadoResponse solicitar(@PathVariable Long id){return service.solicitarCertificado(id);} @GetMapping("/{id}/certificado") public CertificadoResponse certificado(@PathVariable Long id){return service.certificado(id);} @PutMapping("/{id}/certificado/confirmar-pago") public CertificadoResponse confirmarPago(@PathVariable Long id){return service.confirmarPagoCertificado(id);}
+ @GetMapping(value="/{id}/certificado/pdf",produces="application/pdf") public ResponseEntity<byte[]> pdf(@PathVariable Long id){var ins=service.obtener(id);var cert=service.certificado(id);if(!"DISPONIBLE".equals(cert.estado())) throw new IllegalStateException("El certificado aún no está disponible");byte[] data=pdfService.generar(cert,ins.estudianteId(),ins.cursoId());return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,"attachment; filename=\""+cert.codigo()+".pdf\"").contentType(MediaType.APPLICATION_PDF).body(data);}
  @DeleteMapping("/{id}") @ResponseStatus(HttpStatus.NO_CONTENT) public void eliminar(@PathVariable Long id){service.eliminar(id);}
 }

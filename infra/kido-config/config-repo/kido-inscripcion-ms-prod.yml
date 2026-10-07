@@ -18,6 +18,14 @@ spring:
       hibernate:
         format_sql: false
 
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:kido-kafka:9092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JacksonJsonSerializer
+      properties:
+        spring.json.add.type.headers: false
+
 springdoc:
   swagger-ui:
     enabled: false
@@ -38,3 +46,7 @@ eureka:
   client:
     service-url:
       defaultZone: http://kido-eureka:8761/eureka
+app:
+  kafka:
+    topic:
+      academico: kido-academico-eventos

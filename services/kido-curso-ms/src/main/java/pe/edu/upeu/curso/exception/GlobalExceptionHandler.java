@@ -16,6 +16,8 @@ public class GlobalExceptionHandler {
     ResponseEntity<?> badRequest(RuntimeException ex) {
         return ResponseEntity.badRequest().body(error(400, ex.getMessage()));
     }
+    @ExceptionHandler(IllegalStateException.class)
+    ResponseEntity<?> conflict(IllegalStateException ex) { return ResponseEntity.status(HttpStatus.CONFLICT).body(error(409, ex.getMessage())); }
     @ExceptionHandler(MethodArgumentNotValidException.class)
     ResponseEntity<?> validation(MethodArgumentNotValidException ex) {
         var fields = ex.getBindingResult().getFieldErrors().stream()

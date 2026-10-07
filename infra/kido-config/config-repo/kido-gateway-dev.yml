@@ -16,6 +16,18 @@ spring:
               uri: lb://kido-curso-ms
               predicates:
                 - Path=/api/v1/cursos/**
+            - id: kido-modulos
+              uri: lb://kido-curso-ms
+              predicates:
+                - Path=/api/v1/modulos/**
+            - id: kido-lecciones
+              uri: lb://kido-curso-ms
+              predicates:
+                - Path=/api/v1/lecciones/**
+            - id: kido-materiales
+              uri: lb://kido-curso-ms
+              predicates:
+                - Path=/api/v1/materiales/**
             - id: kido-inscripciones
               uri: lb://kido-inscripcion-ms
               predicates:

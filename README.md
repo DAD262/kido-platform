@@ -137,3 +137,24 @@ powershell -ExecutionPolicy Bypass -File .\scripts\demo-s8-desacople.ps1
 ```
 
 La guía exacta de capturas y el contrato están en `docs/s08-mensajeria-asincrona.md`.
+
+
+## Estado pre-frontend del backend
+
+La base S08 se amplió para dejar la lógica de negocio preparada antes de iniciar interfaz. El backend ahora contempla:
+
+- catálogo de cursos con flujo BORRADOR → PENDIENTE_REVISION → PUBLICADO/RECHAZADO;
+- módulos, lecciones y materiales, incluyendo carga real de archivos;
+- reglas configurables de progreso mínimo, asistencia mínima y certificado;
+- inscripción gratuita y por compra;
+- seguimiento de progreso y asistencia;
+- evaluación automática de cumplimiento académico;
+- certificados gratuitos o pagados, con PDF descargable;
+- pagos de cursos y certificados mediante el dominio de Pago;
+- comisión Kido/docente, saldos, retiros y reembolsos;
+- Kafka para desacoplar eventos de pago y notificaciones;
+- Keycloak/JWT, Gateway, Eureka, Config Server, PostgreSQL, Flyway, Prometheus y Grafana.
+
+La documentación funcional agregada está en `docs/backend-funcional-completo.md` y el detalle de cambios en `CAMBIOS_BACKEND_COMPLETO.md`.
+
+- eventos académicos Kafka para curso completado y certificado disponible.

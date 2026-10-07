@@ -21,6 +21,10 @@ public class Inscripcion {
     private EstadoInscripcion estado;
     @Column(name="fecha_inscripcion",nullable=false)
     private LocalDateTime fechaInscripcion;
+    @Column(name="progreso_minimo",nullable=false) private Integer progresoMinimo = 100;
+    @Column(name="asistencia_minima",nullable=false) private Integer asistenciaMinima = 0;
+    @Column(name="certificado_habilitado",nullable=false) private boolean certificadoHabilitado = false;
+    @Column(name="certificado_costo",nullable=false,precision=10,scale=2) private java.math.BigDecimal certificadoCosto = java.math.BigDecimal.ZERO;
     @OneToMany(mappedBy="inscripcion",cascade=CascadeType.ALL,orphanRemoval=true)
     @OrderBy("id ASC")
     private List<ProgresoLeccion> progresos = new ArrayList<>();

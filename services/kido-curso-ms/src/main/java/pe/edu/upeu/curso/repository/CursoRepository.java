@@ -11,4 +11,6 @@ public interface CursoRepository extends JpaRepository<Curso, Long> {
 
     @Query("select c from Curso c join fetch c.categoria where c.id=:id")
     Optional<Curso> findByIdConCategoria(@Param("id") Long id);
+    List<Curso> findByDocenteIdOrderByIdDesc(Long docenteId);
+    List<Curso> findByEstadoOrderByIdDesc(Curso.EstadoCurso estado);
 }

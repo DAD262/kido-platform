@@ -40,6 +40,12 @@ public class Curso {
     @Column(name = "fecha_creacion", nullable = false)
     private LocalDateTime fechaCreacion;
 
+    @Column(name="motivo_rechazo", length=500)
+    private String motivoRechazo;
+
+    @Column(name="fecha_publicacion")
+    private LocalDateTime fechaPublicacion;
+
     public enum TipoCurso { GRATUITO, PAGO }
     public enum EstadoCurso { BORRADOR, PENDIENTE_REVISION, PUBLICADO, RECHAZADO, ARCHIVADO }
 }

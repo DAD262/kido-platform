@@ -1,0 +1,1 @@
+package pe.edu.upeu.curso.dto; import java.time.LocalDateTime; public record MaterialResponse(Long id,Long leccionId,String nombre,String tipo,String url,String descripcion,boolean descargable,LocalDateTime fechaCreacion){}

@@ -27,6 +27,10 @@ public class InscripcionFeignFallbackFactory implements FallbackFactory<Inscripc
 
             @Override
             public InscripcionDto revocar(Long estudianteId, Long cursoId) { throw unavailable(); }
+            @Override
+            public pe.edu.upeu.pago.dto.CertificadoInscripcionDto certificado(Long id) { throw unavailable(); }
+            @Override
+            public pe.edu.upeu.pago.dto.CertificadoInscripcionDto confirmarPagoCertificado(Long id) { throw unavailable(); }
         };
     }
 }

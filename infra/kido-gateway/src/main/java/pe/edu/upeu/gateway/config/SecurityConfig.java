@@ -35,10 +35,17 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/v1/cursos/**").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/v1/pagos/webhooks/mercado-pago").permitAll()
 
+                .requestMatchers(HttpMethod.POST, "/api/v1/cursos/*/aprobar", "/api/v1/cursos/*/rechazar").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.POST, "/api/v1/cursos/**").hasAnyRole("DOCENTE", "ADMIN")
                 .requestMatchers(HttpMethod.PUT, "/api/v1/cursos/**").hasAnyRole("DOCENTE", "ADMIN")
                 .requestMatchers(HttpMethod.DELETE, "/api/v1/cursos/**").hasAnyRole("DOCENTE", "ADMIN")
+                .requestMatchers(HttpMethod.POST, "/api/v1/modulos/**", "/api/v1/lecciones/**", "/api/v1/materiales/**").hasAnyRole("DOCENTE", "ADMIN")
+                .requestMatchers(HttpMethod.PUT, "/api/v1/modulos/**", "/api/v1/lecciones/**", "/api/v1/materiales/**").hasAnyRole("DOCENTE", "ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/api/v1/modulos/**", "/api/v1/lecciones/**", "/api/v1/materiales/**").hasAnyRole("DOCENTE", "ADMIN")
+                .requestMatchers(HttpMethod.GET, "/api/v1/materiales/**").authenticated()
 
+                .requestMatchers(HttpMethod.GET, "/api/v1/inscripciones/curso/**").hasAnyRole("DOCENTE", "ADMIN")
+                .requestMatchers(HttpMethod.POST, "/api/v1/inscripciones/*/asistencias").hasAnyRole("DOCENTE", "ADMIN")
                 .requestMatchers("/api/v1/inscripciones/**").hasAnyRole("ESTUDIANTE", "ADMIN")
 
                 .requestMatchers(HttpMethod.POST, "/api/v1/pagos/ordenes/*/simular-aprobacion").hasRole("ADMIN")
@@ -46,6 +53,8 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/api/v1/pagos/saldos/liberar").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.GET, "/api/v1/pagos/ordenes/docente/**").hasAnyRole("DOCENTE", "ADMIN")
                 .requestMatchers(HttpMethod.GET, "/api/v1/pagos/docentes/**").hasAnyRole("DOCENTE", "ADMIN")
+                .requestMatchers(HttpMethod.POST, "/api/v1/pagos/certificados/ordenes/*/simular-aprobacion").hasRole("ADMIN")
+                .requestMatchers("/api/v1/pagos/certificados/**").hasAnyRole("ESTUDIANTE", "ADMIN")
                 .requestMatchers(HttpMethod.GET, "/api/v1/pagos/ordenes/estudiante/**").hasAnyRole("ESTUDIANTE", "ADMIN")
                 .requestMatchers(HttpMethod.POST, "/api/v1/pagos/ordenes/**").hasAnyRole("ESTUDIANTE", "ADMIN")
                 .requestMatchers(HttpMethod.GET, "/api/v1/pagos/ordenes/**").authenticated()

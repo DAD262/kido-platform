@@ -12,6 +12,8 @@ public class GlobalExceptionHandler {
  ResponseEntity<?> notFound(ResourceNotFoundException e){return ResponseEntity.status(404).body(Map.of("status",404,"message",e.getMessage()));}
  @ExceptionHandler({IllegalArgumentException.class,DataIntegrityViolationException.class})
  ResponseEntity<?> bad(Exception e){return ResponseEntity.badRequest().body(Map.of("status",400,"message",e instanceof DataIntegrityViolationException?"La inscripción ya existe":e.getMessage()));}
+ @ExceptionHandler(IllegalStateException.class)
+ ResponseEntity<?> conflict(IllegalStateException e){return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("status",409,"message",e.getMessage()));}
  @ExceptionHandler(MethodArgumentNotValidException.class)
  ResponseEntity<?> validation(MethodArgumentNotValidException e){return ResponseEntity.badRequest().body(Map.of("status",400,"message","Datos inválidos","fields",e.getBindingResult().getFieldErrors().stream().map(f->f.getField()+": "+f.getDefaultMessage()).toList()));}
 }

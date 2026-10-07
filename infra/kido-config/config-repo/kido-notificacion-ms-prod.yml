@@ -41,6 +41,7 @@ app:
   kafka:
     topic:
       pagos: kido-pago-eventos
+      academico: kido-academico-eventos
 springdoc:
   swagger-ui:
     enabled: false

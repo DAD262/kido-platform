@@ -7,12 +7,10 @@ import pe.edu.upeu.curso.entity.Leccion;
 import java.util.List;
 
 public interface LeccionRepository extends JpaRepository<Leccion, Long> {
+    List<Leccion> findByModuloIdOrderByOrdenAscIdAsc(Long moduloId);
     @Query(value = """
-            select l.id
-            from lecciones l
-            join modulos m on m.id = l.modulo_id
-            where m.curso_id = :cursoId
-            order by m.orden_modulo, l.orden_leccion, l.id
+            select l.id from lecciones l join modulos m on m.id = l.modulo_id
+            where m.curso_id = :cursoId order by m.orden_modulo, l.orden_leccion, l.id
             """, nativeQuery = true)
     List<Long> findIdsByCursoId(@Param("cursoId") Long cursoId);
 }

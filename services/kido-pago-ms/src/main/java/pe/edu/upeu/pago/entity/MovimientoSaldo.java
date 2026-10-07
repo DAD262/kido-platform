@@ -18,6 +18,6 @@ public class MovimientoSaldo {
  @Column(name="fecha_disponible") private LocalDateTime fechaDisponible;
  @Column(name="fecha_creacion",nullable=false) private LocalDateTime fechaCreacion;
  @Column(length=300) private String descripcion;
- public enum TipoMovimiento { VENTA, RETIRO }
+ public enum TipoMovimiento { VENTA, CERTIFICADO, RETIRO }
  public enum EstadoMovimiento { PENDIENTE, DISPONIBLE, RESERVADO, PAGADO, REVERTIDO }
 }

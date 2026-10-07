@@ -1,0 +1,1 @@
+package pe.edu.upeu.curso.dto; import java.util.List; public record ContenidoCursoResponse(Long cursoId,String titulo,List<ModuloDetalleResponse> modulos,ConfiguracionCursoResponse configuracion){}

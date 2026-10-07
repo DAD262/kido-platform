@@ -1,0 +1,1 @@
+package pe.edu.upeu.curso.dto; import jakarta.validation.constraints.*; public record RechazoCursoRequest(@NotBlank @Size(max=500) String motivo){}

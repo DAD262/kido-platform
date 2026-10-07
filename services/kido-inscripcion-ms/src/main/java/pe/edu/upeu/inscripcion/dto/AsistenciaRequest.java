@@ -1,0 +1,1 @@
+package pe.edu.upeu.inscripcion.dto; import jakarta.validation.constraints.*; import java.time.LocalDate; public record AsistenciaRequest(@NotNull LocalDate fechaClase,@NotBlank String estado,@Size(max=300) String observacion){}

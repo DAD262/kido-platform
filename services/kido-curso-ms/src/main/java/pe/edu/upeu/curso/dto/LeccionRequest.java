@@ -1,0 +1,1 @@
+package pe.edu.upeu.curso.dto; import jakarta.validation.constraints.*; public record LeccionRequest(@NotBlank @Size(max=150) String titulo,@NotNull @Min(1) Integer orden,@Size(max=500) String urlContenido){}

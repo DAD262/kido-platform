@@ -1,0 +1,1 @@
+package pe.edu.upeu.curso.dto; import java.util.List; public record ModuloDetalleResponse(Long id,Long cursoId,String titulo,Integer orden,List<LeccionDetalleResponse> lecciones){}

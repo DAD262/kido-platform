@@ -13,4 +13,6 @@ public interface InscripcionRepository extends JpaRepository<Inscripcion,Long> {
     boolean existsByEstudianteIdAndCursoId(Long estudianteId, Long cursoId);
     @Query("select distinct i from Inscripcion i left join fetch i.progresos where i.estudianteId=:estudianteId and i.cursoId=:cursoId")
     Optional<Inscripcion> findByEstudianteIdAndCursoIdConProgresos(@Param("estudianteId") Long estudianteId, @Param("cursoId") Long cursoId);
+    List<Inscripcion> findByEstudianteIdOrderByIdDesc(Long estudianteId);
+    List<Inscripcion> findByCursoIdOrderByIdDesc(Long cursoId);
 }

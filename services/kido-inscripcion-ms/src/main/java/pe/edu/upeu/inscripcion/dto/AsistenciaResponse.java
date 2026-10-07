@@ -1,0 +1,1 @@
+package pe.edu.upeu.inscripcion.dto; import java.time.*; public record AsistenciaResponse(Long id,Long inscripcionId,LocalDate fechaClase,String estado,String observacion,LocalDateTime fechaRegistro){}

@@ -53,4 +53,15 @@ public class PagoEventosConsumer {
         log.info("component=processor eventType={} ordenId={} notifications=2 status=processed",
             evento.getTipoEvento(), evento.getOrdenId());
     }
+
+    @KafkaListener(topics = "${app.kafka.topic.academico:kido-academico-eventos}")
+    public void alRecibirAcademico(PagoAprobadoEvento evento) {
+        if ("curso.completado".equals(evento.getTipoEvento())) {
+            notificacionService.crear(new NotificacionRequest(evento.getEstudianteId(), "CURSO_COMPLETADO", "IN_APP", "Curso completado", "Cumpliste los requisitos académicos del curso #" + evento.getCursoId() + ".", null));
+        } else if ("certificado.disponible".equals(evento.getTipoEvento())) {
+            notificacionService.crear(new NotificacionRequest(evento.getEstudianteId(), "CERTIFICADO_DISPONIBLE", "IN_APP", "Certificado disponible", "Tu certificado del curso #" + evento.getCursoId() + " ya está disponible para descargar.", null));
+        } else {
+            log.debug("Evento académico ignorado: {}", evento.getTipoEvento());
+        }
+    }
 }

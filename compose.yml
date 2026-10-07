@@ -132,6 +132,8 @@ services:
     depends_on:
       postgres-curso: {condition: service_healthy}
       kido-eureka: {condition: service_started}
+    volumes:
+      - kido_materiales_data:/app/uploads
     networks: [kido-net]
 
   kido-curso-2:
@@ -148,6 +150,8 @@ services:
     depends_on:
       postgres-curso: {condition: service_healthy}
       kido-eureka: {condition: service_started}
+    volumes:
+      - kido_materiales_data:/app/uploads
     networks: [kido-net]
 
   kido-inscripcion-ms:
@@ -161,8 +165,10 @@ services:
       DB_USER: ${DB_USER:-kido}
       DB_PASS: ${DB_PASS:?Define DB_PASS en .env}
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://kido-eureka:8761/eureka
+      KAFKA_BOOTSTRAP_SERVERS: kido-kafka:9092
     depends_on:
       postgres-inscripcion: {condition: service_healthy}
+      kido-kafka: {condition: service_healthy}
       kido-eureka: {condition: service_started}
     networks: [kido-net]
 
@@ -302,6 +308,7 @@ volumes:
   kido_inscripcion_data:
   kido_pago_data:
   kido_notificacion_data:
+  kido_materiales_data:
 
 networks:
   kido-net:

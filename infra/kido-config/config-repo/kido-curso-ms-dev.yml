@@ -23,6 +23,11 @@ spring:
     livereload:
       enabled: true
 
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 55MB
+
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
@@ -47,3 +52,9 @@ eureka:
   client:
     service-url:
       defaultZone: http://localhost:18761/eureka
+
+
+kido:
+  storage:
+    materiales-dir: ${MATERIALES_DIR:/app/uploads}
+    max-bytes: 52428800

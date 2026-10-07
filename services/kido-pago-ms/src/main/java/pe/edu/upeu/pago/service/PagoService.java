@@ -24,6 +24,7 @@ public class PagoService {
  private final InscripcionClient inscripcionClient;
  private final PagoEventosProducer pagoEventosProducer;
  private final MercadoPagoClient mercadoPagoClient;
+ private final CertificadoPagoService certificadoPagoService;
  @Value("${kido.pagos.comision:0.10}") private BigDecimal comision;
  @Value("${kido.pagos.dias-retencion:7}") private long diasRetencion;
  @Value("${kido.pagos.permitir-simulacion:false}") private boolean permitirSimulacion;
@@ -79,6 +80,7 @@ public class PagoService {
  @Transactional
  public OrdenResponse procesarWebhook(String paymentId){
    MercadoPagoClient.PagoExterno p=mercadoPagoClient.obtenerPago(paymentId); if(p.externalReference()==null) throw new IllegalArgumentException("Webhook sin external_reference");
+   if(p.externalReference().startsWith("CERT-")){ if("approved".equalsIgnoreCase(p.status())) certificadoPagoService.procesarWebhook(paymentId,p.externalReference()); return null; }
    Long id=Long.valueOf(p.externalReference()); if(!"approved".equalsIgnoreCase(p.status())) return obtener(id); return confirmarMercadoPago(id,p.id());
  }
 
@@ -111,7 +113,7 @@ public class PagoService {
  @Transactional
  public OrdenResponse reintentarInscripcion(Long id){OrdenCompra o=buscar(id); if(o.getEstado()!=OrdenCompra.EstadoOrden.APROBADA) throw new IllegalStateException("La orden no está aprobada"); sincronizarInscripcion(o); return map(o);}
  private void sincronizarInscripcion(OrdenCompra o){
-   try{CursoCompraDto c=cursoClient.obtener(o.getCursoId()); inscripcionClient.crearCompra(o.getEstudianteId(),o.getCursoId(),c.leccionIds()==null?List.of():c.leccionIds()); o.setInscripcionSincronizada(true); ordenRepo.save(o);}catch(Exception e){o.setInscripcionSincronizada(false); ordenRepo.save(o);}
+   try{CursoCompraDto c=cursoClient.obtener(o.getCursoId()); inscripcionClient.crearCompra(o.getEstudianteId(),c); o.setInscripcionSincronizada(true); ordenRepo.save(o);}catch(Exception e){o.setInscripcionSincronizada(false); ordenRepo.save(o);}
  }
 
  @Transactional @Scheduled(fixedDelayString="${kido.pagos.liberacion-ms:60000}")
