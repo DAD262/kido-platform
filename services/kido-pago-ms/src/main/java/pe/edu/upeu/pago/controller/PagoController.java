@@ -9,7 +9,7 @@ import jakarta.validation.Valid; import lombok.RequiredArgsConstructor; import o
  @PostMapping("/ordenes/{id}/mercado-pago") public PreferenciaResponse iniciar(@PathVariable Long id){return service.iniciarMercadoPago(id);}
  @PostMapping("/ordenes/{id}/confirmar-mercado-pago") public OrdenResponse confirmar(@PathVariable Long id,@RequestParam String paymentId){return service.confirmarMercadoPago(id,paymentId);}
  @PostMapping("/ordenes/{id}/simular-aprobacion") public OrdenResponse simular(@PathVariable Long id){return service.simularAprobacion(id);}
- @PostMapping("/ordenes/{id}/reintentar-inscripcion") public OrdenResponse reintentar(@PathVariable Long id){return service.reintentarInscripcion(id);}
+ @PostMapping("/ordenes/{id}/reintentar-inscripcion") public OrdenResponse reintentar(@PathVariable Long id){return service.reintentarInscripcion(id);} @PostMapping("/ordenes/{id}/republicar-evento") public OrdenResponse republicar(@PathVariable Long id){return service.republicarEventoPago(id);}
  @GetMapping("/docentes/{id}/saldo") public SaldoResponse saldo(@PathVariable Long id){return service.saldo(id);}
  @PostMapping("/saldos/liberar") public void liberar(){service.liberarSaldosVencidos();}
  @PostMapping("/certificados/ordenes") public ResponseEntity<OrdenCertificadoResponse> crearCert(@Valid @RequestBody CrearOrdenCertificadoRequest r){return ResponseEntity.status(201).body(certificadoService.crear(r));}

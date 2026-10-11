@@ -47,8 +47,8 @@ services:
     ports:
       - "19090:8080"
     environment:
-      KC_BOOTSTRAP_ADMIN_USERNAME: admin
-      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+      KC_BOOTSTRAP_ADMIN_USERNAME: ${KEYCLOAK_ADMIN:-admin}
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:?Define KEYCLOAK_ADMIN_PASSWORD en .env}
     volumes:
       - ./infra/keycloak:/opt/keycloak/data/import:ro
     networks: [kido-net]
@@ -166,6 +166,7 @@ services:
       DB_PASS: ${DB_PASS:?Define DB_PASS en .env}
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://kido-eureka:8761/eureka
       KAFKA_BOOTSTRAP_SERVERS: kido-kafka:9092
+      KIDO_SAGA_ESTUDIANTE_FALLO_DEMO: ${KIDO_SAGA_ESTUDIANTE_FALLO_DEMO:-0}
     depends_on:
       postgres-inscripcion: {condition: service_healthy}
       kido-kafka: {condition: service_healthy}
@@ -247,7 +248,7 @@ services:
       KEYCLOAK_JWK_SET_URI: http://kido-keycloak:8080/realms/kido/protocol/openid-connect/certs
       MERCADO_PAGO_ACCESS_TOKEN: ${MERCADO_PAGO_ACCESS_TOKEN:-}
       MERCADO_PAGO_NOTIFICATION_URL: ${MERCADO_PAGO_NOTIFICATION_URL:-}
-      KIDO_PAGOS_PERMITIR_SIMULACION: ${KIDO_PAGOS_PERMITIR_SIMULACION:-true}
+      KIDO_PAGOS_PERMITIR_SIMULACION: ${KIDO_PAGOS_PERMITIR_SIMULACION:-false}
       KAFKA_BOOTSTRAP_SERVERS: kido-kafka:9092
     depends_on:
       postgres-pago: {condition: service_healthy}
@@ -294,8 +295,8 @@ services:
     ports:
       - "13000:3000"
     environment:
-      GF_SECURITY_ADMIN_USER: admin
-      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:?Define GRAFANA_ADMIN_PASSWORD en .env}
     volumes:
       - ./infra/monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
       - ./infra/monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro

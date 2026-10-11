@@ -21,7 +21,6 @@ public class PagoService {
  private final OrdenCompraRepository ordenRepo;
  private final MovimientoSaldoRepository movimientoRepo;
  private final CursoClient cursoClient;
- private final InscripcionClient inscripcionClient;
  private final PagoEventosProducer pagoEventosProducer;
  private final MercadoPagoClient mercadoPagoClient;
  private final CertificadoPagoService certificadoPagoService;
@@ -50,6 +49,12 @@ public class PagoService {
    OrdenCompra o=new OrdenCompra(); o.setEstudianteId(req.estudianteId()); o.setCursoId(c.id()); o.setDocenteId(c.docenteId()); o.setCursoTitulo(c.titulo());
    o.setMontoTotal(c.precio().setScale(2,RoundingMode.HALF_UP)); o.setPorcentajeComision(comision.multiply(new BigDecimal("100")).setScale(2,RoundingMode.HALF_UP));
    o.setComisionKido(o.getMontoTotal().multiply(comision).setScale(2,RoundingMode.HALF_UP)); o.setMontoDocente(o.getMontoTotal().subtract(o.getComisionKido()));
+   o.setLeccionesSnapshot(c.leccionIds()==null ? "" : c.leccionIds().stream()
+       .filter(Objects::nonNull).distinct().map(String::valueOf).collect(java.util.stream.Collectors.joining(",")));
+   o.setProgresoMinimoSnapshot(c.progresoMinimo()==null ? 100 : c.progresoMinimo());
+   o.setAsistenciaMinimaSnapshot(c.asistenciaMinima()==null ? 0 : c.asistenciaMinima());
+   o.setCertificadoHabilitadoSnapshot(c.certificadoHabilitado());
+   o.setCertificadoCostoSnapshot(c.certificadoCosto()==null ? BigDecimal.ZERO : c.certificadoCosto());
    o.setEstado(OrdenCompra.EstadoOrden.PENDIENTE); o.setFechaCreacion(LocalDateTime.now());
    return map(ordenRepo.save(o));
  }
@@ -69,7 +74,8 @@ public class PagoService {
    if(o.getEstado()==OrdenCompra.EstadoOrden.REEMBOLSADA || o.getEstado()==OrdenCompra.EstadoOrden.RECHAZADA) throw new IllegalStateException("La orden está cerrada y no admite confirmación");
    MercadoPagoClient.PagoExterno p=mercadoPagoClient.obtenerPago(paymentId);
    if(!"approved".equalsIgnoreCase(p.status())) throw new IllegalStateException("Mercado Pago aún no reporta el pago como approved: "+p.status());
-   if(p.externalReference()!=null && !String.valueOf(id).equals(p.externalReference())) throw new IllegalArgumentException("El pago no corresponde a esta orden");
+   if(!String.valueOf(id).equals(p.externalReference()))
+     throw new IllegalArgumentException("El pago debe tener external_reference igual a la orden");
    if(p.amount()!=null && new BigDecimal(p.amount()).compareTo(o.getMontoTotal())!=0) throw new IllegalArgumentException("El monto aprobado por Mercado Pago no coincide con la orden");
    return aprobar(o,p.id());
  }
@@ -90,30 +96,96 @@ public class PagoService {
    ordenRepo.findByMercadoPagoPaymentId(paymentId).filter(x->!x.getId().equals(o.getId())).ifPresent(x->{throw new IllegalStateException("El paymentId ya fue utilizado");});
    o.setEstado(OrdenCompra.EstadoOrden.APROBADA); o.setMercadoPagoPaymentId(paymentId); o.setFechaAprobacion(LocalDateTime.now()); ordenRepo.save(o);
    if(movimientoRepo.findByOrdenIdAndTipo(o.getId(),MovimientoSaldo.TipoMovimiento.VENTA).isEmpty()){
-     MovimientoSaldo m=new MovimientoSaldo(); m.setDocenteId(o.getDocenteId()); m.setOrdenId(o.getId()); m.setTipo(MovimientoSaldo.TipoMovimiento.VENTA); m.setEstado(MovimientoSaldo.EstadoMovimiento.PENDIENTE); m.setMonto(o.getMontoDocente()); m.setFechaDisponible(o.getFechaAprobacion().plusDays(diasRetencion)); m.setFechaCreacion(LocalDateTime.now()); m.setDescripcion("90% de venta del curso "+o.getCursoTitulo()); movimientoRepo.save(m);
+     MovimientoSaldo m=new MovimientoSaldo(); m.setDocenteId(o.getDocenteId()); m.setOrdenId(o.getId()); m.setTipo(MovimientoSaldo.TipoMovimiento.VENTA); m.setEstado(MovimientoSaldo.EstadoMovimiento.PENDIENTE); m.setMonto(o.getMontoDocente()); m.setFechaDisponible(o.getFechaAprobacion().plusDays(diasRetencion)); m.setFechaCreacion(LocalDateTime.now()); m.setDescripcion("Venta del curso "+o.getCursoTitulo()+"; neto docente S/ "+o.getMontoDocente()); movimientoRepo.save(m);
    }
-   sincronizarInscripcion(o);
-   pagoEventosProducer.publicarTrasCommit(PagoAprobadoEvento.builder()
-       .tipoEvento("pago.aprobado")
-       .ordenId(o.getId())
-       .estudianteId(o.getEstudianteId())
-       .docenteId(o.getDocenteId())
-       .cursoId(o.getCursoId())
-       .cursoTitulo(o.getCursoTitulo())
-       .montoTotal(o.getMontoTotal())
-       .montoDocente(o.getMontoDocente())
-       .diasRetencion(diasRetencion)
-       .estado(o.getEstado().name())
-       .origen("kido-pago-ms")
-       .timestamp(Instant.now().toEpochMilli())
-       .build());
+   o.setInscripcionSincronizada(false);
+   ordenRepo.save(o);
+   pagoEventosProducer.publicarTrasCommit(construirEventoPago(o));
    return map(o);
  }
 
  @Transactional
- public OrdenResponse reintentarInscripcion(Long id){OrdenCompra o=buscar(id); if(o.getEstado()!=OrdenCompra.EstadoOrden.APROBADA) throw new IllegalStateException("La orden no está aprobada"); sincronizarInscripcion(o); return map(o);}
- private void sincronizarInscripcion(OrdenCompra o){
-   try{CursoCompraDto c=cursoClient.obtener(o.getCursoId()); inscripcionClient.crearCompra(o.getEstudianteId(),c); o.setInscripcionSincronizada(true); ordenRepo.save(o);}catch(Exception e){o.setInscripcionSincronizada(false); ordenRepo.save(o);}
+ public OrdenResponse reintentarInscripcion(Long id){
+   OrdenCompra o=buscar(id);
+   if(o.getEstado()!=OrdenCompra.EstadoOrden.APROBADA || o.isInscripcionSincronizada())
+     throw new IllegalStateException("Solo puede reintentarse una compra aprobada pendiente de inscripción");
+   pagoEventosProducer.publicarTrasCommit(construirEventoPago(o));
+   return map(o);
+ }
+
+ @Transactional
+ public boolean marcarInscripcionSincronizada(Long ordenId,Long estudianteId,Long cursoId){
+   OrdenCompra o=buscar(ordenId);
+   validarResultado(o, estudianteId, cursoId);
+   if(o.isInscripcionSincronizada()){return false;}
+   if(o.getEstado()!=OrdenCompra.EstadoOrden.APROBADA){return false;}
+   o.setInscripcionSincronizada(true);
+   ordenRepo.save(o);
+   return true;
+ }
+
+ @Transactional
+ public boolean compensarCompraPorFalloInscripcion(Long ordenId,Long estudianteId,Long cursoId,String motivo){
+   OrdenCompra o=buscar(ordenId);
+   validarResultado(o, estudianteId, cursoId);
+   // A late/duplicated failure must never undo an already synchronized enrollment.
+   if(o.isInscripcionSincronizada()) return false;
+   if(o.getEstado()==OrdenCompra.EstadoOrden.REEMBOLSADA || o.getEstado()==OrdenCompra.EstadoOrden.RECHAZADA){return false;}
+   if(o.getEstado()!=OrdenCompra.EstadoOrden.APROBADA){return false;}
+
+   var movimiento = movimientoRepo.findByOrdenIdAndTipo(o.getId(),MovimientoSaldo.TipoMovimiento.VENTA);
+   if(movimiento.isPresent() && (movimiento.get().getEstado()==MovimientoSaldo.EstadoMovimiento.RESERVADO
+       || movimiento.get().getEstado()==MovimientoSaldo.EstadoMovimiento.PAGADO)) {
+     throw new IllegalStateException("Venta con saldo ya comprometido: requiere conciliación manual antes del reembolso");
+   }
+   String paymentId=o.getMercadoPagoPaymentId();
+   if(paymentId!=null && !paymentId.startsWith("SIM-")){
+     mercadoPagoClient.reembolsar(paymentId,o.getMontoTotal(),"KIDO-SAGA-"+o.getId());
+   }
+
+   movimientoRepo.findByOrdenIdAndTipo(o.getId(),MovimientoSaldo.TipoMovimiento.VENTA).ifPresent(m->{
+     if(m.getEstado()!=MovimientoSaldo.EstadoMovimiento.REVERTIDO){
+       m.setEstado(MovimientoSaldo.EstadoMovimiento.REVERTIDO);
+       m.setDescripcion("Venta revertida por compensación Saga: "+(motivo==null?"fallo de inscripción":motivo));
+       movimientoRepo.save(m);
+     }
+   });
+
+   o.setEstado(OrdenCompra.EstadoOrden.REEMBOLSADA);
+   o.setInscripcionSincronizada(false);
+   ordenRepo.save(o);
+   return true;
+ }
+
+ @Transactional
+ public OrdenResponse republicarEventoPago(Long id){
+   if(!permitirSimulacion) throw new IllegalStateException("Solo disponible en DEMO local");
+   OrdenCompra o=buscar(id);
+   if(o.getMercadoPagoPaymentId()==null || !o.getMercadoPagoPaymentId().startsWith("SIM-"))
+     throw new IllegalStateException("La republicación manual solo funciona con compras simuladas");
+   if(o.getEstado()!=OrdenCompra.EstadoOrden.APROBADA && o.getEstado()!=OrdenCompra.EstadoOrden.REEMBOLSADA)
+     throw new IllegalStateException("La orden no tiene un evento histórico de pago aprobado");
+   pagoEventosProducer.publicarTrasCommit(construirEventoPago(o));
+   return map(o);
+ }
+
+ private PagoAprobadoEvento construirEventoPago(OrdenCompra o) {
+   // Reuse the snapshot persisted with the order, not an HTTP call after an external payment.
+   List<Long> lecciones = o.getLeccionesSnapshot()==null || o.getLeccionesSnapshot().isBlank()
+       ? List.of() : Arrays.stream(o.getLeccionesSnapshot().split(",")).map(Long::valueOf).toList();
+   return PagoAprobadoEvento.builder()
+       .tipoEvento("pago.aprobado").schemaVersion(2).ordenId(o.getId()).estudianteId(o.getEstudianteId())
+       .docenteId(o.getDocenteId()).cursoId(o.getCursoId()).cursoTitulo(o.getCursoTitulo())
+       .montoTotal(o.getMontoTotal()).montoDocente(o.getMontoDocente()).diasRetencion(diasRetencion)
+       .estado("APROBADA").origen("kido-pago-ms").timestamp(Instant.now().toEpochMilli())
+       .leccionIds(lecciones).progresoMinimo(o.getProgresoMinimoSnapshot())
+       .asistenciaMinima(o.getAsistenciaMinimaSnapshot()).certificadoHabilitado(o.isCertificadoHabilitadoSnapshot())
+       .certificadoCosto(o.getCertificadoCostoSnapshot()).build();
+ }
+
+ private void validarResultado(OrdenCompra o,Long estudianteId,Long cursoId) {
+   if(!Objects.equals(o.getEstudianteId(),estudianteId)||!Objects.equals(o.getCursoId(),cursoId))
+     throw new IllegalArgumentException("El resultado académico no corresponde a la orden " + o.getId());
  }
 
  @Transactional @Scheduled(fixedDelayString="${kido.pagos.liberacion-ms:60000}")

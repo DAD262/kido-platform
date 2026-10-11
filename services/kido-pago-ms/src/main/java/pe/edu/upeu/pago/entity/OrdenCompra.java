@@ -21,6 +21,12 @@ public class OrdenCompra {
  @Column(name="mp_preference_id",length=120) private String mercadoPagoPreferenceId;
  @Column(name="mp_payment_id",unique=true,length=120) private String mercadoPagoPaymentId;
  @Column(name="inscripcion_sincronizada",nullable=false) private boolean inscripcionSincronizada;
+ // Immutable course snapshot captured BEFORE payment. Avoid depending on Course while confirming money.
+ @Column(name="lecciones_snapshot",nullable=false,length=8000) private String leccionesSnapshot = "";
+ @Column(name="progreso_minimo_snapshot",nullable=false) private Integer progresoMinimoSnapshot = 100;
+ @Column(name="asistencia_minima_snapshot",nullable=false) private Integer asistenciaMinimaSnapshot = 0;
+ @Column(name="certificado_habilitado_snapshot",nullable=false) private boolean certificadoHabilitadoSnapshot = false;
+ @Column(name="certificado_costo_snapshot",nullable=false,precision=10,scale=2) private BigDecimal certificadoCostoSnapshot = BigDecimal.ZERO;
  @Column(name="fecha_creacion",nullable=false) private LocalDateTime fechaCreacion;
  @Column(name="fecha_aprobacion") private LocalDateTime fechaAprobacion;
  public enum EstadoOrden { PENDIENTE, PAGO_INICIADO, APROBADA, RECHAZADA, REEMBOLSADA }
