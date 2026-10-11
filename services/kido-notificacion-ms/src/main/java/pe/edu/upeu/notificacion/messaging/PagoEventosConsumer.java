@@ -31,7 +31,7 @@ public class PagoEventosConsumer {
         log.info("component=consumer topic={} eventType={} ordenId={} status=consumed",
             topicPagos, evento.getTipoEvento(), evento.getOrdenId());
 
-        notificacionService.crear(new NotificacionRequest(
+        boolean estudianteNuevo = notificacionService.crearDesdeEvento("pago-" + evento.getOrdenId(), new NotificacionRequest(
             evento.getEstudianteId(),
             "PAGO_APROBADO",
             "IN_APP",
@@ -40,7 +40,7 @@ public class PagoEventosConsumer {
             null
         ));
 
-        notificacionService.crear(new NotificacionRequest(
+        boolean docenteNuevo = notificacionService.crearDesdeEvento("pago-" + evento.getOrdenId(), new NotificacionRequest(
             evento.getDocenteId(),
             "NUEVA_VENTA",
             "IN_APP",
@@ -50,16 +50,17 @@ public class PagoEventosConsumer {
             null
         ));
 
-        log.info("component=processor eventType={} ordenId={} notifications=2 status=processed",
-            evento.getTipoEvento(), evento.getOrdenId());
+        int creadas = (estudianteNuevo ? 1 : 0) + (docenteNuevo ? 1 : 0);
+        log.info("component=processor eventType={} ordenId={} notifications={} status={}",
+            evento.getTipoEvento(), evento.getOrdenId(), creadas, creadas == 0 ? "ignored" : "processed");
     }
 
     @KafkaListener(topics = "${app.kafka.topic.academico:kido-academico-eventos}")
     public void alRecibirAcademico(PagoAprobadoEvento evento) {
         if ("curso.completado".equals(evento.getTipoEvento())) {
-            notificacionService.crear(new NotificacionRequest(evento.getEstudianteId(), "CURSO_COMPLETADO", "IN_APP", "Curso completado", "Cumpliste los requisitos académicos del curso #" + evento.getCursoId() + ".", null));
+            notificacionService.crearDesdeEvento("curso-completado-" + evento.getEstudianteId() + "-" + evento.getCursoId(), new NotificacionRequest(evento.getEstudianteId(), "CURSO_COMPLETADO", "IN_APP", "Curso completado", "Cumpliste los requisitos académicos del curso #" + evento.getCursoId() + ".", null));
         } else if ("certificado.disponible".equals(evento.getTipoEvento())) {
-            notificacionService.crear(new NotificacionRequest(evento.getEstudianteId(), "CERTIFICADO_DISPONIBLE", "IN_APP", "Certificado disponible", "Tu certificado del curso #" + evento.getCursoId() + " ya está disponible para descargar.", null));
+            notificacionService.crearDesdeEvento("certificado-disponible-" + evento.getEstudianteId() + "-" + evento.getCursoId(), new NotificacionRequest(evento.getEstudianteId(), "CERTIFICADO_DISPONIBLE", "IN_APP", "Certificado disponible", "Tu certificado del curso #" + evento.getCursoId() + " ya está disponible para descargar.", null));
         } else {
             log.debug("Evento académico ignorado: {}", evento.getTipoEvento());
         }

@@ -37,6 +37,16 @@ spring:
       value-serializer: org.springframework.kafka.support.serializer.JacksonJsonSerializer
       properties:
         spring.json.add.type.headers: false
+    consumer:
+      group-id: kido-pago-saga-ms
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+      properties:
+        spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JacksonJsonDeserializer
+        spring.json.value.default.type: pe.edu.upeu.pago.event.AcademicoResultadoEvento
+        spring.json.trusted.packages: pe.edu.upeu.pago.event
+        spring.json.use.type.headers: false
 kido:
   pagos:
     comision: 0.10
@@ -44,7 +54,7 @@ kido:
     retiro-minimo: 50.00
     dias-reembolso: 7
     progreso-max-reembolso: 20
-    permitir-simulacion: false
+    permitir-simulacion: ${KIDO_PAGOS_PERMITIR_SIMULACION:false}
   mercadopago:
     access-token: ${MERCADO_PAGO_ACCESS_TOKEN:}
     notification-url: ${MERCADO_PAGO_NOTIFICATION_URL:}
@@ -52,6 +62,7 @@ app:
   kafka:
     topic:
       pagos: kido-pago-eventos
+      academico: kido-academico-eventos
 springdoc:
   swagger-ui:
     enabled: false

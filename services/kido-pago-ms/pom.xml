@@ -6,6 +6,8 @@
  <groupId>pe.edu.upeu</groupId><artifactId>kido-pago-ms</artifactId><version>0.0.1-SNAPSHOT</version><name>kido-pago-ms</name>
  <properties><java.version>21</java.version><spring-cloud.version>2025.1.2</spring-cloud.version></properties>
  <dependencies>
+  <!-- Tests de contrato S09, idempotencia, fallo y compensación -->
+  <dependency><groupId>org.springframework.boot</groupId><artifactId>spring-boot-starter-test</artifactId><scope>test</scope></dependency>
   <dependency><groupId>org.springframework.boot</groupId><artifactId>spring-boot-starter-actuator</artifactId></dependency>
   <dependency><groupId>org.springframework.boot</groupId><artifactId>spring-boot-starter-data-jpa</artifactId></dependency>
   <dependency><groupId>org.springframework.boot</groupId><artifactId>spring-boot-starter-flyway</artifactId></dependency>

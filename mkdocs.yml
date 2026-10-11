@@ -15,5 +15,9 @@ nav:
   - API Midwar: api-midwar.md
   - Seguridad Keycloak: seguridad-keycloak.md
   - S08 Mensajería asíncrona: s08-mensajeria-asincrona.md
+  - S09 Saga en KIDO: s09-saga-kido.md
+  - S09 Validación y evidencias: s09-implementacion-validacion.md
+  - Backend funcional: backend-funcional-completo.md
+  - Roadmap de producción: roadmap-produccion.md
 
 # Documentación agregada para el cierre funcional del backend

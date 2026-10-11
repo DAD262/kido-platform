@@ -15,6 +15,8 @@ public class Inscripcion {
     private Long estudianteId;
     @Column(name="curso_id", nullable=false)
     private Long cursoId;
+    @Column(name="orden_compra_id", unique=true)
+    private Long ordenCompraId;
     @Enumerated(EnumType.STRING) @Column(name="tipo_acceso",nullable=false,length=15)
     private TipoAcceso tipoAcceso;
     @Enumerated(EnumType.STRING) @Column(nullable=false,length=15)
