@@ -1,38 +1,47 @@
-# Resultado de revisión — entrega KIDO S09
+# KIDO — Validación de la actualización S09
 
-**Versión de entrega:** backend completo KIDO hasta S09, sin frontend. Esta revisión parte del ZIP de proyecto y de la versión de Saga anterior. Ningún archivo `.git` ni `.env` real está incluido.
+Revisión del ZIP KIDO_REVISION_S09_20261014-211747. Se conserva el frontend existente y el avance de ambos integrantes.
 
-## Ejecutado en este entorno
+## Verificado en este entorno
 
-- Extracción e inspección de microservicios y configuraciones: **hecho**.
-- Validación sintáctica de 7 archivos `pom.xml`: **correcta**.
-- Validación sintáctica de 29 archivos YAML: **correcta**.
-- Revisión léxica de llaves de 145 archivos Java: **correcta**.
-- Validación estructural de los archivos indispensables de Saga, migraciones, test y script: **correcta**.
-- Revisión de la autoría: no se incluye ningún repositorio `.git`; la identidad del commit es la configurada en la PC de desarrollo.
+- Inspección del código Saga y contraste con el manual adjunto.
+- Auditoría estática: 7 POM, 29 YAML y 146 archivos Java; sin errores detectados por el auditor existente. No sustituye la compilación.
+- Cambio de comportamiento acotado a AcademicoResultadoConsumer: filtra tipos ajenos a la Saga antes de validar ordenId.
+- Cinco pruebas adicionales escritas para el filtro/enrutamiento y la reversión única del movimiento de venta.
+- Script de demo ampliado con pausas, consultas PostgreSQL y búsqueda de logs por ventana temporal.
+- Matriz de rúbrica, guía de capturas e informe base. Diagrama ajustado a las transiciones implementadas.
+- Paquete incremental con hashes de origen/destino y respaldo previo a la copia.
+- Sintaxis PowerShell comprobada con su parser para el instalador y la demo.
+- Instalador ejecutado con PowerShell en Linux sobre copias temporales: instalación completa, segunda ejecución sin cambios y rechazo de un archivo editado después del ZIP sin modificar ningún archivo. Falta ejecutarlo en Windows del estudiante.
+- Comparación por hashes: frontend, infraestructura y migraciones idénticos a los recibidos.
 
-## Pendiente de ejecutar y comprobar en tu máquina
+## Pendiente de ejecución real
 
-**No se pudo realizar `mvn verify` ni levantar Docker**: no hay Maven ni acceso a Maven Central y Docker no está disponible en este entorno. La auditoría de Java es estática: no equivale a compilar con todas las dependencias ni a ejecutar las pruebas JUnit. No se declara el sistema “100 % funcionando” hasta superar estas verificaciones:
+Se intentó `mvnw -B -ntp test` con JDK 21. Maven se detuvo antes de compilar porque no pudo resolver repo.maven.apache.org al descargar el parent Spring Boot 4.0.7. Esto no demuestra un error de compilación ni prueba que los tests pasen.
+
+No hay Docker disponible en este entorno. Ejecutar las pruebas con los contenedores locales del estudiante. Las consultas y resultados esperados del guion no son resultados ya obtenidos.
 
 ```powershell
-cd C:\ruta\al\kido-platform
-Copy-Item .env.example .env
-# Editar .env (DB_PASS, KEYCLOAK_ADMIN_PASSWORD, GRAFANA_ADMIN_PASSWORD).
-powershell -ExecutionPolicy Bypass -File .\scripts\verificar-s09.ps1
-# Para S09 en laboratorio únicamente: en .env poner
-# KIDO_PAGOS_PERMITIR_SIMULACION=true
-# KIDO_SAGA_ESTUDIANTE_FALLO_DEMO=999999
-docker compose up -d --build
-powershell -ExecutionPolicy Bypass -File .\scripts\demo-s09-saga.ps1
+Set-Location 'D:\KIDO 2\kido-platform\services\kido-pago-ms'
+.\mvnw.cmd -B -ntp test
 ```
 
-Una vez superadas las pruebas, capturar los mensajes duplicados ignorados, el pago aprobado, la inscripción activada, la compensación a `REEMBOLSADA` y la compensación repetida ignorada.
+Si Maven termina correctamente, seguir docs/s09-guia-capturas.md para reconstruir únicamente Pago y ejecutar la demo con pausas. Si la configuración de fallo de Inscripción cambió, recrear también ese servicio.
 
-## Cambios significativos
+## Condiciones para cerrar la entrega
 
-Consultar `CAMBIOS_S09_ESTABILIZACION.md` y `docs/s09-implementacion-validacion.md`.
+- Evidencias reales KIDO: duplicado ignorado, fallo compensado, JSON de compensación repetido, misma orden/movimiento e índices UNIQUE reales.
+- Evidencias PAGATU obligatorias según el manual, que no está incluido en este ZIP.
+- Número de equipo, GitHub/commit y aporte individual verificable.
+- Reflexión revisada y feedback personal.
 
-## Riesgos que impiden lanzamiento comercial todavía
+El PDF no se presenta como terminado antes de incorporar esas evidencias. No se alteran migraciones aplicadas, .env, datos, dependencias ni frontend. Kafka UI es la herramienta ya presente; Axon no se ha integrado.
 
-La solución **NO está validada para pagos reales en Internet** hasta implementar autenticación/autorización por recurso, Outbox transaccional, operación de reembolsos conciliable, almacenamiento seguro, HTTPS, credenciales/usuarios reales, backups y pruebas de integración de fallos. Ver `docs/roadmap-produccion.md`.
+## Validación real posterior — 14/10/2026
+
+- Maven: BUILD SUCCESS; 8 pruebas, 0 fallos, 0 errores.
+- Orden 15: APROBADA, inscripción sincronizada y una sola inscripción tras repetir el evento.
+- Orden 16: REEMBOLSADA, sin inscripción y venta 16 REVERTIDO por S/ 71.91.
+- Reenvío desde Kafka UI: partición 2, offset 2; consumidor status=ignored.
+- PostgreSQL confirmó que el reenvío conservó la misma orden y un único movimiento de venta.
+- Estas comprobaciones completan las pruebas principales de KIDO; el informe final y los requisitos restantes de la rúbrica siguen pendientes.

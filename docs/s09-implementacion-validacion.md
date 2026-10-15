@@ -1,6 +1,6 @@
 # S09 — Implementación y validación de Saga en KIDO
 
-**Alcance:** backend de KIDO (sin frontend). El caso propio de negocio es **compra de curso → inscripción**, no el ejemplo Pagatu. La prueba se realiza con un Keycloak local, pagos simulados y Kafka; no efectuar las pruebas sobre dinero real.
+**Alcance S09:** backend de KIDO; el frontend existente se conserva sin modificaciones. El caso propio de negocio es **compra de curso → inscripción**, no el ejemplo Pagatu. La prueba se realiza con un Keycloak local, pagos simulados y Kafka; no efectuar las pruebas sobre dinero real.
 
 ## Arquitectura operativa
 
@@ -21,11 +21,13 @@ stateDiagram-v2
   PENDIENTE --> PAGO_INICIADO: solicitar pago
   PENDIENTE --> APROBADA: pago simulado en laboratorio
   PAGO_INICIADO --> APROBADA: pasarela confirma
-  PAGO_INICIADO --> RECHAZADA: pago rechazado
   APROBADA --> APROBADA: inscripcion.activada / sincronizada=true
-  APROBADA --> REEMBOLSADA: inscripcion.fallida / compensar
+  APROBADA --> REEMBOLSADA: inscripcion.fallida o reembolso aprobado
+  APROBADA --> APROBADA: pago.aprobado duplicado / sin nuevo efecto
   REEMBOLSADA --> REEMBOLSADA: inscripcion.fallida duplicada / ignored
 ```
+
+`RECHAZADA` está declarado en el enum, pero el código actual no asigna ese estado: no se presenta como transición implementada. La pasarela no aprobada se rechaza con una excepción o se ignora en el webhook según la ruta.
 
 El fallo **no borra** la compra; queda el estado final `REEMBOLSADA` para auditoría. `inscripcion.activada` tardía se ignora si la venta ya fue compensada.
 
@@ -53,7 +55,7 @@ El fallo **no borra** la compra; queda el estado final `REEMBOLSADA` para audito
 | Fallo definitivo | `inscripcion.fallida`, `status=compensated`, orden `REEMBOLSADA`, saldo revertido |
 | Duplicado de compensación | `inscripcion.fallida` repetido, `status=ignored`, sin otro reembolso |
 | Diagrama | Transiciones anteriores, acordes con el código |
-| Autoría | Commit firmado por la identidad Git del autor de la contribución (revisar `git log -1 --format=fuller`) |
+| Autoría | Commit con autor y aporte identificables (firma criptográfica no exigida por el manual) (revisar `git log -1 --format=fuller`) |
 
 **Importante:** la rúbrica docente también requiere una captura de la **excepción original anterior al arreglo**. La versión corregida ya no debe generar ese error; para esa evidencia hay que usar un punto de partida S08 en un entorno de prueba aislado y capturar el fallo antes de implementar el fix. No recrear fallos reales de pagos en bases que contengan datos de usuarios. Cada captura del informe debe mostrar el reloj del sistema y el perfil del estudiante sin recortarlos.
 
@@ -79,3 +81,7 @@ El fallo **no borra** la compra; queda el estado final `REEMBOLSADA` para audito
 ## Comandos Git seguros (no ejecutados automáticamente)
 
 Antes de `commit` y `push`: `git config user.name` y `git config user.email`; configurar **en el clon local** la cuenta autorizada que realizó el aporte. No copiar `.git` desde otro equipo. Revisar `git status` y `git diff --cached --stat`. El ZIP no incluye historial Git ni credenciales privadas.
+
+## Actualización de revisión S09
+
+Ver `s09-guia-capturas.md`, `s09-matriz-rubrica.md` y `s09-informe-base.md`. El consumidor de Pago filtra los tipos de evento antes de exigir ordenId; los eventos académicos que no pertenecen a la Saga no se consideran mensajes inválidos. Pruebas locales pendientes: Maven, PostgreSQL y Docker.

@@ -51,6 +51,21 @@ class PagoSagaTest {
         verifyNoInteractions(mp);
     }
 
+    @Test void compensacionRevierteLaVentaUnaSolaVez() {
+        OrdenCompra orden = orden();
+        MovimientoSaldo venta = new MovimientoSaldo();
+        venta.setEstado(MovimientoSaldo.EstadoMovimiento.PENDIENTE);
+        when(ordenRepo.findById(5L)).thenReturn(Optional.of(orden));
+        when(movimientoRepo.findByOrdenIdAndTipo(5L, MovimientoSaldo.TipoMovimiento.VENTA))
+            .thenReturn(Optional.of(venta));
+        assertTrue(servicio.compensarCompraPorFalloInscripcion(5L, 30L, 2L, "rechazo"));
+        assertEquals(MovimientoSaldo.EstadoMovimiento.REVERTIDO, venta.getEstado());
+        assertFalse(servicio.compensarCompraPorFalloInscripcion(5L, 30L, 2L, "duplicado"));
+        verify(movimientoRepo, times(1)).save(venta);
+        verify(ordenRepo, times(1)).save(orden);
+        verifyNoInteractions(mp);
+    }
+
     @Test void eventoDeOtraCompraNoPuedeCompensarOrden() {
         when(ordenRepo.findById(5L)).thenReturn(Optional.of(orden()));
         assertThrows(IllegalArgumentException.class,
