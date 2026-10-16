@@ -1,0 +1,4 @@
+Corrección de compilación Angular KIDO
+
+Copiar src/app/pages/docente/docente.ts sobre el archivo homónimo dentro de frontend.
+No modifica bases de datos ni el backend.

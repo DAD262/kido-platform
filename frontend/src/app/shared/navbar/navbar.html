@@ -1,0 +1,11 @@
+<div class="announcement"><span>✦</span> Tu próximo gran paso comienza aquí <span>✦</span></div>
+<header class="site-header"><div class="container nav">
+  <a routerLink="/" class="brand" aria-label="KIDO, ir al inicio"><span class="brand-symbol">✳</span><span>KIDO<span class="dot">.</span></span></a>
+  <nav aria-label="Navegación principal"><a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">Inicio</a><a routerLink="/cursos" routerLinkActive="active">Explorar cursos</a>
+  @if(auth.autenticado){<a [routerLink]="auth.obtenerPanel()" routerLinkActive="active">Mi espacio</a>}
+  </nav>
+  <div class="session">
+   @if(auth.autenticado){<span class="who"><span class="avatar">{{auth.usuario.charAt(0).toUpperCase()}}</span><span>{{auth.usuario}}</span></span><button class="btn btn-outline btn-small" (click)="logout()">Salir ↗</button>}
+   @else{<a routerLink="/login" class="btn btn-primary btn-small">Iniciar sesión <span>↗</span></a>}
+  </div>
+</div></header>

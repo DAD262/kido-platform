@@ -21,8 +21,17 @@ public class ContenidoCursoService {
  @Transactional public ModuloDetalleResponse crearModulo(Long cursoId,ModuloRequest r){curso(cursoId); Modulo m=new Modulo();m.setCursoId(cursoId);m.setTitulo(r.titulo());m.setOrden(r.orden());return mapModulo(moduloRepo.save(m));}
  @Transactional public ModuloDetalleResponse actualizarModulo(Long id,ModuloRequest r){Modulo m=modulo(id);m.setTitulo(r.titulo());m.setOrden(r.orden());return mapModulo(moduloRepo.save(m));}
  @Transactional public void eliminarModulo(Long id){moduloRepo.delete(modulo(id));}
- @Transactional public LeccionDetalleResponse crearLeccion(Long moduloId,LeccionRequest r){modulo(moduloId);Leccion l=new Leccion();l.setModuloId(moduloId);l.setTitulo(r.titulo());l.setOrden(r.orden());l.setUrlContenido(r.urlContenido());return mapLeccion(leccionRepo.save(l));}
- @Transactional public LeccionDetalleResponse actualizarLeccion(Long id,LeccionRequest r){Leccion l=leccion(id);l.setTitulo(r.titulo());l.setOrden(r.orden());l.setUrlContenido(r.urlContenido());return mapLeccion(leccionRepo.save(l));}
+ @Transactional public LeccionDetalleResponse crearLeccion(Long moduloId,LeccionRequest r){modulo(moduloId);validarLeccionRepetida(moduloId,r.titulo(),r.orden(),null);Leccion l=new Leccion();l.setModuloId(moduloId);l.setTitulo(r.titulo());l.setOrden(r.orden());l.setUrlContenido(r.urlContenido());return mapLeccion(leccionRepo.save(l));}
+ @Transactional public LeccionDetalleResponse actualizarLeccion(Long id,LeccionRequest r){Leccion l=leccion(id);validarLeccionRepetida(l.getModuloId(),r.titulo(),r.orden(),id);l.setTitulo(r.titulo());l.setOrden(r.orden());l.setUrlContenido(r.urlContenido());return mapLeccion(leccionRepo.save(l));}
+ private void validarLeccionRepetida(Long moduloId, String titulo, Integer orden, Long excluirId){
+  if(titulo==null || titulo.isBlank()) throw new IllegalArgumentException("El título de la lección es obligatorio");
+  String normalizado=titulo.trim();
+  for(Leccion existente:leccionRepo.findByModuloIdOrderByOrdenAscIdAsc(moduloId)){
+   if(excluirId!=null && excluirId.equals(existente.getId())) continue;
+   if(existente.getTitulo().trim().equalsIgnoreCase(normalizado)) throw new IllegalArgumentException("Ya existe una lección con ese título en el módulo");
+   if(orden!=null && orden.equals(existente.getOrden())) throw new IllegalArgumentException("Ya existe una lección con ese orden en el módulo");
+  }
+ }
  @Transactional public void eliminarLeccion(Long id){leccionRepo.delete(leccion(id));}
  @Transactional public MaterialResponse crearMaterial(Long leccionId,MaterialRequest r){leccion(leccionId);Material m=new Material();m.setLeccionId(leccionId);m.setNombre(r.nombre());try{m.setTipo(Material.TipoMaterial.valueOf(r.tipo().toUpperCase()));}catch(Exception e){throw new IllegalArgumentException("Tipo de material no válido");}m.setUrl(r.url());m.setDescripcion(r.descripcion());m.setDescargable(r.descargable());m.setFechaCreacion(LocalDateTime.now());return mapMaterial(materialRepo.save(m));}
  @Transactional public MaterialResponse actualizarMaterial(Long id,MaterialRequest r){Material m=materialRepo.findById(id).orElseThrow(()->new ResourceNotFoundException("Material no encontrado: "+id));m.setNombre(r.nombre());try{m.setTipo(Material.TipoMaterial.valueOf(r.tipo().toUpperCase()));}catch(Exception e){throw new IllegalArgumentException("Tipo de material no válido");}m.setUrl(r.url());m.setDescripcion(r.descripcion());m.setDescargable(r.descargable());return mapMaterial(materialRepo.save(m));}
