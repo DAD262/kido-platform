@@ -15,6 +15,12 @@ public class AcademicoResultadoConsumer {
 
     @KafkaListener(topics = "${app.kafka.topic.academico:kido-academico-eventos}", groupId = "kido-pago-saga-ms")
     public void alRecibirResultado(AcademicoResultadoEvento evento) {
+        // This topic also carries course/certificate events without an order.
+        // Validate only messages belonging to this Saga, as in the payment consumer.
+        if (!"inscripcion.activada".equals(evento.getTipoEvento())
+                && !"inscripcion.fallida".equals(evento.getTipoEvento())) {
+            return;
+        }
         if (!"kido-inscripcion-ms".equals(evento.getOrigen()) || evento.getOrdenId() == null
                 || evento.getEstudianteId() == null || evento.getCursoId() == null) {
             throw new IllegalArgumentException("Resultado de Saga incompleto o de origen inesperado");

@@ -1,0 +1,41 @@
+<div class="container page">
+<header class="dashboard-head"><div><span class="eyebrow">MI ESPACIO DE APRENDIZAJE</span><h1>¡Hola, {{auth.usuario}}! 👋</h1><p class="muted">Continúa aprendiendo, lleva el control de tus avances y celebra tus logros.</p></div><a class="btn btn-outline" routerLink="/cursos">Explorar cursos ↗</a></header>
+<div class="dashboard-banner"><div><span class="eyebrow">TU CAMINO COMIENZA AQUÍ</span><h2>Siempre hay algo nuevo que aprender.</h2><p>Tus clases, progreso y certificados, organizados en un mismo lugar.</p></div><span class="deco">✳</span></div>
+<section class="panel identity"><div><strong>Conectar con mis datos académicos</strong><p class="note">Modo demostración: el backend usa IDs numéricos y Keycloak usa UUID. Indica aquí el ID de estudiante registrado en las tablas de KIDO. Esta selección local no comprueba la identidad ni autoriza el acceso a datos de terceros.</p></div><div class="identity-controls"><label class="field">ID numérico<input type="number" min="1" step="1" [(ngModel)]="idInput" placeholder="Ej. 1"></label><button class="btn btn-primary" (click)="guardarId()">Cargar mis datos</button></div></section>
+@if(error()){<div class="alert error" role="alert">{{error()}}</div>}@if(mensaje()){<div class="alert success" role="status">{{mensaje()}}</div>}
+@for(f of fallos();track f){<div class="alert error">{{f}} <button class="btn btn-small" (click)="cargar()" [disabled]="cargando()">Reintentar</button></div>}
+@if(account.id()){
+<div class="stat-grid space-top"><div class="stat"><span class="stat-label">Cursos inscritos</span><strong>{{inscripciones().length}}</strong></div><div class="stat"><span class="stat-label">Progreso promedio</span><strong>{{promedioProgreso()}}%</strong><small class="muted">Consulta cada curso</small></div><div class="stat"><span class="stat-label">Notificaciones sin leer</span><strong>{{noLeidas()}}</strong></div></div>
+<div class="tabs"><button [class.active]="tab()==='cursos'" (click)="tab.set('cursos')">Mis cursos</button><button [class.active]="tab()==='pagos'" (click)="tab.set('pagos')">Compras y reembolsos</button><button [class.active]="tab()==='avisos'" (click)="tab.set('avisos')">Notificaciones</button><button (click)="cargar()" [disabled]="cargando()">↻ Actualizar</button></div>
+@if(cargando()){<div class="empty"><span class="spinner"></span> Cargando tus datos…</div>}
+@else if(tab()==='cursos'){
+<div class="split"><section class="panel"><h2>Mis cursos</h2><label class="field">Buscar curso<input [(ngModel)]="busqueda" placeholder="Nombre del curso"></label><p class="muted">Selecciona un curso para ver las lecciones y el certificado.</p>
+@if(!inscripciones().length){<div class="empty"><strong>Todavía no tienes inscripciones</strong><a routerLink="/cursos" class="btn btn-primary space-top">Explorar catálogo</a></div>}
+@for(ins of inscripcionesFiltradas();track ins.id){<button type="button" class="enrollment" [class.active]="seleccionada()?.id===ins.id" (click)="abrir(ins)"><span class="book">▣</span><span class="enrollment-text"><strong>{{titulo(ins.cursoId)}}</strong><small>{{ins.estado}} · {{ins.tipoAcceso}} · Matrícula #{{ins.id}}</small><span class="progress"><span [style.width.%]="ins.porcentajeProgreso"></span></span></span><b>{{ins.porcentajeProgreso}}%</b></button>}
+</section><section class="panel"><h2>Ruta de aprendizaje</h2>
+@if(!seleccionada()){<div class="empty"><strong>Selecciona tu curso</strong>Aquí aparecerán las lecciones y opciones del certificado.</div>}
+@else{<p class="muted">{{titulo(seleccionada()!.cursoId)}}</p>
+@if(estado()){<div class="academic"><span>Progreso {{estado()!.progreso}}%</span><span>Asistencia {{estado()!.asistencia}}%</span><span>Mínimo {{estado()!.progresoMinimo}}%</span></div>}
+@if(cargandoContenido()){<p role="status">Cargando lecciones…</p>}
+<button class="btn btn-primary btn-small" (click)="continuar()" [disabled]="cargandoContenido()||!contenido()">Continuar aprendizaje</button>
+@for(modulo of contenido()?.modulos ?? [];track modulo.id){<div class="module-title">{{modulo.orden}}. {{modulo.titulo}}</div>@for(leccion of modulo.lecciones;track leccion.id){<section class="content-lesson" [class.lesson-active]="leccionActiva()===leccion.id"><button class="lesson-title" (click)="abrirLeccion(leccion.id)">{{completada(leccion.id)?'✓':'◯'}} {{leccion.titulo}}</button>
+@if(leccionActiva()===leccion.id){@if(leccion.urlContenido){<button class="btn btn-outline btn-small" (click)="abrirEnlace(leccion.urlContenido)">Abrir contenido ↗</button>}
+@for(mat of leccion.materiales;track mat.id){<button type="button" class="material material-link" (click)="abrirMaterial(mat)">↧ {{mat.nombre}} · {{mat.tipo}}</button>}
+@if(!leccion.urlContenido&&!leccion.materiales.length){<p class="note">El docente todavía no adjuntó contenido a esta lección.</p>}
+@if(!completada(leccion.id)){<button class="btn btn-primary btn-small" [disabled]="procesando()||seleccionada()!.estado==='CANCELADA'" (click)="completar(leccion.id)">Marcar como completada</button>}@else{<span class="pill green">Lección completada</span>}}
+</section>}}
+<section class="certificate"><h3>✧ Certificado</h3>@if(!seleccionada()!.certificadoHabilitado){<p>Este curso no tiene certificado habilitado.</p>}@else{
+@if(certificado()){<p>Estado: <b>{{certificado()!.estado}}</b></p>
+@if(certificado()!.estado==='DISPONIBLE'){<button class="btn btn-primary btn-small" (click)="descargar()">Descargar PDF ↧</button>}
+@else if(certificado()!.estado==='PENDIENTE_PAGO'){<button class="btn btn-primary btn-small" [disabled]="procesando()" (click)="pagarCertificado()">Pagar certificado en sandbox</button>}}
+@else{<p>Disponible al cumplir progreso y asistencia mínimos.</p><button class="btn btn-outline btn-small" (click)="solicitarCertificado()" [disabled]="procesando()||!estado()?.elegibleCertificado">Solicitar certificado</button>}}
+</section>}
+</section></div>
+}@else if(tab()==='pagos'){
+<section class="panel"><h2>Mis órdenes de compra</h2>@if(!ordenes().length){<div class="empty"><strong>Sin compras registradas</strong>Las órdenes aparecerán aquí cuando inicies una compra.</div>}@else{<div class="table-wrap"><table><thead><tr><th>Orden</th><th>Curso</th><th>Total</th><th>Estado</th><th>Opciones</th></tr></thead><tbody>@for(o of ordenes();track o.id){<tr><td>#{{o.id}}</td><td>{{o.cursoTitulo}}</td><td>S/ {{o.montoTotal.toFixed(2)}}</td><td><span class="pill">{{o.estado}}</span></td><td><button class="btn btn-outline btn-small" (click)="solicitarReembolso(o)" [disabled]="o.estado!=='APROBADA'">Solicitar reembolso</button></td></tr>}</tbody></table></div>}</section>
+}@else{<section class="panel"><h2>Notificaciones</h2>@if(!notificaciones().length){<div class="empty"><strong>Sin notificaciones</strong>Cuando recibas novedades aparecerán aquí.</div>}@for(n of notificaciones();track n.id){<div class="list-row"><div><strong>{{n.asunto}}</strong><p class="muted">{{n.mensaje}}</p><small class="note">{{n.fechaCreacion}}</small></div>@if(!n.leida){<button class="btn btn-outline btn-small" (click)="leer(n)">Marcar leída</button>}@else{<span class="pill green">Leída</span>}</div>}</section>}
+}
+@else{<div class="empty space-top"><strong>Configura tu ID de demostración</strong>Lo necesitarás para consultar tus inscripciones y pagos del backend.</div>}
+</div>
+
+@if(reembolso();as orden){<div class="modal-backdrop"><section class="modal-card" role="dialog" aria-modal="true" aria-labelledby="reembolso-titulo"><h2 id="reembolso-titulo">Solicitar reembolso</h2><p>{{orden.cursoTitulo}} · Orden #{{orden.id}} · S/ {{orden.montoTotal.toFixed(2)}}</p><label class="field">Explica tu motivo<textarea [(ngModel)]="motivoReembolso" maxlength="500" rows="4"></textarea></label>@if(error()){<p class="alert error">{{error()}}</p>}<div class="mini-actions"><button class="btn btn-outline" [disabled]="procesando()" (click)="reembolso.set(null)">Cancelar</button><button class="btn btn-primary" [disabled]="procesando()||!motivoReembolso.trim()" (click)="enviarReembolso()">{{procesando()?'Enviando…':'Enviar solicitud'}}</button></div></section></div>}
