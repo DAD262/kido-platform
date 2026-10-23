@@ -1,0 +1,794 @@
+<div class="container page">
+  <header class="dashboard-head">
+    <div>
+      <h1>Hola, {{ auth.nombre }}</h1>
+      <p class="muted">Crea cursos, acompaña a tus estudiantes y revisa tus ingresos.</p>
+    </div>
+    @if (account.id() && !enEditor()) {
+      <button class="btn btn-primary" (click)="nuevo(); tab.set('cursos')">
+        <app-icon name="plus" [size]="16" />Nuevo curso
+      </button>
+    }
+  </header>
+
+  <app-perfil-estado rol="docente" (listo)="cargar()" />
+
+  @if (error()) {
+    <div class="alert error" role="alert">{{ error() }}</div>
+  }
+  @if (mensaje()) {
+    <div class="alert success" role="status">{{ mensaje() }}</div>
+  }
+  @for (f of fallos(); track f) {
+    <div class="alert error" role="alert">
+      <span>{{ f }}</span>
+      <button class="btn btn-small btn-outline" (click)="cargar()" [disabled]="cargando()">
+        Reintentar
+      </button>
+    </div>
+  }
+
+  @if (account.id()) {
+    @if (!enEditor()) {
+      <div class="stat-grid space-top">
+        <div class="stat">
+          <span class="stat-label">Cursos</span>
+          <strong>{{ cursos().length }}</strong>
+          <small>{{ publicados() }} publicados</small>
+        </div>
+        <div class="stat">
+          <span class="stat-label">Ventas</span>
+          <strong>{{ ordenes().length }}</strong>
+        </div>
+        <div class="stat">
+          <span class="stat-label">Saldo disponible</span>
+          <strong>{{ saldo()?.disponible | soles }}</strong>
+        </div>
+      </div>
+
+      <div class="tabs" role="tablist">
+        <button
+          role="tab"
+          [attr.aria-selected]="tab() === 'cursos'"
+          [class.active]="tab() === 'cursos'"
+          (click)="tab.set('cursos')"
+        >
+          Mis cursos
+        </button>
+        <button
+          role="tab"
+          [attr.aria-selected]="tab() === 'alumnos'"
+          [class.active]="tab() === 'alumnos'"
+          (click)="tab.set('alumnos')"
+        >
+          Estudiantes
+        </button>
+        <button
+          role="tab"
+          [attr.aria-selected]="tab() === 'finanzas'"
+          [class.active]="tab() === 'finanzas'"
+          (click)="tab.set('finanzas')"
+        >
+          Ingresos
+        </button>
+        <button
+          class="tab-action"
+          (click)="cargar()"
+          [disabled]="cargando()"
+          title="Actualizar datos"
+        >
+          <app-icon name="refresh" [size]="16" />
+        </button>
+      </div>
+    }
+
+    @if (cargando()) {
+      <div class="skeleton" style="height: 240px"></div>
+    } @else if (tab() === 'cursos' && !enEditor()) {
+      <!-- ============ LISTA DE CURSOS ============ -->
+      <div class="toolbar">
+        <label class="field">
+          <span class="sr-only">Buscar curso</span>
+          <input [(ngModel)]="busquedaCurso" placeholder="Buscar en mis cursos" />
+        </label>
+        <label class="field">
+          <span class="sr-only">Filtrar por estado</span>
+          <select [(ngModel)]="filtroEstado">
+            <option value="">Todos los estados</option>
+            @for (e of estadosCurso; track e) {
+              <option [value]="e">{{ e | estado }}</option>
+            }
+          </select>
+        </label>
+      </div>
+
+      @if (!cursos().length) {
+        <div class="empty">
+          <strong>Crea tu primer curso</strong>
+          Empieza con el título y la descripción. Después lo organizas en módulos y lecciones.
+          <br />
+          <button class="btn btn-primary" (click)="nuevo()">Nuevo curso</button>
+        </div>
+      } @else if (!cursosFiltrados().length) {
+        <div class="empty">Ningún curso coincide con la búsqueda.</div>
+      }
+
+      <div class="course-list">
+        @for (c of cursosFiltrados(); track c.id) {
+          <article class="course-row">
+            <div class="course-main">
+              <div class="title-line">
+                <strong>{{ c.titulo }}</strong>
+                <span class="pill" [class]="c.estado | tono">{{ c.estado | estado }}</span>
+              </div>
+              <div class="meta">
+                <span>{{ c.categoria }}</span>
+                <span>{{ c.tipo === 'GRATUITO' ? 'Gratis' : (c.precio | soles) }}</span>
+              </div>
+              @if (c.estado === 'RECHAZADO' && c.motivoRechazo) {
+                <p class="feedback">Comentario de administración: «{{ c.motivoRechazo }}»</p>
+              }
+            </div>
+            <div class="mini-actions">
+              <button class="btn btn-quiet btn-small" (click)="verAlumnos(c)">Estudiantes</button>
+              @if (c.estado === 'PUBLICADO') {
+                <button
+                  class="btn btn-quiet btn-small"
+                  [disabled]="procesando()"
+                  (click)="accion(c.id, 'archivar')"
+                >
+                  Archivar
+                </button>
+              }
+              <button class="btn btn-outline btn-small" (click)="editarCurso(c)">Editar</button>
+              @if (c.estado === 'BORRADOR' || c.estado === 'RECHAZADO') {
+                <button
+                  class="btn btn-primary btn-small"
+                  [disabled]="procesando()"
+                  (click)="accion(c.id, 'revision')"
+                >
+                  Enviar a revisión
+                </button>
+              }
+            </div>
+          </article>
+        }
+      </div>
+    } @else if (tab() === 'cursos' && enEditor()) {
+      <!-- ============ EDITOR ============ -->
+      <div class="editor">
+        <div class="editor-top">
+          <button class="btn btn-quiet btn-small" (click)="cerrarEditor()">
+            <app-icon name="back" [size]="16" />Mis cursos
+          </button>
+          @if (seleccionado(); as s) {
+            <span class="pill" [class]="s.estado | tono">{{ s.estado | estado }}</span>
+          }
+        </div>
+        <h2 class="editor-title">
+          {{ editar() ? formulario.titulo || 'Curso sin título' : 'Nuevo curso' }}
+        </h2>
+
+        <ol class="stepper" aria-label="Pasos para crear el curso">
+          @for (p of pasos; track p.n) {
+            <li>
+              <button
+                type="button"
+                [class.active]="editorPaso() === p.n"
+                [class.done]="pasoCompleto(p.n)"
+                [disabled]="p.n !== 0 && !seleccionado()"
+                [attr.aria-current]="editorPaso() === p.n ? 'step' : null"
+                (click)="irPaso(p.n)"
+              >
+                <span class="num">{{
+                  pasoCompleto(p.n) && editorPaso() !== p.n ? '✓' : p.n + 1
+                }}</span>
+                {{ p.texto }}
+              </button>
+            </li>
+          }
+        </ol>
+
+        <div class="editor-grid">
+          <div class="editor-main">
+            @if (editorPaso() === 0) {
+              <form class="form-grid" (ngSubmit)="guardarCurso()">
+                <label class="field full">
+                  Título
+                  <input
+                    [(ngModel)]="formulario.titulo"
+                    name="titulo"
+                    required
+                    maxlength="150"
+                    placeholder="Ej.: Python desde cero"
+                  />
+                </label>
+                <label class="field full">
+                  ¿Qué aprenderán tus estudiantes?
+                  <textarea
+                    [(ngModel)]="formulario.descripcion"
+                    name="descripcion"
+                    required
+                    maxlength="1000"
+                  ></textarea>
+                  <small class="note">{{ formulario.descripcion.length }}/1000</small>
+                </label>
+                <label class="field">
+                  Precio
+                  <select [(ngModel)]="formulario.tipo" name="tipo">
+                    <option value="GRATUITO">Gratis</option>
+                    <option value="PAGO">De pago</option>
+                  </select>
+                </label>
+                @if (formulario.tipo === 'PAGO') {
+                  <label class="field">
+                    Monto en soles
+                    <input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      [(ngModel)]="formulario.precio"
+                      name="precio"
+                    />
+                  </label>
+                } @else {
+                  <div class="field"></div>
+                }
+                <label class="field">
+                  Categoría
+                  <select [(ngModel)]="formulario.categoriaId" name="categoriaId">
+                    <option [ngValue]="1">Tecnología</option>
+                    <option [ngValue]="2">Educación</option>
+                  </select>
+                </label>
+                <div class="field full">
+                  <button class="btn btn-primary" type="submit" [disabled]="procesando()">
+                    {{ editar() ? 'Guardar cambios' : 'Crear borrador y continuar' }}
+                  </button>
+                </div>
+              </form>
+            }
+
+            @if (editorPaso() === 1) {
+              <div class="stage-head">
+                <h3>Agrega un módulo</h3>
+                <p class="note">
+                  Un módulo agrupa lecciones relacionadas, por ejemplo «Primeros pasos».
+                </p>
+              </div>
+              <div class="form-grid">
+                <label class="field full">
+                  Nombre del módulo
+                  <input
+                    [(ngModel)]="moduloTitulo"
+                    placeholder="Ej.: Primeros pasos con Python"
+                    maxlength="150"
+                    (keydown.enter)="crearModulo()"
+                  />
+                </label>
+                <label class="field">
+                  Posición
+                  <input type="number" min="1" [(ngModel)]="moduloOrden" />
+                </label>
+                <div class="field align-end">
+                  <button
+                    class="btn btn-primary"
+                    (click)="crearModulo()"
+                    [disabled]="procesando() || !moduloTitulo.trim()"
+                  >
+                    <app-icon name="plus" [size]="16" />Agregar módulo
+                  </button>
+                </div>
+              </div>
+            }
+
+            @if (editorPaso() === 2) {
+              <div class="stage-head">
+                <h3>Agrega una lección</h3>
+                <p class="note">
+                  Elige el módulo y escribe el título. El enlace puede ser un video o una página.
+                </p>
+              </div>
+              @if (!contenido()?.modulos?.length) {
+                <div class="alert warn">
+                  <span>Primero crea un módulo.</span>
+                  <button class="btn btn-small btn-outline" (click)="irPaso(1)">
+                    Crear módulo
+                  </button>
+                </div>
+              }
+              <div class="form-grid">
+                <label class="field full">
+                  Módulo
+                  <select [(ngModel)]="moduloId" (ngModelChange)="seleccionarModulo($event)">
+                    <option [ngValue]="null">Selecciona un módulo</option>
+                    @for (m of contenido()?.modulos ?? []; track m.id) {
+                      <option [ngValue]="m.id">{{ m.titulo }}</option>
+                    }
+                  </select>
+                </label>
+                <label class="field full">
+                  Título de la lección
+                  <input
+                    [(ngModel)]="leccionTitulo"
+                    placeholder="Ej.: Instalar Python"
+                    maxlength="150"
+                  />
+                </label>
+                <label class="field">
+                  Posición
+                  <input type="number" min="1" [(ngModel)]="leccionOrden" />
+                </label>
+                <label class="field">
+                  Enlace (opcional)
+                  <input [(ngModel)]="leccionUrl" placeholder="https://" />
+                </label>
+                <div class="field full">
+                  <button
+                    class="btn btn-primary"
+                    (click)="crearLeccion()"
+                    [disabled]="procesando() || !moduloId || !leccionTitulo.trim()"
+                  >
+                    <app-icon name="plus" [size]="16" />Agregar lección
+                  </button>
+                </div>
+              </div>
+            }
+
+            @if (editorPaso() === 3) {
+              <div class="stage-head">
+                <h3>Adjunta materiales</h3>
+                <p class="note">
+                  PDF, documentos, presentaciones, imágenes, audio o video de hasta 50 MB.
+                </p>
+              </div>
+              <div class="form-grid">
+                <label class="field full">
+                  Lección
+                  <select [(ngModel)]="archivoLeccionId">
+                    <option [ngValue]="null">Selecciona una lección</option>
+                    @for (m of contenido()?.modulos ?? []; track m.id) {
+                      <optgroup [label]="m.titulo">
+                        @for (l of m.lecciones; track l.id) {
+                          <option [ngValue]="l.id">{{ l.titulo }}</option>
+                        }
+                      </optgroup>
+                    }
+                  </select>
+                </label>
+                <div class="field full">
+                  <input
+                    [disabled]="procesando()"
+                    id="kido-material-file"
+                    class="visually-hidden-file"
+                    type="file"
+                    (change)="elegirArchivo($event)"
+                    accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt,.zip,.png,.jpg,.jpeg,.webp,.mp3,.mp4,.webm"
+                  />
+                  <label class="modern-upload" for="kido-material-file">
+                    <app-icon name="upload" [size]="22" />
+                    <strong>{{ archivo?.name || 'Elige un archivo' }}</strong>
+                    <span class="note">
+                      {{
+                        archivo
+                          ? (archivo!.size / 1024 / 1024).toFixed(2) + ' MB, listo para subir'
+                          : 'Haz clic para buscarlo en tu equipo'
+                      }}
+                    </span>
+                  </label>
+                </div>
+                @if (procesando() && archivo) {
+                  <div class="field full">
+                    <p class="note" role="status">
+                      {{ avance() === 100 ? 'Guardando material…' : 'Subiendo…' }}
+                      {{ avance() !== null ? avance() + '%' : '' }}
+                    </p>
+                    <progress
+                      max="100"
+                      [value]="avance() ?? 0"
+                      aria-label="Progreso de carga"
+                    ></progress>
+                  </div>
+                }
+                <div class="field full">
+                  <button
+                    class="btn btn-primary"
+                    (click)="subirArchivo()"
+                    [disabled]="procesando() || !archivo || !archivoLeccionId"
+                  >
+                    <app-icon name="upload" [size]="16" />{{
+                      procesando() ? 'Subiendo…' : 'Subir material'
+                    }}
+                  </button>
+                </div>
+              </div>
+            }
+
+            @if (editorPaso() === 4) {
+              <div class="stage-head">
+                <h3>Requisitos y certificado</h3>
+                <p class="note">Define qué debe cumplir un estudiante para aprobar el curso.</p>
+              </div>
+              <div class="form-grid">
+                <label class="field">
+                  Avance mínimo (%)
+                  <input type="number" min="0" max="100" [(ngModel)]="config.progresoMinimo" />
+                </label>
+                <label class="field">
+                  Asistencia mínima (%)
+                  <input type="number" min="0" max="100" [(ngModel)]="config.asistenciaMinima" />
+                </label>
+                <label class="field full checkbox">
+                  <input type="checkbox" [(ngModel)]="config.certificadoHabilitado" />
+                  Emitir certificado al aprobar
+                </label>
+                @if (config.certificadoHabilitado) {
+                  <label class="field">
+                    Costo del certificado (S/)
+                    <input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      [(ngModel)]="config.certificadoCosto"
+                    />
+                    <small class="note">Usa 0 para que sea gratuito.</small>
+                  </label>
+                }
+                <div class="field full">
+                  <button
+                    class="btn btn-outline"
+                    (click)="guardarConfig()"
+                    [disabled]="procesando()"
+                  >
+                    Guardar requisitos
+                  </button>
+                </div>
+              </div>
+            }
+
+            @if (seleccionado()) {
+              <div class="wizard-bottom">
+                @if (editorPaso() > 0) {
+                  <button class="btn btn-quiet" (click)="irPaso($any(editorPaso() - 1))">
+                    Anterior
+                  </button>
+                } @else {
+                  <span></span>
+                }
+                @if (editorPaso() < 4) {
+                  <button class="btn btn-outline" (click)="pasoSiguiente()">Siguiente paso</button>
+                } @else {
+                  <button
+                    class="btn btn-primary"
+                    [disabled]="
+                      procesando() ||
+                      leccionesTotal() === 0 ||
+                      !(
+                        seleccionado()!.estado === 'BORRADOR' ||
+                        seleccionado()!.estado === 'RECHAZADO'
+                      )
+                    "
+                    (click)="accion(seleccionado()!.id, 'revision')"
+                  >
+                    Enviar a revisión
+                  </button>
+                }
+              </div>
+              @if (editorPaso() === 4 && leccionesTotal() === 0) {
+                <p class="note right">Necesitas al menos una lección para enviarlo a revisión.</p>
+              }
+            }
+          </div>
+
+          <!-- Estructura del curso, siempre visible mientras se edita -->
+          <aside class="outline">
+            <div class="outline-head">
+              <h3>Estructura</h3>
+              <span class="note"
+                >{{ contenido()?.modulos?.length ?? 0 }} módulos · {{ leccionesTotal() }} lecciones
+                · {{ materialesTotal() }} materiales</span
+              >
+            </div>
+            @if (!seleccionado()) {
+              <p class="note">Guarda los datos del curso para empezar a construir su estructura.</p>
+            } @else if (!contenido()?.modulos?.length) {
+              <p class="note">Todavía no hay módulos.</p>
+            }
+            @for (m of contenido()?.modulos ?? []; track m.id) {
+              <div class="o-module">
+                <div class="o-row">
+                  <strong>{{ m.titulo }}</strong>
+                  <span class="o-actions">
+                    <button
+                      class="btn btn-quiet btn-small"
+                      [disabled]="procesando()"
+                      (click)="editarModulo(m)"
+                    >
+                      Editar
+                    </button>
+                    @if (!m.lecciones.length) {
+                      <button
+                        class="btn btn-quiet btn-small"
+                        [disabled]="procesando()"
+                        (click)="eliminar('eliminarModulo', m.id, m.titulo)"
+                      >
+                        Eliminar
+                      </button>
+                    }
+                  </span>
+                </div>
+                @for (l of m.lecciones; track l.id) {
+                  <div class="o-lesson">
+                    <div class="o-row">
+                      <span>{{ l.titulo }}</span>
+                      <span class="o-actions">
+                        <button
+                          class="btn btn-quiet btn-small"
+                          [disabled]="procesando()"
+                          (click)="editarLeccion(l)"
+                        >
+                          Editar
+                        </button>
+                        @if (
+                          !l.materiales.length &&
+                          seleccionado()!.estado !== 'PUBLICADO' &&
+                          seleccionado()!.estado !== 'ARCHIVADO'
+                        ) {
+                          <button
+                            class="btn btn-quiet btn-small"
+                            [disabled]="procesando()"
+                            (click)="eliminar('eliminarLeccion', l.id, l.titulo)"
+                          >
+                            Eliminar
+                          </button>
+                        }
+                      </span>
+                    </div>
+                    @for (mat of l.materiales; track mat.id) {
+                      <div class="o-row o-material">
+                        <button class="material-link" (click)="abrirMaterial(mat)">
+                          <app-icon name="file" [size]="13" /> {{ mat.nombre }}
+                        </button>
+                        <button
+                          class="btn btn-quiet btn-small"
+                          [disabled]="procesando()"
+                          (click)="eliminar('eliminarMaterial', mat.id, mat.nombre)"
+                          aria-label="Quitar material"
+                        >
+                          <app-icon name="close" [size]="14" />
+                        </button>
+                      </div>
+                    }
+                  </div>
+                }
+              </div>
+            }
+          </aside>
+        </div>
+      </div>
+    } @else if (tab() === 'alumnos') {
+      <!-- ============ ESTUDIANTES ============ -->
+      <div class="toolbar">
+        <label class="field">
+          <span class="sr-only">Curso</span>
+          <select
+            [ngModel]="seleccionado()?.id ?? null"
+            (ngModelChange)="seleccionarAlumnos($event)"
+          >
+            <option [ngValue]="null">Elige un curso</option>
+            @for (c of cursos(); track c.id) {
+              <option [ngValue]="c.id">{{ c.titulo }}</option>
+            }
+          </select>
+        </label>
+        <label class="field">
+          <span class="sr-only">Buscar</span>
+          <input [(ngModel)]="busquedaAlumno" placeholder="Buscar por n.º o estado" />
+        </label>
+        <button class="btn btn-outline" (click)="exportarAlumnos()" [disabled]="!alumnos().length">
+          <app-icon name="download" [size]="16" />Exportar CSV
+        </button>
+      </div>
+      @if (!seleccionado()) {
+        <div class="empty">Elige un curso para ver a sus estudiantes.</div>
+      } @else if (!alumnos().length) {
+        <div class="empty">
+          <strong>Sin estudiantes todavía</strong>Comparte el curso para recibir tus primeras
+          inscripciones.
+        </div>
+      } @else {
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Estudiante</th>
+                <th>Inscrito</th>
+                <th>Avance</th>
+                <th>Estado</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (a of alumnosFiltrados(); track a.id) {
+                <tr>
+                  <td>
+                    n.º {{ a.estudianteId }}
+                    <span class="cell-caption">Inscripción {{ a.id }}</span>
+                  </td>
+                  <td>{{ a.fechaInscripcion | fecha }}</td>
+                  <td class="progress-cell">
+                    <span class="progress"
+                      ><span [style.width.%]="a.porcentajeProgreso"></span
+                    ></span>
+                    {{ a.porcentajeProgreso }}%
+                  </td>
+                  <td>
+                    <span class="pill" [class]="a.estado | tono">{{ a.estado | estado }}</span>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    } @else {
+      <!-- ============ INGRESOS ============ -->
+      <div class="cards two">
+        <section class="panel">
+          <div class="money-row">
+            <span class="muted">Disponible para retirar</span>
+            <strong>{{ saldo()?.disponible | soles }}</strong>
+          </div>
+          <div class="list-row">
+            <span class="muted">En retención</span><b>{{ saldo()?.pendiente | soles }}</b>
+          </div>
+          <div class="list-row">
+            <span class="muted">Reservado por retiros</span><b>{{ saldo()?.reservado | soles }}</b>
+          </div>
+          <div class="list-row">
+            <span class="muted">Retirado</span><b>{{ saldo()?.retirado | soles }}</b>
+          </div>
+        </section>
+        <section class="panel">
+          <h2>Retirar dinero</h2>
+          <p class="note">
+            Mínimo S/ 50. Administración revisa cada solicitud antes de transferir.
+          </p>
+          <div class="form-grid space-top">
+            <label class="field">
+              Monto (S/)
+              <input type="number" min="50" step="0.01" [(ngModel)]="retiroMonto" />
+            </label>
+            <label class="field">
+              Medio
+              <select [(ngModel)]="retiroMedio">
+                <option value="CUENTA_BANCARIA">Cuenta bancaria</option>
+                <option value="YAPE">Yape</option>
+                <option value="PLIN">Plin</option>
+              </select>
+            </label>
+            <label class="field full">
+              {{
+                retiroMedio === 'CUENTA_BANCARIA' ? 'Número de cuenta o CCI' : 'Número de celular'
+              }}
+              <input [(ngModel)]="retiroDestino" placeholder="Datos de prueba" />
+            </label>
+            <div class="field full">
+              <button
+                class="btn btn-primary"
+                (click)="solicitarRetiro()"
+                [disabled]="procesando() || !retiroDestino.trim()"
+              >
+                Solicitar retiro
+              </button>
+            </div>
+          </div>
+        </section>
+      </div>
+      <div class="cards two space-top">
+        <section class="panel">
+          <h2>Ventas</h2>
+          @if (!ordenes().length) {
+            <p class="muted">Aún no has vendido cursos.</p>
+          }
+          @for (o of ordenes(); track o.id) {
+            <div class="list-row">
+              <div>
+                <strong>{{ o.cursoTitulo }}</strong>
+                <div class="meta">
+                  <span>{{ o.fechaCreacion | fecha }}</span>
+                  <span class="pill" [class]="o.estado | tono">{{ o.estado | estado }}</span>
+                </div>
+              </div>
+              <strong>{{ o.montoDocente | soles }}</strong>
+            </div>
+          }
+        </section>
+        <section class="panel">
+          <h2>Retiros</h2>
+          @if (!retiros().length) {
+            <p class="muted">Todavía no solicitaste retiros.</p>
+          }
+          @for (r of retiros(); track r.id) {
+            <div class="list-row">
+              <div>
+                <strong>{{ r.monto | soles }}</strong>
+                <div class="meta">
+                  <span>{{ r.fechaSolicitud | fecha }}</span>
+                  <span>{{ r.medio | estado }}</span>
+                </div>
+                @if (r.motivoRechazo) {
+                  <p class="feedback">«{{ r.motivoRechazo }}»</p>
+                }
+              </div>
+              <span class="pill" [class]="r.estado | tono">{{ r.estado | estado }}</span>
+            </div>
+          }
+        </section>
+      </div>
+    }
+  }
+</div>
+
+@if (dialogo(); as d) {
+  <div class="modal-backdrop" (click)="cerrarDialogo()">
+    <section
+      class="modal-card"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="editor-dialog-title"
+      (click)="$event.stopPropagation()"
+      (keydown.escape)="cerrarDialogo()"
+    >
+      <h2 id="editor-dialog-title">
+        {{
+          d.tipo === 'modulo'
+            ? 'Editar módulo'
+            : d.tipo === 'leccion'
+              ? 'Editar lección'
+              : '¿Eliminar «' + d.titulo + '»?'
+        }}
+      </h2>
+      @if (d.tipo === 'modulo' || d.tipo === 'leccion') {
+        <label class="field">
+          Título
+          <input [(ngModel)]="d.titulo" maxlength="150" />
+        </label>
+        <label class="field">
+          Posición
+          <input type="number" min="1" [(ngModel)]="d.orden" />
+        </label>
+        @if (d.tipo === 'leccion') {
+          <label class="field">
+            Enlace
+            <input [(ngModel)]="d.url" maxlength="500" placeholder="https://" />
+          </label>
+        }
+      } @else {
+        <p class="muted">Se borrará del servidor y no se puede deshacer.</p>
+      }
+      @if (error()) {
+        <p class="alert error" role="alert">{{ error() }}</p>
+      }
+      <div class="mini-actions">
+        <button class="btn btn-quiet" [disabled]="procesando()" (click)="cerrarDialogo()">
+          Cancelar
+        </button>
+        <button
+          class="btn"
+          [class.btn-primary]="d.tipo === 'modulo' || d.tipo === 'leccion'"
+          [class.btn-danger]="d.tipo !== 'modulo' && d.tipo !== 'leccion'"
+          [disabled]="procesando()"
+          (click)="confirmarDialogo()"
+        >
+          {{
+            procesando()
+              ? 'Guardando…'
+              : d.tipo === 'modulo' || d.tipo === 'leccion'
+                ? 'Guardar'
+                : 'Eliminar'
+          }}
+        </button>
+      </div>
+    </section>
+  </div>
+}

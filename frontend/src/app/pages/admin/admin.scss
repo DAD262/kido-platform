@@ -1,0 +1,116 @@
+.count {
+  display: inline-grid;
+  place-items: center;
+  min-width: 18px;
+  height: 18px;
+  margin-left: 6px;
+  padding: 0 5px;
+  border-radius: 9px;
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-size: 11px;
+}
+.first {
+  margin-top: 0;
+}
+.review-list {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+}
+.review-row {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 18px 20px;
+  border-bottom: 1px solid var(--line);
+}
+.review-row:last-child {
+  border-bottom: 0;
+}
+.review-main {
+  flex: 1;
+  min-width: 0;
+}
+.review-main strong {
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 600;
+}
+.review-main p {
+  margin: 4px 0 8px;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  max-width: 70ch;
+}
+.search-field {
+  width: min(340px, 100%);
+}
+.filter-field {
+  width: 200px;
+}
+.identity {
+  display: flex;
+  gap: 18px;
+  max-width: 680px;
+}
+.identity app-icon {
+  color: var(--accent);
+  margin-top: 4px;
+}
+.steps {
+  margin: 0 0 20px;
+  padding-left: 20px;
+  display: grid;
+  gap: 6px;
+}
+.review-modal {
+  width: min(860px, 100%);
+}
+.review-modal .section-heading {
+  align-items: flex-start;
+}
+.review-title {
+  margin: 10px 0 4px;
+  font-size: 26px;
+}
+.rules {
+  margin: 4px 0 12px;
+}
+.review-lesson {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 10px 14px;
+  border-top: 1px solid var(--line);
+  font-size: 14px;
+}
+.lesson-name {
+  flex: 1;
+  min-width: 180px;
+}
+.review-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+}
+@media (max-width: 640px) {
+  .review-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .filter-field,
+  .search-field {
+    width: 100%;
+  }
+  .identity {
+    flex-direction: column;
+  }
+}

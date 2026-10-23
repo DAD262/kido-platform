@@ -1,0 +1,23 @@
+:host {
+  display: block;
+}
+.skip {
+  position: absolute;
+  left: 12px;
+  top: -48px;
+  z-index: 200;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: var(--ink);
+  color: var(--bg);
+}
+.skip:focus {
+  top: 12px;
+}
+.offline {
+  padding: 10px 20px;
+  text-align: center;
+  font-size: 13px;
+  background: var(--warning-soft);
+  color: var(--warning);
+}

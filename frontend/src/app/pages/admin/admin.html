@@ -1,0 +1,534 @@
+<div class="container page">
+  <header class="dashboard-head">
+    <div>
+      <h1>Administración</h1>
+      <p class="muted">
+        @if (
+          pendientes().length + retirarPendientes() + reembolsosPendientes() + docentesPendientes()
+        ) {
+          Tienes
+          {{
+            pendientes().length +
+              retirarPendientes() +
+              reembolsosPendientes() +
+              docentesPendientes()
+          }}
+          solicitudes esperando una decisión.
+        } @else {
+          No hay nada pendiente. Todo está al día.
+        }
+      </p>
+    </div>
+    <button class="btn btn-outline" (click)="cargar()" [disabled]="cargando()">
+      <app-icon name="refresh" [size]="16" />Actualizar
+    </button>
+  </header>
+
+  <div class="stat-grid">
+    <div class="stat">
+      <span class="stat-label">Cursos por revisar</span>
+      <strong>{{ pendientes().length }}</strong>
+      <small>de {{ cursos().length }} cursos en total</small>
+    </div>
+    <div class="stat">
+      <span class="stat-label">Ventas aprobadas</span>
+      <strong>{{ totalAprobado() | soles }}</strong>
+      <small>Comisión KIDO {{ comisionKido() | soles }}</small>
+    </div>
+    <div class="stat">
+      <span class="stat-label">Retiros y reembolsos</span>
+      <strong>{{ retirarPendientes() + reembolsosPendientes() }}</strong>
+      <small>por resolver</small>
+    </div>
+  </div>
+
+  @if (error()) {
+    <div class="alert error" role="alert">{{ error() }}</div>
+  }
+  @if (mensaje()) {
+    <div class="alert success" role="status">{{ mensaje() }}</div>
+  }
+  @if (fallos().length) {
+    <div class="alert warn">
+      <span>
+        {{ fallos().length }}
+        {{ fallos().length === 1 ? 'servicio no respondió' : 'servicios no respondieron' }}:
+        {{ fallos().join(' · ') }}
+      </span>
+      <button class="btn btn-outline btn-small" (click)="cargar()" [disabled]="cargando()">
+        Reintentar
+      </button>
+    </div>
+  }
+
+  <div class="tabs" role="tablist" aria-label="Secciones de administración">
+    <button
+      role="tab"
+      [attr.aria-selected]="tab() === 'cursos'"
+      [class.active]="tab() === 'cursos'"
+      (click)="tab.set('cursos')"
+    >
+      Cursos
+      @if (pendientes().length) {
+        <span class="count">{{ pendientes().length }}</span>
+      }
+    </button>
+    <button
+      role="tab"
+      [attr.aria-selected]="tab() === 'finanzas'"
+      [class.active]="tab() === 'finanzas'"
+      (click)="tab.set('finanzas')"
+    >
+      Finanzas
+      @if (retirarPendientes() + reembolsosPendientes()) {
+        <span class="count">{{ retirarPendientes() + reembolsosPendientes() }}</span>
+      }
+    </button>
+    <button
+      role="tab"
+      [attr.aria-selected]="tab() === 'usuarios'"
+      [class.active]="tab() === 'usuarios'"
+      (click)="tab.set('usuarios')"
+    >
+      Docentes y cuentas
+      @if (docentesPendientes()) {
+        <span class="count">{{ docentesPendientes() }}</span>
+      }
+    </button>
+  </div>
+
+  @if (cargando()) {
+    <div class="skeleton" style="height: 220px"></div>
+  } @else if (tab() === 'cursos') {
+    <section class="section-block first">
+      <h2>Esperan tu revisión</h2>
+      @if (!pendientes().length) {
+        <div class="empty">
+          <strong>Nada por revisar</strong>
+          Cuando un docente envíe un curso, aparecerá aquí para que lo inspecciones antes de
+          publicarlo.
+        </div>
+      } @else {
+        <div class="review-list">
+          @for (c of pendientes(); track c.id) {
+            <article class="review-row">
+              <div class="review-main">
+                <strong>{{ c.titulo }}</strong>
+                <p class="muted">{{ c.descripcion }}</p>
+                <div class="meta">
+                  <span>{{ c.categoria }}</span>
+                  <span>{{ c.tipo === 'GRATUITO' ? 'Gratis' : (c.precio | soles) }}</span>
+                  <span>Docente n.º {{ c.docenteId }}</span>
+                  @if (c.fechaCreacion) {
+                    <span>Enviado {{ c.fechaCreacion | fecha }}</span>
+                  }
+                </div>
+              </div>
+              <button class="btn btn-primary" (click)="abrirRevision(c)">Revisar</button>
+            </article>
+          }
+        </div>
+      }
+    </section>
+
+    <section class="section-block">
+      <div class="section-heading">
+        <h2>Todos los cursos</h2>
+        <label class="field search-field">
+          <span class="sr-only">Buscar cursos</span>
+          <input
+            [ngModel]="busqueda()"
+            (ngModelChange)="busqueda.set($event)"
+            placeholder="Buscar por título, categoría o estado"
+          />
+        </label>
+      </div>
+      @if (!cursosFiltrados().length) {
+        <div class="empty">Ningún curso coincide con «{{ busqueda() }}».</div>
+      } @else {
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Curso</th>
+                <th>Docente</th>
+                <th class="num">Precio</th>
+                <th>Estado</th>
+                <th><span class="sr-only">Acciones</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (c of cursosFiltrados(); track c.id) {
+                <tr>
+                  <td>
+                    <strong>{{ c.titulo }}</strong>
+                    <span class="cell-caption">{{ c.categoria }}</span>
+                  </td>
+                  <td>n.º {{ c.docenteId }}</td>
+                  <td class="num">{{ c.tipo === 'GRATUITO' ? 'Gratis' : (c.precio | soles) }}</td>
+                  <td>
+                    <span class="pill" [class]="c.estado | tono">{{ c.estado | estado }}</span>
+                  </td>
+                  <td class="num">
+                    <button class="btn btn-quiet btn-small" (click)="abrirRevision(c)">
+                      Ver contenido
+                    </button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </section>
+  } @else if (tab() === 'finanzas') {
+    <div class="cards two first">
+      <section class="panel">
+        <div class="section-heading">
+          <h2>Retiros de docentes</h2>
+          @if (retirarPendientes()) {
+            <span class="pill amber">{{ retirarPendientes() }} pendientes</span>
+          }
+        </div>
+        @if (!retiros().length) {
+          <p class="muted">No hay solicitudes de retiro.</p>
+        }
+        @for (r of retiros(); track r.id) {
+          <div class="list-row">
+            <div>
+              <strong>{{ r.monto | soles }}</strong>
+              <div class="meta">
+                <span>Docente n.º {{ r.docenteId }}</span>
+                <span>{{ r.medio | estado }}</span>
+                <span>{{ r.fechaSolicitud | fecha }}</span>
+              </div>
+            </div>
+            <div class="mini-actions">
+              @if (r.estado === 'PENDING') {
+                <button
+                  class="btn btn-quiet btn-small"
+                  [disabled]="procesando()"
+                  (click)="ejecutarRetiro(r.id, 'rechazar')"
+                >
+                  Rechazar
+                </button>
+                <button
+                  class="btn btn-primary btn-small"
+                  [disabled]="procesando()"
+                  (click)="ejecutarRetiro(r.id, 'aprobar')"
+                >
+                  Aprobar
+                </button>
+              } @else if (r.estado === 'APPROVED') {
+                <button
+                  class="btn btn-outline btn-small"
+                  [disabled]="procesando()"
+                  (click)="ejecutarRetiro(r.id, 'pagar')"
+                >
+                  Registrar transferencia
+                </button>
+              } @else {
+                <span class="pill" [class]="r.estado | tono">{{ r.estado | estado }}</span>
+              }
+            </div>
+          </div>
+        }
+      </section>
+
+      <section class="panel">
+        <div class="section-heading">
+          <h2>Reembolsos</h2>
+          @if (reembolsosPendientes()) {
+            <span class="pill amber">{{ reembolsosPendientes() }} pendientes</span>
+          }
+        </div>
+        @if (!reembolsos().length) {
+          <p class="muted">No hay solicitudes de reembolso.</p>
+        }
+        @for (r of reembolsos(); track r.id) {
+          <div class="list-row">
+            <div>
+              <strong>{{ r.monto | soles }}</strong>
+              <p class="muted">«{{ r.motivo }}»</p>
+              <div class="meta">
+                <span>Orden n.º {{ r.ordenId }}</span>
+                <span>{{ r.fechaSolicitud | fecha }}</span>
+              </div>
+            </div>
+            <div class="mini-actions">
+              @if (r.estado === 'SOLICITADO') {
+                <button
+                  class="btn btn-quiet btn-small"
+                  [disabled]="procesando()"
+                  (click)="ejecutarReembolso(r.id, 'rechazar')"
+                >
+                  Rechazar
+                </button>
+                <button
+                  class="btn btn-primary btn-small"
+                  [disabled]="procesando()"
+                  (click)="ejecutarReembolso(r.id, 'aprobar')"
+                >
+                  Aprobar
+                </button>
+              } @else {
+                <span class="pill" [class]="r.estado | tono">{{ r.estado | estado }}</span>
+              }
+            </div>
+          </div>
+        }
+      </section>
+    </div>
+    <p class="note space-top">
+      Registrar una transferencia no mueve dinero: confirma primero el comprobante en el banco o
+      billetera.
+    </p>
+
+    <section class="section-block">
+      <div class="section-heading">
+        <h2>Órdenes de compra</h2>
+        <label class="field filter-field">
+          <span class="sr-only">Filtrar por estado</span>
+          <select [ngModel]="filtroFinanzas()" (ngModelChange)="filtroFinanzas.set($event)">
+            <option value="TODAS">Todos los estados</option>
+            @for (estado of estadosOrden(); track estado) {
+              <option [value]="estado">{{ estado | estado }}</option>
+            }
+          </select>
+        </label>
+      </div>
+      @if (!ordenesFiltradas().length) {
+        <div class="empty">No hay órdenes con este estado.</div>
+      } @else {
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Curso</th>
+                <th>Estudiante</th>
+                <th>Fecha</th>
+                <th class="num">Total</th>
+                <th>Estado</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (o of ordenesFiltradas(); track o.id) {
+                <tr>
+                  <td>
+                    <strong>{{ o.cursoTitulo }}</strong>
+                    <span class="cell-caption">Orden n.º {{ o.id }}</span>
+                  </td>
+                  <td>n.º {{ o.estudianteId }}</td>
+                  <td>{{ o.fechaCreacion | fecha }}</td>
+                  <td class="num">{{ o.montoTotal | soles }}</td>
+                  <td>
+                    <span class="pill" [class]="o.estado | tono">{{ o.estado | estado }}</span>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </section>
+  } @else {
+    <app-solicitudes-docentes (cambio)="cargarResumenDocentes()" />
+
+    <section class="identity">
+      <app-icon name="shield" [size]="28" />
+      <div>
+        <h2>Credenciales y roles viven en Keycloak</h2>
+        <p class="muted">
+          KIDO crea las cuentas desde /registro con su cuenta de servicio y nunca guarda
+          contraseñas. El rol DOCENTE se otorga aprobando una postulación (arriba). Para casos
+          especiales, como dar el rol ADMIN o desactivar a alguien, usa la consola:
+        </p>
+        <ol class="steps">
+          <li>Abre la consola de identidades del realm <strong>kido</strong>.</li>
+          <li>Entra en <strong>Users</strong> y busca a la persona por su correo.</li>
+          <li>En <strong>Role mapping</strong>, asigna o quita ADMIN, DOCENTE o ESTUDIANTE.</li>
+        </ol>
+        <a class="btn btn-primary" [href]="keycloakAdmin" target="_blank" rel="noopener noreferrer">
+          Abrir consola de identidades <app-icon name="external" [size]="15" />
+        </a>
+        <p class="note space-top">
+          Por seguridad, el registro público solo crea cuentas con rol ESTUDIANTE. DOCENTE requiere
+          verificación y ADMIN solo se asigna desde la consola.
+        </p>
+      </div>
+    </section>
+  }
+</div>
+
+@if (vistaPrevia(); as c) {
+  <div class="modal-backdrop" role="presentation" (click)="cerrarRevision()">
+    <section
+      class="modal-card review-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="review-title"
+      (click)="$event.stopPropagation()"
+      (keydown.escape)="cerrarRevision()"
+    >
+      <div class="section-heading">
+        <div>
+          <span class="pill" [class]="c.estado | tono">{{ c.estado | estado }}</span>
+          <h2 id="review-title" class="review-title">{{ c.titulo }}</h2>
+          <div class="meta">
+            <span>{{ c.categoria }}</span>
+            <span>{{ c.tipo === 'GRATUITO' ? 'Gratis' : (c.precio | soles) }}</span>
+            <span>Docente n.º {{ c.docenteId }}</span>
+          </div>
+        </div>
+        <button class="btn btn-quiet btn-small" (click)="cerrarRevision()" aria-label="Cerrar">
+          <app-icon name="close" />
+        </button>
+      </div>
+      <p class="muted">{{ c.descripcion }}</p>
+
+      @if (cargandoVista()) {
+        <p class="muted"><span class="spinner"></span>Cargando módulos y materiales…</p>
+      } @else if (errorVista()) {
+        <div class="alert error">
+          <span>{{ errorVista() }}</span>
+          <button class="btn btn-small btn-outline" (click)="abrirRevision(c)">Reintentar</button>
+        </div>
+      } @else if (contenidoVista(); as contenido) {
+        <div class="meta rules">
+          <span>Avance mínimo {{ contenido.configuracion.progresoMinimo }}%</span>
+          <span>Asistencia mínima {{ contenido.configuracion.asistenciaMinima }}%</span>
+          <span>{{
+            contenido.configuracion.certificadoHabilitado ? 'Emite certificado' : 'Sin certificado'
+          }}</span>
+        </div>
+
+        @if (!contenido.modulos.length) {
+          <div class="alert warn">
+            Este curso no tiene módulos. Pide al docente que complete el contenido.
+          </div>
+        }
+        @for (m of contenido.modulos; track m.id) {
+          <div class="module-block">
+            <header>
+              {{ m.titulo }}
+              <small
+                >{{ m.lecciones.length }}
+                {{ m.lecciones.length === 1 ? 'lección' : 'lecciones' }}</small
+              >
+            </header>
+            @for (l of m.lecciones; track l.id) {
+              <div class="review-lesson">
+                <span class="lesson-name">{{ l.titulo }}</span>
+                <div class="mini-actions">
+                  @if (l.urlContenido) {
+                    <a
+                      class="btn btn-quiet btn-small"
+                      [href]="l.urlContenido"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <app-icon name="external" [size]="14" />Enlace
+                    </a>
+                  }
+                  @for (mat of l.materiales; track mat.id) {
+                    <button class="btn btn-quiet btn-small" (click)="descargarMaterial(mat)">
+                      <app-icon name="file" [size]="14" />{{ mat.nombre }}
+                    </button>
+                  }
+                  @if (!l.urlContenido && !l.materiales.length) {
+                    <span class="note">Sin contenido</span>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        }
+
+        @if (c.estado === 'PENDIENTE_REVISION') {
+          <footer class="review-footer">
+            <button class="btn btn-danger" (click)="revisarYActuar('rechazar')">
+              Pedir cambios
+            </button>
+            <button
+              class="btn btn-primary"
+              [disabled]="!tieneLeccionesRevisables()"
+              (click)="revisarYActuar('aprobar')"
+            >
+              Aprobar y publicar
+            </button>
+          </footer>
+          @if (!tieneLeccionesRevisables()) {
+            <p class="note">Para aprobarlo, el curso necesita al menos una lección.</p>
+          }
+        }
+      }
+    </section>
+  </div>
+}
+
+@if (dialogo(); as d) {
+  <div class="modal-backdrop" (click)="dialogo.set(null)">
+    <section
+      class="modal-card"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="admin-dialog-title"
+      (click)="$event.stopPropagation()"
+      (keydown.escape)="dialogo.set(null)"
+    >
+      <h2 id="admin-dialog-title">{{ tituloDialogo() }}</h2>
+      <p class="muted">
+        @if (d.accion === 'aprobar' && d.grupo === 'curso') {
+          El curso se publicará en el catálogo y los estudiantes podrán inscribirse.
+        } @else if (d.accion === 'rechazar') {
+          La persona recibirá tu comentario para corregir y volver a enviar.
+        } @else if (d.accion === 'pagar') {
+          Escribe el código de la operación bancaria o de la billetera.
+        } @else {
+          Esta decisión queda registrada y se notifica a la persona.
+        }
+      </p>
+      @if (necesitaDato()) {
+        <label class="field">
+          {{ d.accion === 'pagar' ? 'Código de operación' : 'Qué debe corregir' }}
+          <textarea [(ngModel)]="dato" maxlength="500" rows="3"></textarea>
+        </label>
+      }
+      @if (d.accion === 'pagar') {
+        <label class="field checkbox">
+          <input type="checkbox" [(ngModel)]="confirmado" />
+          Ya verifiqué que la transferencia se realizó.
+        </label>
+      }
+      @if (error()) {
+        <p class="alert error" role="alert">{{ error() }}</p>
+      }
+      <div class="mini-actions">
+        <button class="btn btn-quiet" [disabled]="procesando()" (click)="dialogo.set(null)">
+          Cancelar
+        </button>
+        <button
+          class="btn"
+          [class.btn-primary]="d.accion !== 'rechazar'"
+          [class.btn-danger]="d.accion === 'rechazar'"
+          [disabled]="
+            procesando() ||
+            (necesitaDato() && !dato.trim()) ||
+            (d.accion === 'pagar' && !confirmado)
+          "
+          (click)="confirmarDialogo()"
+        >
+          {{
+            procesando()
+              ? 'Guardando…'
+              : d.accion === 'aprobar'
+                ? 'Aprobar'
+                : d.accion === 'rechazar'
+                  ? 'Enviar y rechazar'
+                  : 'Registrar'
+          }}
+        </button>
+      </div>
+    </section>
+  </div>
+}

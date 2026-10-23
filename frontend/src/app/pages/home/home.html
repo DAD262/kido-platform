@@ -1,0 +1,98 @@
+<section class="hero container">
+  <h1>¿Qué quieres aprender hoy?</h1>
+  <form class="hero-search" role="search" (ngSubmit)="buscar()">
+    <app-icon name="search" [size]="22" />
+    <input
+      name="q"
+      type="search"
+      [(ngModel)]="busqueda"
+      placeholder="Python, finanzas, diseño…"
+      aria-label="Buscar cursos"
+      autocomplete="off"
+    />
+    <button class="btn btn-primary" type="submit">Buscar</button>
+  </form>
+  @if (categorias().length) {
+    <div class="chips" aria-label="Categorías">
+      @for (c of categorias(); track c) {
+        <a [routerLink]="['/cursos']" [queryParams]="{ categoria: c }">{{ c }}</a>
+      }
+      @if (gratuitos()) {
+        <a [routerLink]="['/cursos']" [queryParams]="{ tipo: 'GRATUITO' }">Solo gratuitos</a>
+      }
+    </div>
+  }
+</section>
+
+<section class="container block">
+  <div class="section-heading">
+    <h2>Recién publicados</h2>
+    <a class="btn btn-quiet btn-small" routerLink="/cursos">Ver todos los cursos</a>
+  </div>
+
+  @if (cargando()) {
+    <div class="cards">
+      @for (i of [1, 2, 3]; track i) {
+        <div class="skeleton" style="height: 290px"></div>
+      }
+    </div>
+  } @else if (error()) {
+    <div class="alert error" role="alert">
+      <span>No se pudo cargar el catálogo. {{ error() }}</span>
+      <button class="btn btn-small btn-outline" (click)="cargar()">Reintentar</button>
+    </div>
+  } @else if (!cursos().length) {
+    <div class="empty">
+      <strong>Aún no hay cursos publicados</strong>
+      Cuando un docente publique su primer curso y sea aprobado, aparecerá aquí.
+    </div>
+  } @else {
+    <div class="cards">
+      @for (curso of recientes(); track curso.id) {
+        <app-curso-card [curso]="curso" />
+      }
+    </div>
+  }
+</section>
+
+<section class="container block roles">
+  <h2>Un mismo lugar, tres maneras de usarlo</h2>
+  <div class="role-grid">
+    <article>
+      <app-icon name="play" [size]="22" />
+      <h3>Si vienes a aprender</h3>
+      <p>
+        Inscríbete, avanza lección por lección y descarga tu certificado cuando cumplas los
+        requisitos del curso.
+      </p>
+    </article>
+    <article>
+      <app-icon name="book" [size]="22" />
+      <h3>Si vienes a enseñar</h3>
+      <p>
+        Arma tu curso por módulos, sube materiales y sigue el avance de tus estudiantes y tus
+        ingresos.
+      </p>
+    </article>
+    <article>
+      <app-icon name="shield" [size]="22" />
+      <h3>Si administras</h3>
+      <p>
+        Revisa cada curso antes de publicarlo y resuelve retiros y reembolsos desde una sola
+        bandeja.
+      </p>
+    </article>
+  </div>
+  @if (!auth.autenticado && auth.disponible) {
+    <div class="cta">
+      <p>Una sola cuenta para todo KIDO.</p>
+      <a class="btn btn-primary" routerLink="/registro" [queryParams]="{ tipo: 'estudiante' }"
+        >Crear cuenta gratis</a
+      >
+      <a class="btn btn-outline" routerLink="/registro" [queryParams]="{ tipo: 'docente' }"
+        >Quiero enseñar</a
+      >
+      <a class="btn btn-quiet" routerLink="/login">Ya tengo cuenta</a>
+    </div>
+  }
+</section>

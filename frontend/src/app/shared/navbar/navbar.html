@@ -1,0 +1,87 @@
+<header class="bar">
+  <div class="container nav">
+    <a routerLink="/" class="brand" aria-label="KIDO, ir al inicio"><app-logo [tamano]="28" /></a>
+
+    <nav aria-label="Principal">
+      <a routerLink="/cursos" routerLinkActive="active">Cursos</a>
+      @if (auth.autenticado && auth.rolPrincipal) {
+        <a [routerLink]="auth.obtenerPanel()" routerLinkActive="active">
+          {{
+            auth.rolPrincipal === 'ESTUDIANTE'
+              ? 'Mi aprendizaje'
+              : auth.rolPrincipal === 'DOCENTE'
+                ? 'Enseñar'
+                : 'Administración'
+          }}
+        </a>
+      }
+    </nav>
+
+    <button
+      type="button"
+      class="search-trigger"
+      (click)="palette.abrir()"
+      aria-label="Buscar (Ctrl + K)"
+    >
+      <app-icon name="search" [size]="16" />
+      <span class="label">Buscar cursos o ir a…</span>
+      <kbd>{{ esMac ? '⌘' : 'Ctrl' }} K</kbd>
+    </button>
+
+    <div class="session">
+      <button
+        type="button"
+        class="icon-btn"
+        (click)="visual.alternarTema()"
+        [attr.aria-label]="visual.oscuro() ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro'"
+        [title]="visual.oscuro() ? 'Tema claro' : 'Tema oscuro'"
+      >
+        <app-icon [name]="visual.oscuro() ? 'sun' : 'moon'" />
+      </button>
+
+      @if (auth.autenticado) {
+        <div class="account">
+          <button
+            type="button"
+            class="avatar"
+            (click)="menu.set(!menu())"
+            [attr.aria-expanded]="menu()"
+            aria-haspopup="menu"
+            [attr.aria-label]="'Cuenta de ' + auth.usuario"
+          >
+            {{ auth.iniciales }}
+          </button>
+          @if (menu()) {
+            <div class="menu" role="menu">
+              <div class="who">
+                <strong>{{ auth.nombre }}</strong>
+                <span>{{ auth.etiquetaRol }}{{ auth.email ? ' · ' + auth.email : '' }}</span>
+              </div>
+              <a role="menuitem" [routerLink]="auth.obtenerPanel()" (click)="menu.set(false)"
+                ><app-icon name="grid" />Mi panel</a
+              >
+              @if (!auth.tieneRol('DOCENTE') && !auth.tieneRol('ADMIN')) {
+                <a role="menuitem" routerLink="/postular-docente" (click)="menu.set(false)"
+                  ><app-icon name="award" />Enseñar en KIDO</a
+                >
+              }
+              <button role="menuitem" type="button" (click)="cuenta()">
+                <app-icon name="user" />Mi cuenta y contraseña
+              </button>
+              <a role="menuitem" routerLink="/configuracion" (click)="menu.set(false)"
+                ><app-icon name="settings" />Preferencias</a
+              >
+              <hr />
+              <button role="menuitem" type="button" (click)="logout()">
+                <app-icon name="logout" />Cerrar sesión
+              </button>
+            </div>
+          }
+        </div>
+      } @else if (auth.disponible) {
+        <a class="btn btn-quiet btn-small hide-sm" routerLink="/registro">Crear cuenta</a>
+        <a class="btn btn-primary btn-small" routerLink="/login">Ingresar</a>
+      }
+    </div>
+  </div>
+</header>

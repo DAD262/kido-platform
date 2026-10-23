@@ -1,0 +1,139 @@
+.narrow {
+  max-width: 760px;
+}
+.crumb {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  color: var(--muted);
+  margin-bottom: 18px;
+}
+.crumb:hover {
+  color: var(--ink);
+}
+.head {
+  margin-bottom: 24px;
+}
+.head p {
+  max-width: 60ch;
+}
+.state {
+  display: flex;
+  gap: 18px;
+  align-items: flex-start;
+}
+.state-icon {
+  flex: none;
+  width: 52px;
+  height: 52px;
+  display: grid;
+  place-items: center;
+  border-radius: 15px;
+  background: var(--success-soft);
+  color: var(--success);
+}
+.status-head h2 {
+  margin: 12px 0 4px;
+}
+.status-head p {
+  margin: 0;
+}
+.review-note {
+  margin: 18px 0 0;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: var(--warning-soft);
+  border-left: 3px solid var(--warning);
+  font-size: 14px;
+}
+.review-note.bad {
+  background: var(--danger-soft);
+  border-color: var(--danger);
+}
+.review-note strong {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 12.5px;
+}
+.track {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin: 22px 0;
+  padding: 0;
+  font-size: 13px;
+  color: var(--muted);
+}
+.track li {
+  display: grid;
+  gap: 8px;
+}
+.track span {
+  height: 4px;
+  border-radius: 4px;
+  background: var(--line);
+}
+.track .ok {
+  color: var(--ink);
+}
+.track .ok span {
+  background: var(--success);
+}
+.track .now {
+  color: var(--ink);
+}
+.track .now span {
+  background: linear-gradient(90deg, var(--warning) 50%, var(--line) 50%);
+  background-size: 200% 100%;
+  animation: avanzar 1.6s linear infinite;
+}
+.track .warn span {
+  background: var(--warning);
+}
+.track .bad span {
+  background: var(--danger);
+}
+@keyframes avanzar {
+  to {
+    background-position: -200% 0;
+  }
+}
+.facts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px 18px;
+  margin: 0 0 18px;
+}
+.facts dt {
+  font-size: 12px;
+  color: var(--muted);
+}
+.facts dd {
+  margin: 0;
+  font-weight: 500;
+}
+.form h2 {
+  font-size: 17px;
+  margin-bottom: 14px;
+}
+.form hr {
+  border: 0;
+  border-top: 1px solid var(--line);
+  margin: 26px 0 22px;
+}
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 22px;
+}
+@media (max-width: 640px) {
+  .state {
+    flex-direction: column;
+  }
+  .facts {
+    grid-template-columns: 1fr;
+  }
+}

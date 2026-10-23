@@ -1,0 +1,192 @@
+<div class="container page narrow">
+  <a class="crumb" [routerLink]="auth.obtenerPanel()"
+    ><app-icon name="back" [size]="16" />Volver a mi panel</a
+  >
+
+  <header class="head">
+    <span class="eyebrow">Enseñar en KIDO</span>
+    <h1>Postulación docente</h1>
+    <p class="muted">
+      Para proteger a los estudiantes, cada docente pasa por una verificación. Tu cuenta sigue
+      funcionando como estudiante mientras tanto.
+    </p>
+  </header>
+
+  @if (mensaje()) {
+    <div class="alert success" role="status">{{ mensaje() }}</div>
+  }
+
+  @if (account.estado() === 'cargando' && !account.perfil()) {
+    <div class="skeleton" style="height: 260px"></div>
+  } @else if (account.estado() === 'error') {
+    <div class="alert error" role="alert">
+      <span>{{ account.error() }}</span>
+      <button class="btn btn-small btn-outline" type="button" (click)="account.asegurar(true)">
+        Reintentar
+      </button>
+    </div>
+  } @else {
+    @if (esDocente()) {
+      <section class="panel state ok">
+        <span class="state-icon"><app-icon name="award" [size]="24" /></span>
+        <div>
+          <h2>Ya eres docente verificado</h2>
+          <p class="muted">Crea tu próximo curso y envíalo a revisión cuando esté listo.</p>
+          <a class="btn btn-primary" routerLink="/docente"
+            >Ir a mi panel docente <app-icon name="arrow" [size]="16"
+          /></a>
+        </div>
+      </section>
+    } @else if (faltaActivar()) {
+      <section class="panel state ok">
+        <span class="state-icon"><app-icon name="check" [size]="24" /></span>
+        <div>
+          <h2>¡Tu postulación fue aprobada!</h2>
+          <p class="muted">
+            Administración activó tu rol docente. Actualiza tu sesión para empezar a publicar.
+            @if (solicitud()?.comentarioRevision) {
+              <br />Mensaje: «{{ solicitud()?.comentarioRevision }}»
+            }
+          </p>
+          <button
+            class="btn btn-primary"
+            type="button"
+            (click)="activar()"
+            [disabled]="activando()"
+          >
+            @if (activando()) {
+              <span class="spinner"></span>Actualizando…
+            } @else {
+              Activar mi panel docente
+            }
+          </button>
+        </div>
+      </section>
+    } @else if (solicitud(); as s) {
+      @if (!editando()) {
+        <section class="panel status">
+          <div class="status-head">
+            <div>
+              <span class="pill" [class]="s.estado | tono">
+                {{
+                  s.estado === 'PENDIENTE'
+                    ? 'En revisión'
+                    : s.estado === 'OBSERVADA'
+                      ? 'Con observaciones'
+                      : (s.estado | estado)
+                }}
+              </span>
+              <h2>
+                @switch (s.estado) {
+                  @case ('PENDIENTE') {
+                    Estamos revisando tu perfil
+                  }
+                  @case ('OBSERVADA') {
+                    Administración te pidió un ajuste
+                  }
+                  @case ('RECHAZADA') {
+                    Tu postulación no fue aprobada
+                  }
+                }
+              </h2>
+              <p class="muted">Enviada {{ s.enviadoEn | fecha }} · intento {{ s.intentos }}</p>
+            </div>
+          </div>
+
+          @if (s.comentarioRevision && s.estado !== 'PENDIENTE') {
+            <blockquote class="review-note" [class.bad]="s.estado === 'RECHAZADA'">
+              <strong>Comentario de administración</strong>
+              {{ s.comentarioRevision }}
+            </blockquote>
+          }
+
+          <ol class="track">
+            <li class="ok"><span></span>Datos y documento recibidos</li>
+            <li
+              [class.now]="s.estado === 'PENDIENTE'"
+              [class.warn]="s.estado === 'OBSERVADA'"
+              [class.bad]="s.estado === 'RECHAZADA'"
+            >
+              <span></span>Revisión de administración
+            </li>
+            <li><span></span>Rol docente activo</li>
+          </ol>
+
+          <dl class="facts">
+            <div>
+              <dt>Grado</dt>
+              <dd>{{ grado(s.gradoAcademico) }}</dd>
+            </div>
+            <div>
+              <dt>Enseñará</dt>
+              <dd>{{ s.especialidad }}</dd>
+            </div>
+            <div>
+              <dt>Institución</dt>
+              <dd>{{ s.institucion }}</dd>
+            </div>
+            <div>
+              <dt>Experiencia</dt>
+              <dd>{{ s.aniosExperiencia }} años</dd>
+            </div>
+          </dl>
+
+          <div class="mini-actions">
+            @if (s.documento) {
+              <button class="btn btn-outline btn-small" type="button" (click)="verDocumento()">
+                <app-icon name="file" [size]="15" />Ver mi PDF
+              </button>
+            }
+            @if (s.estado === 'OBSERVADA') {
+              <button class="btn btn-primary btn-small" type="button" (click)="corregir(s)">
+                Corregir y reenviar
+              </button>
+            }
+            @if (s.estado === 'RECHAZADA') {
+              <button class="btn btn-primary btn-small" type="button" (click)="corregir(s)">
+                Postular de nuevo
+              </button>
+            }
+          </div>
+        </section>
+      }
+    }
+
+    @if (mostrarFormulario()) {
+      <form class="panel form" (ngSubmit)="enviar()" novalidate>
+        <h2>1 · Perfil profesional</h2>
+        <app-docente-form
+          seccion="perfil"
+          [datos]="datos"
+          [errores]="errores()"
+          (editado)="limpiarError($event)"
+        />
+        <hr />
+        <h2>2 · Verificación</h2>
+        <app-docente-form
+          seccion="verificacion"
+          [datos]="datos"
+          [errores]="errores()"
+          [(documento)]="documento"
+          [documentoActual]="solicitud()?.documento?.nombre ?? null"
+          (editado)="limpiarError($event)"
+        />
+        @if (error()) {
+          <div class="alert error" role="alert">{{ error() }}</div>
+        }
+        <div class="form-actions">
+          @if (editando()) {
+            <button class="btn btn-quiet" type="button" (click)="cancelar()">Cancelar</button>
+          }
+          <button class="btn btn-primary" type="submit" [disabled]="enviando()">
+            @if (enviando()) {
+              <span class="spinner"></span>Enviando…
+            } @else {
+              Enviar postulación
+            }
+          </button>
+        </div>
+      </form>
+    }
+  }
+</div>

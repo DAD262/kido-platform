@@ -1,0 +1,358 @@
+<div class="container page">
+  <header class="dashboard-head">
+    <div>
+      <h1>Hola, {{ auth.nombre }}</h1>
+      <p class="muted">Tus cursos, tu avance y tus certificados.</p>
+    </div>
+    <a class="btn btn-outline" routerLink="/cursos">Explorar cursos</a>
+  </header>
+
+  <app-perfil-estado rol="estudiante" (listo)="cargar()" />
+
+  @if (error()) {
+    <div class="alert error" role="alert">{{ error() }}</div>
+  }
+  @if (mensaje()) {
+    <div class="alert success" role="status">{{ mensaje() }}</div>
+  }
+  @for (f of fallos(); track f) {
+    <div class="alert error">
+      <span>{{ f }}</span>
+      <button class="btn btn-small btn-outline" (click)="cargar()" [disabled]="cargando()">
+        Reintentar
+      </button>
+    </div>
+  }
+
+  @if (account.id()) {
+    @if (siguiente(); as sig) {
+      @if (!seleccionada()) {
+        <button type="button" class="resume" (click)="abrir(sig)">
+          <span class="resume-copy">
+            <small>Continúa donde lo dejaste</small>
+            <strong>{{ titulo(sig.cursoId) }}</strong>
+            <span class="progress"><span [style.width.%]="sig.porcentajeProgreso"></span></span>
+          </span>
+          <span class="resume-pct">{{ sig.porcentajeProgreso }}%</span>
+          <span class="resume-go"><app-icon name="play" [size]="16" />Continuar</span>
+        </button>
+      }
+    }
+
+    <div class="stat-grid space-top">
+      <div class="stat">
+        <span class="stat-label">Cursos</span>
+        <strong>{{ inscripciones().length }}</strong>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Avance promedio</span>
+        <strong>{{ promedioProgreso() }}%</strong>
+        <div class="metric-bar"><span [style.width.%]="promedioProgreso()"></span></div>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Avisos sin leer</span>
+        <strong>{{ noLeidas() }}</strong>
+      </div>
+    </div>
+
+    <div class="tabs" role="tablist">
+      <button
+        role="tab"
+        [attr.aria-selected]="tab() === 'cursos'"
+        [class.active]="tab() === 'cursos'"
+        (click)="tab.set('cursos')"
+      >
+        Mis cursos
+      </button>
+      <button
+        role="tab"
+        [attr.aria-selected]="tab() === 'pagos'"
+        [class.active]="tab() === 'pagos'"
+        (click)="tab.set('pagos')"
+      >
+        Compras
+      </button>
+      <button
+        role="tab"
+        [attr.aria-selected]="tab() === 'avisos'"
+        [class.active]="tab() === 'avisos'"
+        (click)="tab.set('avisos')"
+      >
+        Avisos
+        @if (noLeidas()) {
+          <span class="count">{{ noLeidas() }}</span>
+        }
+      </button>
+      <button
+        class="tab-action"
+        (click)="cargar()"
+        [disabled]="cargando()"
+        title="Actualizar datos"
+      >
+        <app-icon name="refresh" [size]="16" />
+      </button>
+    </div>
+
+    @if (cargando()) {
+      <div class="split">
+        <div class="skeleton" style="height: 260px"></div>
+        <div class="skeleton" style="height: 260px"></div>
+      </div>
+    } @else if (tab() === 'cursos') {
+      <div class="split learn">
+        <section>
+          @if (inscripciones().length > 4) {
+            <label class="field filter">
+              <span class="sr-only">Buscar en mis cursos</span>
+              <input [(ngModel)]="busqueda" placeholder="Buscar en mis cursos" />
+            </label>
+          }
+          @if (!inscripciones().length) {
+            <div class="empty">
+              <strong>Aún no estás inscrito en ningún curso</strong>
+              Elige uno del catálogo; los gratuitos se activan al instante.
+              <br />
+              <a routerLink="/cursos" class="btn btn-primary">Explorar cursos</a>
+            </div>
+          }
+          <div class="enrollments">
+            @for (ins of inscripcionesFiltradas(); track ins.id) {
+              <button
+                type="button"
+                class="enrollment"
+                [class.active]="seleccionada()?.id === ins.id"
+                [attr.aria-pressed]="seleccionada()?.id === ins.id"
+                (click)="abrir(ins)"
+              >
+                <span class="enrollment-text">
+                  <strong>{{ titulo(ins.cursoId) }}</strong>
+                  <span class="meta">
+                    <span class="pill" [class]="ins.estado | tono">{{ ins.estado | estado }}</span>
+                    <span>Desde {{ ins.fechaInscripcion | fecha }}</span>
+                  </span>
+                  <span class="progress"
+                    ><span [style.width.%]="ins.porcentajeProgreso"></span
+                  ></span>
+                </span>
+                <b>{{ ins.porcentajeProgreso }}%</b>
+              </button>
+            }
+          </div>
+        </section>
+
+        <section class="panel path">
+          @if (!seleccionada()) {
+            <div class="empty">
+              <strong>Elige un curso</strong>
+              Verás sus lecciones, tus materiales y el estado de tu certificado.
+            </div>
+          } @else {
+            @let ins = seleccionada()!;
+            <div class="section-heading">
+              <div>
+                <h2>{{ titulo(ins.cursoId) }}</h2>
+                @if (estado(); as e) {
+                  <div class="meta">
+                    <span>Avance {{ e.progreso }}% de {{ e.progresoMinimo }}% requerido</span>
+                    <span>Asistencia {{ e.asistencia }}% de {{ e.asistenciaMinima }}%</span>
+                  </div>
+                }
+              </div>
+              <button
+                class="btn btn-primary btn-small"
+                (click)="continuar()"
+                [disabled]="cargandoContenido() || !contenido()"
+              >
+                Siguiente lección
+              </button>
+            </div>
+
+            @if (cargandoContenido()) {
+              <p class="muted" role="status"><span class="spinner"></span>Cargando lecciones…</p>
+            }
+
+            @for (modulo of contenido()?.modulos ?? []; track modulo.id) {
+              <h3 class="module-name">{{ modulo.titulo }}</h3>
+              @for (leccion of modulo.lecciones; track leccion.id) {
+                <div class="content-lesson" [class.lesson-active]="leccionActiva() === leccion.id">
+                  <button
+                    class="lesson-title"
+                    (click)="abrirLeccion(leccion.id)"
+                    [attr.aria-expanded]="leccionActiva() === leccion.id"
+                  >
+                    <span class="check" [class.done]="completada(leccion.id)">✓</span>
+                    {{ leccion.titulo }}
+                  </button>
+                  @if (leccionActiva() === leccion.id) {
+                    <div class="lesson-body">
+                      @if (leccion.urlContenido) {
+                        <button
+                          class="btn btn-outline btn-small"
+                          (click)="abrirEnlace(leccion.urlContenido)"
+                        >
+                          <app-icon name="external" [size]="15" />Abrir la clase
+                        </button>
+                      }
+                      @for (mat of leccion.materiales; track mat.id) {
+                        <button type="button" class="material-link" (click)="abrirMaterial(mat)">
+                          <app-icon name="download" [size]="14" /> {{ mat.nombre }}
+                          <small class="muted">({{ mat.tipo }})</small>
+                        </button>
+                      }
+                      @if (!leccion.urlContenido && !leccion.materiales.length) {
+                        <p class="note">Esta lección todavía no tiene contenido adjunto.</p>
+                      }
+                      @if (!completada(leccion.id)) {
+                        <button
+                          class="btn btn-primary btn-small"
+                          [disabled]="procesando() || ins.estado === 'CANCELADA'"
+                          (click)="completar(leccion.id)"
+                        >
+                          <app-icon name="check" [size]="15" />Marcar como completada
+                        </button>
+                      } @else {
+                        <span class="pill green">Completada</span>
+                      }
+                    </div>
+                  }
+                </div>
+              }
+            }
+
+            <section class="certificate">
+              <app-icon name="award" [size]="22" />
+              <div>
+                <h3>Certificado</h3>
+                @if (!ins.certificadoHabilitado) {
+                  <p class="note">Este curso no emite certificado.</p>
+                } @else if (certificado(); as cert) {
+                  <p class="note">Estado: {{ cert.estado | estado }}</p>
+                  @if (cert.estado === 'DISPONIBLE') {
+                    <button class="btn btn-primary btn-small" (click)="descargar()">
+                      <app-icon name="download" [size]="15" />Descargar PDF
+                    </button>
+                  } @else if (cert.estado === 'PENDIENTE_PAGO') {
+                    <button
+                      class="btn btn-primary btn-small"
+                      [disabled]="procesando()"
+                      (click)="pagarCertificado()"
+                    >
+                      Pagar certificado
+                    </button>
+                  }
+                } @else {
+                  <p class="note">Se habilita cuando cumples el avance y la asistencia mínimos.</p>
+                  <button
+                    class="btn btn-outline btn-small"
+                    (click)="solicitarCertificado()"
+                    [disabled]="procesando() || !estado()?.elegibleCertificado"
+                  >
+                    Solicitar certificado
+                  </button>
+                }
+              </div>
+            </section>
+          }
+        </section>
+      </div>
+    } @else if (tab() === 'pagos') {
+      @if (!ordenes().length) {
+        <div class="empty">
+          <strong>No tienes compras</strong>
+          Cuando compres un curso de pago, su recibo aparecerá aquí.
+        </div>
+      } @else {
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Curso</th>
+                <th>Fecha</th>
+                <th class="num">Total</th>
+                <th>Estado</th>
+                <th><span class="sr-only">Acciones</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (o of ordenes(); track o.id) {
+                <tr>
+                  <td>
+                    <strong>{{ o.cursoTitulo }}</strong>
+                    <span class="cell-caption">Orden n.º {{ o.id }}</span>
+                  </td>
+                  <td>{{ o.fechaCreacion | fecha }}</td>
+                  <td class="num">{{ o.montoTotal | soles }}</td>
+                  <td>
+                    <span class="pill" [class]="o.estado | tono">{{ o.estado | estado }}</span>
+                  </td>
+                  <td class="num">
+                    @if (o.estado === 'APROBADA') {
+                      <button class="btn btn-quiet btn-small" (click)="solicitarReembolso(o)">
+                        Pedir reembolso
+                      </button>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    } @else {
+      @if (!notificaciones().length) {
+        <div class="empty">
+          <strong>Sin avisos</strong>
+          Aquí verás pagos confirmados, certificados listos y otras novedades.
+        </div>
+      }
+      <div class="notices">
+        @for (n of notificaciones(); track n.id) {
+          <div class="list-row" [class.unread]="!n.leida">
+            <div>
+              <strong>{{ n.asunto }}</strong>
+              <p class="muted">{{ n.mensaje }}</p>
+              <small class="note">{{ n.fechaCreacion | fecha }}</small>
+            </div>
+            @if (!n.leida) {
+              <button class="btn btn-quiet btn-small" (click)="leer(n)">Marcar como leído</button>
+            }
+          </div>
+        }
+      </div>
+    }
+  }
+</div>
+
+@if (reembolso(); as orden) {
+  <div class="modal-backdrop" (click)="reembolso.set(null)" (keydown.escape)="reembolso.set(null)">
+    <section
+      class="modal-card"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="reembolso-titulo"
+      (click)="$event.stopPropagation()"
+    >
+      <h2 id="reembolso-titulo">Pedir reembolso</h2>
+      <p class="muted">{{ orden.cursoTitulo }} · {{ orden.montoTotal | soles }}</p>
+      <label class="field">
+        ¿Por qué solicitas el reembolso?
+        <textarea [(ngModel)]="motivoReembolso" maxlength="500" rows="4"></textarea>
+      </label>
+      @if (error()) {
+        <p class="alert error">{{ error() }}</p>
+      }
+      <div class="mini-actions">
+        <button class="btn btn-quiet" [disabled]="procesando()" (click)="reembolso.set(null)">
+          Cancelar
+        </button>
+        <button
+          class="btn btn-primary"
+          [disabled]="procesando() || !motivoReembolso.trim()"
+          (click)="enviarReembolso()"
+        >
+          {{ procesando() ? 'Enviando…' : 'Enviar solicitud' }}
+        </button>
+      </div>
+    </section>
+  </div>
+}

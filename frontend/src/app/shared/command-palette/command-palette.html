@@ -1,0 +1,49 @@
+@if (palette.abierto()) {
+  <div class="backdrop" (click)="palette.cerrar()"></div>
+  <div class="palette" role="dialog" aria-modal="true" aria-label="Buscar y navegar">
+    <div class="search">
+      <app-icon name="search" />
+      <input
+        #campo
+        type="text"
+        role="combobox"
+        aria-expanded="true"
+        aria-controls="palette-list"
+        [attr.aria-activedescendant]="'cmd-' + activo()"
+        placeholder="Busca un curso o escribe a dónde ir"
+        autocomplete="off"
+        spellcheck="false"
+        [value]="consulta()"
+        (input)="onInput(campo.value)"
+        (keydown)="onKeydown($event)"
+      />
+      <kbd>Esc</kbd>
+    </div>
+    <ul id="palette-list" role="listbox">
+      @for (cmd of resultados(); track cmd.id; let i = $index) {
+        @if (esInicioDeGrupo(i)) {
+          <li class="group" role="presentation">{{ cmd.grupo }}</li>
+        }
+        <li
+          [id]="'cmd-' + i"
+          role="option"
+          [attr.aria-selected]="activo() === i"
+          [class.active]="activo() === i"
+          (mouseenter)="activo.set(i)"
+          (click)="ejecutar(cmd)"
+        >
+          <app-icon [name]="cmd.icono" />
+          <span class="title">{{ cmd.titulo }}</span>
+          @if (cmd.detalle) {
+            <span class="detail">{{ cmd.detalle }}</span>
+          }
+        </li>
+      }
+    </ul>
+    <footer>
+      <span><kbd>↑</kbd><kbd>↓</kbd> moverse</span>
+      <span><kbd>Enter</kbd> abrir</span>
+      <span><kbd>Ctrl</kbd><kbd>K</kbd> abrir en cualquier momento</span>
+    </footer>
+  </div>
+}

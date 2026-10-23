@@ -1,0 +1,16 @@
+<a class="skip" href="#contenido">Saltar al contenido</a>
+@if (!chromeless()) {
+  <app-navbar />
+}
+@if (!auth.disponible && !chromeless()) {
+  <div class="offline" role="status">
+    El servicio de identidad no responde: puedes ver el catálogo, pero no iniciar sesión.
+  </div>
+}
+<main id="contenido">
+  <router-outlet />
+</main>
+@if (!chromeless()) {
+  <app-footer />
+}
+<app-command-palette />

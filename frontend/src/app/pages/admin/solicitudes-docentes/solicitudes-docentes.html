@@ -1,0 +1,271 @@
+<section class="block">
+  <div class="section-heading">
+    <div>
+      <h2>Postulaciones docentes</h2>
+      <p class="muted">Verifica identidad y trayectoria antes de otorgar el rol docente.</p>
+    </div>
+    <div class="filters" role="tablist" aria-label="Filtrar postulaciones">
+      @for (f of filtros; track f.id) {
+        <button
+          type="button"
+          role="tab"
+          [class.on]="filtro() === f.id"
+          [attr.aria-selected]="filtro() === f.id"
+          (click)="filtrar(f.id)"
+        >
+          {{ f.etiqueta }}
+        </button>
+      }
+    </div>
+  </div>
+
+  @if (mensaje()) {
+    <div class="alert success" role="status">
+      <span>{{ mensaje() }}</span>
+      <button
+        class="btn btn-quiet btn-small"
+        type="button"
+        (click)="mensaje.set('')"
+        aria-label="Cerrar aviso"
+      >
+        <app-icon name="close" [size]="15" />
+      </button>
+    </div>
+  }
+  @if (error()) {
+    <div class="alert error" role="alert">
+      <span>{{ error() }}</span>
+      <button class="btn btn-small btn-outline" type="button" (click)="cargar()">Reintentar</button>
+    </div>
+  }
+
+  @if (cargando()) {
+    <div class="skeleton" style="height: 160px"></div>
+  } @else if (!lista().length && !error()) {
+    <div class="empty">
+      <strong>{{
+        filtro() === 'ACTIVAS' ? 'No hay postulaciones por revisar' : 'Sin resultados'
+      }}</strong>
+      Cuando alguien se registre como docente, su solicitud aparecerá aquí.
+    </div>
+  } @else {
+    <ul class="apps">
+      @for (s of lista(); track s.id) {
+        <li>
+          <button type="button" class="app-row" (click)="abrir(s)">
+            <span class="avatar" aria-hidden="true">{{ iniciales(s.nombreCompleto) }}</span>
+            <span class="app-main">
+              <strong>{{ s.nombreCompleto }}</strong>
+              <span class="meta">
+                <span>{{ s.especialidad }}</span>
+                <span>{{ grado(s.gradoAcademico) }}</span>
+                <span>{{ s.aniosExperiencia }} años</span>
+              </span>
+            </span>
+            <span class="app-side">
+              <span class="pill" [class]="s.estado | tono">{{
+                s.estado === 'PENDIENTE' ? 'Por revisar' : (s.estado | estado)
+              }}</span>
+              <small
+                >{{ s.enviadoEn | fecha
+                }}{{ s.intentos > 1 ? ' · reenvío ' + s.intentos : '' }}</small
+              >
+            </span>
+            <app-icon class="chev" name="arrow" [size]="16" />
+          </button>
+        </li>
+      }
+    </ul>
+  }
+</section>
+
+@if (abierta(); as s) {
+  <div class="modal-backdrop" role="presentation" (click)="cerrar()">
+    <section
+      class="modal-card review"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="app-title"
+      (click)="$event.stopPropagation()"
+      (keydown.escape)="cerrar()"
+    >
+      <header class="review-head">
+        <span class="avatar big" aria-hidden="true">{{ iniciales(s.nombreCompleto) }}</span>
+        <div class="who">
+          <span class="pill" [class]="s.estado | tono">{{
+            s.estado === 'PENDIENTE' ? 'Por revisar' : (s.estado | estado)
+          }}</span>
+          <h2 id="app-title">{{ s.nombreCompleto }}</h2>
+          <div class="meta">
+            <span>{{ s.email }}</span>
+            <span>Perfil n.º {{ s.perfilId }}</span>
+            <span>Enviada {{ s.enviadoEn | fecha }}</span>
+          </div>
+        </div>
+        <button
+          class="btn btn-quiet btn-small"
+          type="button"
+          (click)="cerrar()"
+          aria-label="Cerrar"
+        >
+          <app-icon name="close" />
+        </button>
+      </header>
+
+      <div class="review-body">
+        <div class="facts">
+          <h3>Identidad</h3>
+          <dl>
+            <div>
+              <dt>DNI</dt>
+              <dd class="mono">{{ s.dni }}</dd>
+            </div>
+            <div>
+              <dt>Celular</dt>
+              <dd class="mono">+51 {{ s.telefono }}</dd>
+            </div>
+          </dl>
+          <h3>Trayectoria</h3>
+          <dl>
+            <div>
+              <dt>Grado</dt>
+              <dd>{{ grado(s.gradoAcademico) }}</dd>
+            </div>
+            <div>
+              <dt>Experiencia</dt>
+              <dd>{{ s.aniosExperiencia }} años</dd>
+            </div>
+            <div class="wide">
+              <dt>Institución</dt>
+              <dd>{{ s.institucion }}</dd>
+            </div>
+            <div class="wide">
+              <dt>Enseñará</dt>
+              <dd>{{ s.especialidad }}</dd>
+            </div>
+            @if (s.enlaceProfesional) {
+              <div class="wide">
+                <dt>Enlace profesional</dt>
+                <dd>
+                  <a
+                    class="ext"
+                    [href]="s.enlaceProfesional"
+                    target="_blank"
+                    rel="noopener noreferrer nofollow"
+                  >
+                    {{ s.enlaceProfesional }} <app-icon name="external" [size]="13" />
+                  </a>
+                </dd>
+              </div>
+            }
+          </dl>
+          <h3>Presentación</h3>
+          <p class="bio">{{ s.presentacion }}</p>
+          @if (s.comentarioRevision) {
+            <p class="prev">
+              <strong>Revisión anterior ({{ s.revisadoPor }}):</strong> {{ s.comentarioRevision }}
+            </p>
+          }
+        </div>
+
+        <div class="doc">
+          <div class="doc-head">
+            <h3>Documento</h3>
+            @if (s.documento) {
+              <button
+                class="btn btn-quiet btn-small"
+                type="button"
+                (click)="abrirPdfAparte()"
+                [disabled]="!pdfUrl()"
+              >
+                Abrir aparte <app-icon name="external" [size]="13" />
+              </button>
+            }
+          </div>
+          @if (s.documento; as d) {
+            <small class="muted">{{ d.nombre }} · {{ peso(d.tamano) }}</small>
+            @if (cargandoPdf()) {
+              <div class="skeleton pdf"></div>
+            } @else if (pdfUrl(); as url) {
+              <iframe class="pdf" [src]="url" title="Documento de sustento"></iframe>
+            }
+          } @else {
+            <div class="empty">Sin documento adjunto.</div>
+          }
+        </div>
+      </div>
+
+      @if (revisable(s)) {
+        <footer class="decision">
+          <fieldset class="checks">
+            <legend>Antes de aprobar, confirma:</legend>
+            <label
+              ><input type="checkbox" [(ngModel)]="checks.identidad" name="c1" />El nombre y el DNI
+              son coherentes</label
+            >
+            <label
+              ><input type="checkbox" [(ngModel)]="checks.documento" name="c2" />El PDF respalda el
+              grado y la experiencia</label
+            >
+            <label
+              ><input type="checkbox" [(ngModel)]="checks.presentacion" name="c3" />La presentación
+              es adecuada para estudiantes</label
+            >
+          </fieldset>
+          <label class="field">
+            Comentario para el postulante
+            <textarea
+              rows="2"
+              maxlength="600"
+              name="comentario"
+              [(ngModel)]="comentario"
+              placeholder="Obligatorio si pides corrección o rechazas. Ej.: «Sube tu título; el PDF es solo una foto del DNI.»"
+            ></textarea>
+          </label>
+          @if (errorDetalle()) {
+            <div class="alert error" role="alert">{{ errorDetalle() }}</div>
+          }
+          <div class="decision-actions">
+            <button
+              class="btn btn-danger"
+              type="button"
+              (click)="decidir('rechazar')"
+              [disabled]="!!procesando()"
+            >
+              {{ procesando() === 'rechazar' ? 'Rechazando…' : 'Rechazar' }}
+            </button>
+            <button
+              class="btn btn-outline"
+              type="button"
+              (click)="decidir('observar')"
+              [disabled]="!!procesando()"
+            >
+              {{ procesando() === 'observar' ? 'Enviando…' : 'Pedir corrección' }}
+            </button>
+            <button
+              class="btn btn-primary"
+              type="button"
+              (click)="decidir('aprobar')"
+              [disabled]="!!procesando() || !verificado()"
+              [title]="verificado() ? '' : 'Marca las tres verificaciones'"
+            >
+              @if (procesando() === 'aprobar') {
+                <span class="spinner"></span>Aprobando…
+              } @else {
+                <app-icon name="check" [size]="16" />Aprobar y dar rol docente
+              }
+            </button>
+          </div>
+        </footer>
+      } @else {
+        @if (errorDetalle()) {
+          <div class="alert error" role="alert">{{ errorDetalle() }}</div>
+        }
+        <p class="note closed">
+          Revisada por {{ s.revisadoPor ?? '—' }} el {{ s.revisadoEn | fecha }}. Las decisiones
+          cerradas no se editan.
+        </p>
+      }
+    </section>
+  </div>
+}

@@ -1,0 +1,360 @@
+<app-auth-shell [modo]="modoShell()">
+  @switch (paso()) {
+    @case ('tipo') {
+      <span class="eyebrow">Crear cuenta</span>
+      <h1>¿Cómo usarás KIDO?</h1>
+      <p class="muted lead">
+        Elige tu perfil. Podrás aprender desde el primer minuto con cualquiera de los dos.
+      </p>
+
+      @if (auth.autenticado) {
+        <div class="alert">
+          <span
+            >Ya tienes una sesión abierta como <strong>{{ auth.nombre }}</strong
+            >.</span
+          >
+          @if (!auth.tieneRol('DOCENTE')) {
+            <a class="btn btn-small btn-outline" routerLink="/postular-docente"
+              >Postular como docente</a
+            >
+          } @else {
+            <a class="btn btn-small btn-outline" [routerLink]="auth.obtenerPanel()"
+              >Ir a mi panel</a
+            >
+          }
+        </div>
+      }
+
+      <div class="types" role="list">
+        <button type="button" class="type" role="listitem" (click)="elegir('ESTUDIANTE')">
+          <span class="type-icon"><app-icon name="book" [size]="22" /></span>
+          <span class="type-copy">
+            <strong>Quiero aprender</strong>
+            <span>Cursos gratuitos y de pago, avance guardado y certificados verificables.</span>
+            <span class="type-meta"
+              ><app-icon name="check" [size]="14" />1 paso · nombre, correo y contraseña</span
+            >
+          </span>
+          <app-icon class="go" name="arrow" [size]="18" />
+        </button>
+        <button type="button" class="type teach" role="listitem" (click)="elegir('DOCENTE')">
+          <span class="type-icon"><app-icon name="award" [size]="22" /></span>
+          <span class="type-copy">
+            <strong>Quiero enseñar</strong>
+            <span
+              >Publica cursos y recibe pagos. Antes verificamos tu identidad y trayectoria.</span
+            >
+            <span class="type-meta"
+              ><app-icon name="shield" [size]="14" />3 pasos · DNI, grado académico y CV en
+              PDF</span
+            >
+          </span>
+          <app-icon class="go" name="arrow" [size]="18" />
+        </button>
+      </div>
+
+      <p class="switch">¿Ya tienes cuenta? <a routerLink="/login">Ingresa</a></p>
+    }
+
+    @case ('listo') {
+      @if (resultado(); as r) {
+        <div class="done">
+          <span class="done-mark" aria-hidden="true"><app-icon name="check" [size]="30" /></span>
+          @if (r.tipo === 'DOCENTE') {
+            <h1>Postulación enviada</h1>
+            <p class="muted lead">
+              Tu cuenta <strong>{{ r.usuario }}</strong> ya está activa. Mientras administración
+              revisa tu perfil, puedes explorar y tomar cursos.
+            </p>
+            <ol class="timeline">
+              <li class="ok">
+                <span class="tl-dot"><app-icon name="check" [size]="14" /></span>
+                <div>
+                  <strong>Cuenta creada</strong><small>Rol estudiante activo desde ahora.</small>
+                </div>
+              </li>
+              <li class="now">
+                <span class="tl-dot"></span>
+                <div>
+                  <strong>Revisión de administración</strong>
+                  <small
+                    >Validan tu DNI, grado y documento. Verás el estado en «Postulación
+                    docente».</small
+                  >
+                </div>
+              </li>
+              <li>
+                <span class="tl-dot"></span>
+                <div>
+                  <strong>Rol docente activo</strong
+                  ><small>Creas cursos y los envías a publicación.</small>
+                </div>
+              </li>
+            </ol>
+          } @else {
+            <h1>¡Bienvenido, {{ cuenta.nombres.split(' ')[0] }}!</h1>
+            <p class="muted lead">
+              Tu cuenta <strong>{{ r.usuario }}</strong> está lista. Ingresa con tu contraseña para
+              empezar.
+            </p>
+          }
+          <button class="btn btn-primary btn-block big" type="button" (click)="ingresar()">
+            Ingresar ahora <app-icon name="arrow" [size]="16" />
+          </button>
+          <a class="btn btn-quiet btn-block" routerLink="/cursos">Ver el catálogo primero</a>
+        </div>
+      }
+    }
+
+    @default {
+      <div class="step-head">
+        <button type="button" class="link-back" (click)="atras()">
+          <app-icon name="back" [size]="16" />{{
+            indice() > 0 ? 'Paso anterior' : 'Cambiar tipo de cuenta'
+          }}
+        </button>
+        <span
+          class="pill plain"
+          [class.blue]="tipo() === 'ESTUDIANTE'"
+          [class.amber]="tipo() === 'DOCENTE'"
+        >
+          {{ tipo() === 'DOCENTE' ? 'Docente' : 'Estudiante' }}
+        </span>
+      </div>
+
+      @if (pasos().length) {
+        <ol class="stepper" aria-label="Progreso del registro">
+          @for (p of pasos(); track p.id; let i = $index) {
+            <li
+              [class.done]="i < indice()"
+              [class.current]="i === indice()"
+              [attr.aria-current]="i === indice() ? 'step' : null"
+            >
+              <span class="num">
+                @if (i < indice()) {
+                  <app-icon name="check" [size]="13" />
+                } @else {
+                  {{ i + 1 }}
+                }
+              </span>
+              <span class="lbl">{{ p.etiqueta }}</span>
+            </li>
+          }
+        </ol>
+      }
+
+      <form (ngSubmit)="siguiente()" novalidate>
+        @switch (paso()) {
+          @case ('cuenta') {
+            <h1>{{ tipo() === 'DOCENTE' ? 'Empecemos por tu cuenta' : 'Crea tu cuenta' }}</h1>
+            <p class="muted lead">Con estos datos ingresarás a KIDO.</p>
+
+            <div class="grid">
+              <label class="field" [class.invalid]="errores()['nombres']">
+                Nombres
+                <input
+                  name="nombres"
+                  autocomplete="given-name"
+                  maxlength="80"
+                  [(ngModel)]="cuenta.nombres"
+                  (ngModelChange)="limpiarError('nombres')"
+                  [attr.aria-invalid]="!!errores()['nombres']"
+                />
+                @if (errores()['nombres']) {
+                  <small class="err">{{ errores()['nombres'] }}</small>
+                }
+              </label>
+              <label class="field" [class.invalid]="errores()['apellidos']">
+                Apellidos
+                <input
+                  name="apellidos"
+                  autocomplete="family-name"
+                  maxlength="80"
+                  [(ngModel)]="cuenta.apellidos"
+                  (ngModelChange)="limpiarError('apellidos')"
+                  [attr.aria-invalid]="!!errores()['apellidos']"
+                />
+                @if (errores()['apellidos']) {
+                  <small class="err">{{ errores()['apellidos'] }}</small>
+                }
+              </label>
+
+              <label class="field full" [class.invalid]="errores()['email']">
+                Correo
+                <span class="with-status">
+                  <input
+                    name="email"
+                    type="email"
+                    inputmode="email"
+                    autocomplete="email"
+                    maxlength="160"
+                    placeholder="nombre@correo.com"
+                    [(ngModel)]="cuenta.email"
+                    (ngModelChange)="cambioEmail()"
+                    (blur)="revisarEmail()"
+                    [attr.aria-invalid]="!!errores()['email']"
+                  />
+                  @switch (emailEstado()) {
+                    @case ('revisando') {
+                      <span class="status"><span class="spinner"></span></span>
+                    }
+                    @case ('libre') {
+                      <span class="status ok" title="Correo disponible"
+                        ><app-icon name="check" [size]="16"
+                      /></span>
+                    }
+                  }
+                </span>
+                @if (errores()['email']) {
+                  <small class="err">
+                    {{ errores()['email'] }}
+                    @if (emailEstado() === 'ocupado') {
+                      <a routerLink="/login">Ingresar</a>
+                    }
+                  </small>
+                } @else {
+                  <small class="hint">Será tu usuario para ingresar.</small>
+                }
+              </label>
+
+              <div class="field full" [class.invalid]="errores()['password']">
+                <label for="password">Contraseña</label>
+                <span class="with-status">
+                  <input
+                    id="password"
+                    name="password"
+                    [type]="verPassword() ? 'text' : 'password'"
+                    autocomplete="new-password"
+                    maxlength="72"
+                    [(ngModel)]="cuenta.password"
+                    (ngModelChange)="cambioPassword($event)"
+                    [attr.aria-invalid]="!!errores()['password']"
+                    aria-describedby="reglas-password"
+                  />
+                  <button
+                    type="button"
+                    class="eye"
+                    (click)="verPassword.set(!verPassword())"
+                    [attr.aria-label]="verPassword() ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+                    [attr.aria-pressed]="verPassword()"
+                  >
+                    {{ verPassword() ? 'Ocultar' : 'Ver' }}
+                  </button>
+                </span>
+                <div class="meter" [attr.data-nivel]="fuerza().nivel" aria-hidden="true">
+                  <span></span><span></span><span></span><span></span>
+                  <em>{{ fuerza().etiqueta }}</em>
+                </div>
+                <ul id="reglas-password" class="rules">
+                  @for (r of reglas; track r.id) {
+                    <li [class.ok]="cumple(r)">
+                      <app-icon [name]="cumple(r) ? 'check' : 'plus'" [size]="13" />{{ r.texto }}
+                    </li>
+                  }
+                </ul>
+                @if (errores()['password']) {
+                  <small class="err">{{ errores()['password'] }}</small>
+                }
+              </div>
+
+              <label class="terms full" [class.invalid]="errores()['aceptaTerminos']">
+                <input
+                  type="checkbox"
+                  name="aceptaTerminos"
+                  [(ngModel)]="cuenta.aceptaTerminos"
+                  (ngModelChange)="limpiarError('aceptaTerminos')"
+                />
+                <span>Acepto los términos de uso y la política de privacidad de KIDO.</span>
+              </label>
+              @if (errores()['aceptaTerminos']) {
+                <small class="err full">{{ errores()['aceptaTerminos'] }}</small>
+              }
+            </div>
+          }
+
+          @case ('perfil') {
+            <h1>Tu perfil profesional</h1>
+            <p class="muted lead">
+              Esto ve administración para verificarte; tu presentación la verán tus estudiantes.
+            </p>
+            <app-docente-form
+              seccion="perfil"
+              [datos]="docente"
+              [errores]="errores()"
+              (editado)="limpiarError($event)"
+            />
+          }
+
+          @case ('verificacion') {
+            <h1>Verifica tu trayectoria</h1>
+            <p class="muted lead">
+              Un documento que respalde lo que contaste. Lo revisa una persona, no un robot.
+            </p>
+
+            <app-docente-form
+              seccion="verificacion"
+              [datos]="docente"
+              [errores]="errores()"
+              [(documento)]="documento"
+              (editado)="limpiarError($event)"
+            />
+
+            <section class="summary" aria-label="Resumen de tu postulación">
+              <header>
+                <strong>Resumen</strong>
+                <button type="button" class="btn btn-quiet btn-small" (click)="irA('perfil')">
+                  Editar
+                </button>
+              </header>
+              <dl>
+                <div>
+                  <dt>Nombre</dt>
+                  <dd>{{ nombreCompleto() }}</dd>
+                </div>
+                <div>
+                  <dt>Correo</dt>
+                  <dd>{{ cuenta.email }}</dd>
+                </div>
+                <div>
+                  <dt>DNI</dt>
+                  <dd>{{ docente.dni }}</dd>
+                </div>
+                <div>
+                  <dt>Grado</dt>
+                  <dd>{{ grado(docente.gradoAcademico) }}</dd>
+                </div>
+                <div class="wide">
+                  <dt>Enseñará</dt>
+                  <dd>{{ docente.especialidad }}</dd>
+                </div>
+                <div class="wide">
+                  <dt>Institución</dt>
+                  <dd>{{ docente.institucion }} · {{ docente.aniosExperiencia }} años</dd>
+                </div>
+              </dl>
+            </section>
+          }
+        }
+
+        @if (errorGeneral()) {
+          <div class="alert error" role="alert">{{ errorGeneral() }}</div>
+        }
+
+        <div class="form-actions">
+          <button class="btn btn-primary btn-block big" type="submit" [disabled]="enviando()">
+            @if (enviando()) {
+              <span class="spinner on-accent"></span>Creando tu cuenta…
+            } @else if (tipo() === 'ESTUDIANTE') {
+              Crear mi cuenta
+            } @else if (paso() === 'verificacion') {
+              Enviar postulación
+            } @else {
+              Continuar <app-icon name="arrow" [size]="16" />
+            }
+          </button>
+        </div>
+        <p class="switch">¿Ya tienes cuenta? <a routerLink="/login">Ingresa</a></p>
+      </form>
+    }
+  }
+</app-auth-shell>

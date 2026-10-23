@@ -1,0 +1,206 @@
+@if (seccion() === 'perfil') {
+  <div class="grid">
+    <label class="field" [class.invalid]="error('dni')">
+      DNI
+      <input
+        name="dni"
+        inputmode="numeric"
+        autocomplete="off"
+        maxlength="8"
+        placeholder="8 dígitos"
+        [ngModel]="d.dni"
+        (ngModelChange)="dni($event)"
+        [attr.aria-invalid]="!!error('dni')"
+      />
+      @if (error('dni')) {
+        <small class="err">{{ error('dni') }}</small>
+      } @else {
+        <small class="hint">Solo administración lo ve, para confirmar tu identidad.</small>
+      }
+    </label>
+    <label class="field" [class.invalid]="error('telefono')">
+      Celular
+      <span class="prefix">
+        <span aria-hidden="true">+51</span>
+        <input
+          name="telefono"
+          type="tel"
+          inputmode="tel"
+          autocomplete="tel-national"
+          placeholder="987 654 321"
+          [(ngModel)]="d.telefono"
+          (ngModelChange)="cambio('telefono')"
+          [attr.aria-invalid]="!!error('telefono')"
+        />
+      </span>
+      @if (error('telefono')) {
+        <small class="err">{{ error('telefono') }}</small>
+      }
+    </label>
+
+    <fieldset class="field full" [class.invalid]="error('gradoAcademico')">
+      <legend>Grado académico más alto</legend>
+      <div class="segmented" role="radiogroup">
+        @for (g of grados; track g.valor) {
+          <label class="seg" [class.on]="d.gradoAcademico === g.valor">
+            <input
+              type="radio"
+              name="gradoAcademico"
+              [value]="g.valor"
+              [(ngModel)]="d.gradoAcademico"
+              (ngModelChange)="cambio('gradoAcademico')"
+            />
+            {{ g.etiqueta }}
+          </label>
+        }
+      </div>
+      @if (error('gradoAcademico')) {
+        <small class="err">{{ error('gradoAcademico') }}</small>
+      }
+    </fieldset>
+
+    <label class="field full" [class.invalid]="error('especialidad')">
+      ¿Qué enseñarás?
+      <input
+        name="especialidad"
+        maxlength="120"
+        placeholder="Ej. Matemática para secundaria, Desarrollo web con Java"
+        [(ngModel)]="d.especialidad"
+        (ngModelChange)="cambio('especialidad')"
+      />
+      @if (error('especialidad')) {
+        <small class="err">{{ error('especialidad') }}</small>
+      }
+    </label>
+    <label class="field" [class.invalid]="error('institucion')">
+      Institución o centro de trabajo
+      <input
+        name="institucion"
+        maxlength="160"
+        autocomplete="organization"
+        placeholder="Ej. Universidad Peruana Unión"
+        [(ngModel)]="d.institucion"
+        (ngModelChange)="cambio('institucion')"
+      />
+      @if (error('institucion')) {
+        <small class="err">{{ error('institucion') }}</small>
+      }
+    </label>
+    <label class="field" [class.invalid]="error('aniosExperiencia')">
+      Años enseñando
+      <input
+        name="aniosExperiencia"
+        type="number"
+        min="0"
+        max="60"
+        inputmode="numeric"
+        placeholder="0"
+        [(ngModel)]="d.aniosExperiencia"
+        (ngModelChange)="cambio('aniosExperiencia')"
+      />
+      @if (error('aniosExperiencia')) {
+        <small class="err">{{ error('aniosExperiencia') }}</small>
+      }
+    </label>
+    <label class="field full" [class.invalid]="error('enlaceProfesional')">
+      <span>LinkedIn, portafolio u ORCID <span class="optional">opcional</span></span>
+      <input
+        name="enlaceProfesional"
+        type="url"
+        inputmode="url"
+        placeholder="https://linkedin.com/in/tu-nombre"
+        [(ngModel)]="d.enlaceProfesional"
+        (ngModelChange)="cambio('enlaceProfesional')"
+      />
+      @if (error('enlaceProfesional')) {
+        <small class="err">{{ error('enlaceProfesional') }}</small>
+      }
+    </label>
+    <label class="field full" [class.invalid]="error('presentacion')">
+      Preséntate a los estudiantes
+      <textarea
+        name="presentacion"
+        rows="5"
+        maxlength="1200"
+        placeholder="Tu experiencia, cómo enseñas y qué curso te gustaría publicar primero."
+        [(ngModel)]="d.presentacion"
+        (ngModelChange)="cambio('presentacion')"
+      ></textarea>
+      <span class="counter-row">
+        @if (error('presentacion')) {
+          <small class="err">{{ error('presentacion') }}</small>
+        } @else {
+          <small class="hint">Entre 80 y 1200 caracteres.</small>
+        }
+        <small class="counter" [class.ok]="largoPresentacion() >= 80"
+          >{{ largoPresentacion() }}/1200</small
+        >
+      </span>
+    </label>
+  </div>
+} @else {
+  <div class="field" [class.invalid]="error('documento')">
+    <span>Documento de sustento (PDF, máx. 5 MB)</span>
+    @if (documento(); as archivo) {
+      <div class="file-chip">
+        <span class="file-icon"><app-icon name="file" [size]="20" /></span>
+        <span class="file-copy">
+          <strong>{{ archivo.name }}</strong>
+          <small>{{ peso(archivo.size) }} · listo para enviar</small>
+        </span>
+        <button
+          type="button"
+          class="btn btn-quiet btn-small"
+          (click)="quitar()"
+          aria-label="Quitar archivo"
+        >
+          <app-icon name="close" [size]="16" />
+        </button>
+      </div>
+    } @else {
+      <input
+        #archivo
+        id="doc-docente"
+        class="visually-hidden-file"
+        type="file"
+        accept="application/pdf,.pdf"
+        (change)="elegir(archivo.files); archivo.value = ''"
+      />
+      <label
+        for="doc-docente"
+        class="drop"
+        [class.over]="arrastrando()"
+        (dragover)="$event.preventDefault(); arrastrando.set(true)"
+        (dragleave)="arrastrando.set(false)"
+        (drop)="soltar($event)"
+      >
+        <span class="drop-icon"><app-icon name="upload" [size]="22" /></span>
+        <strong>Arrastra tu PDF aquí o <u>elígelo</u></strong>
+        <small>CV, título profesional, constancia de trabajo docente o colegiatura.</small>
+        @if (documentoActual()) {
+          <small class="kept">Se mantiene «{{ documentoActual() }}» si no subes otro.</small>
+        }
+      </label>
+    }
+    @if (error('documento')) {
+      <small class="err">{{ error('documento') }}</small>
+    }
+  </div>
+
+  <label class="declare" [class.invalid]="error('declaracionAceptada')">
+    <input
+      type="checkbox"
+      name="declaracionAceptada"
+      [(ngModel)]="d.declaracionAceptada"
+      (ngModelChange)="cambio('declaracionAceptada')"
+    />
+    <span>
+      <strong>Declaro que la información es verdadera</strong>
+      y autorizo a KIDO a verificarla. Si es falsa, la postulación se rechaza y la cuenta puede
+      suspenderse.
+    </span>
+  </label>
+  @if (error('declaracionAceptada')) {
+    <small class="err">{{ error('declaracionAceptada') }}</small>
+  }
+}

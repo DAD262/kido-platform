@@ -1,0 +1,18 @@
+<a class="course" [routerLink]="['/cursos', curso().id]" [attr.data-tone]="tono()">
+  <div class="cover" aria-hidden="true">
+    <span class="letter">{{ inicial() }}</span>
+    <span class="cat">{{ curso().categoria || 'General' }}</span>
+  </div>
+  <div class="body">
+    <h3>{{ curso().titulo }}</h3>
+    <p>{{ curso().descripcion }}</p>
+    <div class="foot">
+      @if (curso().tipo === 'GRATUITO') {
+        <span class="price free">Gratis</span>
+      } @else {
+        <span class="price">{{ curso().precio | soles }}</span>
+      }
+      <span class="go">Ver curso</span>
+    </div>
+  </div>
+</a>
