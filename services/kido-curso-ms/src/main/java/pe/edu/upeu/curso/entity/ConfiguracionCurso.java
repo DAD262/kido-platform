@@ -17,7 +17,7 @@ public class ConfiguracionCurso {
     @Column(name="asistencia_minima", nullable=false)
     private Integer asistenciaMinima = 0;
     @Column(name="certificado_habilitado", nullable=false)
-    private boolean certificadoHabilitado = false;
+    private boolean certificadoHabilitado = true;
     @Column(name="certificado_costo", nullable=false, precision=10, scale=2)
     private BigDecimal certificadoCosto = BigDecimal.ZERO;
 }

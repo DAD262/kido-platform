@@ -1,13 +1,172 @@
-<div class="container page"><a class="back" routerLink="/cursos">← Volver al catálogo</a>
-@if(cargando()){<div class="empty"><span class="spinner"></span> Consultando curso…</div>}@else if(!curso()){<div class="alert error">{{error()}}</div>}@else{
- <div class="detail-grid"><div><div class="intro"><span class="pill green">{{curso()!.tipo==='GRATUITO'?'Curso gratuito':'Curso de pago'}}</span><span class="pill">{{curso()!.categoria}}</span><h1>{{curso()!.titulo}}</h1><p>{{curso()!.descripcion}}</p><div class="meta">Docente #{{curso()!.docenteId}} · {{curso()!.estado}}</div></div>
- <section class="panel section-block"><div class="section-heading"><div><span class="eyebrow">CONTENIDO DEL CURSO</span><h2>Tu ruta de aprendizaje</h2></div></div>
- @if(!contenido()?.modulos?.length){<div class="empty"><strong>Contenido en preparación</strong>Este curso aún no incluye módulos públicos.</div>}
- @for(modulo of contenido()?.modulos ?? [];track modulo.id){<div class="module"><strong>{{modulo.orden}}. {{modulo.titulo}}</strong><span>{{modulo.lecciones.length}} lecciones</span></div>@for(leccion of modulo.lecciones;track leccion.id){<div class="lesson">▹ {{leccion.titulo}} <small>{{leccion.materiales.length}} materiales</small></div>}}
- </section></div>
- <aside class="panel aside"><div class="aside-cover"><span>✳</span><strong>Aprende algo extraordinario</strong></div><div class="aside-inner"><span class="muted">Precio del curso</span><h2>{{curso()!.tipo==='GRATUITO'?'Gratis':'S/ '+curso()!.precio.toFixed(2)}}</h2>@if(curso()!.estado==='PUBLICADO'){<button class="btn btn-primary" [disabled]="enviando()" (click)="inscribirme()">{{enviando()?'Procesando…':curso()!.tipo==='GRATUITO'?'Inscribirme gratis':'Iniciar compra segura'}} ↗</button>}@else{<div class="alert warn">Este curso todavía no está publicado. Las inscripciones estarán disponibles después de la aprobación.</div>}<p>✓ Acceso desde tu panel personal</p><p>✓ Aprende lección por lección</p><p>✓ Certificado según las condiciones del curso</p>
- @if(auth.autenticado&&auth.tieneRol('ESTUDIANTE')&&!account.id()){<div class="alert warn">Debes definir tu ID numérico de demostración en <a routerLink="/estudiante"><b>Mi espacio</b></a> antes de inscribirte.</div>}
- @if(error()){<div class="alert error">{{error()}}</div>}@if(mensaje()){<div class="alert success">{{mensaje()}}</div>}
- <small>Los cobros dependen de Mercado Pago sandbox. Nunca se aprueban automáticamente desde el navegador.</small></div></aside></div>
-}
+<div class="container page">
+  <a class="back" routerLink="/cursos"><app-icon name="back" [size]="16" />Cursos</a>
+
+  @if (cargando()) {
+    <div class="detail-grid">
+      <div class="skeleton" style="height: 320px"></div>
+      <div class="skeleton" style="height: 260px"></div>
+    </div>
+  } @else if (!curso()) {
+    <div class="empty space-top">
+      <strong>No encontramos este curso</strong>
+      {{ error() || 'Puede que se haya archivado o que el enlace no sea correcto.' }}
+      <br />
+      <a class="btn btn-outline btn-small" routerLink="/cursos">Ver el catálogo</a>
+    </div>
+  } @else {
+    @let c = curso()!;
+    <div class="detail-grid">
+      <article>
+        <header class="intro" [attr.data-tone]="tono()" [class.has-cover]="portada()">
+          @if(portada();as imagen){<img class="detail-cover" [src]="imagen" alt="" fetchpriority="high">}
+          <div class="tags">
+            <span class="pill plain">{{ c.categoria || 'General' }}</span>
+            @if (c.tipo === 'GRATUITO') {
+              <span class="pill green">Gratis</span>
+            }
+          </div>
+          <h1>{{ c.titulo }}</h1>
+          <p class="lead">{{ c.descripcion }}</p>
+          <div class="facts">
+            <div>
+              <strong>{{ contenido()?.modulos?.length ?? 0 }}</strong
+              ><span>módulos</span>
+            </div>
+            <div>
+              <strong>{{ lecciones() }}</strong
+              ><span>lecciones</span>
+            </div>
+            <div>
+              <strong>{{ materiales() }}</strong
+              ><span>materiales</span>
+            </div>
+            @if (contenido()?.configuracion?.certificadoHabilitado) {
+              <div>
+                <strong><app-icon name="award" [size]="22" /></strong><span>con certificado</span>
+              </div>
+            }
+          </div>
+        </header>
+
+        <section class="section-block">
+          <h2>Contenido del curso</h2>
+          @if (!contenido()?.modulos?.length) {
+            <div class="empty">
+              <strong>Contenido en preparación</strong>
+              El docente todavía no ha publicado los módulos de este curso.
+            </div>
+          }
+          @for (modulo of contenido()?.modulos ?? []; track modulo.id) {
+            <details class="module-block" [open]="$first">
+              <summary>
+                <span class="mod-title">{{ modulo.titulo }}</span>
+                <small
+                  >{{ modulo.lecciones.length }}
+                  {{ modulo.lecciones.length === 1 ? 'lección' : 'lecciones' }}</small
+                >
+              </summary>
+              <ol>
+                @for (leccion of modulo.lecciones; track leccion.id) {
+                  <li>
+                    <span>{{ leccion.titulo }}</span>
+                    @if (leccion.materiales.length) {
+                      <small
+                        >{{ leccion.materiales.length }}
+                        {{ leccion.materiales.length === 1 ? 'material' : 'materiales' }}</small
+                      >
+                    }
+                  </li>
+                }
+              </ol>
+            </details>
+          }
+        </section>
+        @if(contenido()?.configuracion?.certificadoHabilitado){<app-certificado-modelo [titulo]="c.titulo" [costo]="contenido()!.configuracion.certificadoCosto" />}
+      </article>
+
+      <aside class="buy">
+        <div class="price">
+          @if (c.tipo === 'GRATUITO') {
+            Gratis
+          } @else {
+            {{ c.precio | soles }}
+          }
+        </div>
+
+        @if (c.estado === 'PUBLICADO' && deseados.permitido) {
+          <button type="button" class="btn btn-outline btn-block wish-detail"
+            [disabled]="deseados.cargando() || deseados.pendiente().has(c.id)"
+            [attr.aria-pressed]="deseados.contiene(c.id)"
+            (click)="deseados.alternar(c.id)">
+            {{ deseados.contiene(c.id) ? '♥ Quitar de mi lista' : '♡ Añadir a mi lista de deseados' }}
+          </button>
+        }
+        @if (deseados.error()) { <div class="alert error" role="alert">{{ deseados.error() }}</div> }
+
+        @if (c.estado === 'PUBLICADO') {
+          @if(c.tipo !== 'GRATUITO') { <app-checkout-compra (cambio)="checkout.set($event)" /> }
+          <button
+            class="btn btn-primary btn-block big"
+            [disabled]="enviando() || (c.tipo !== 'GRATUITO' && auth.autenticado && (!checkout().disponible || !checkout().acepta))"
+            (click)="inscribirme()"
+          >
+            @if (enviando()) {
+              <span class="spinner"></span>Procesando…
+            } @else if (c.tipo === 'GRATUITO') {
+              Inscribirme gratis
+            } @else {
+              {{ auth.autenticado ? 'Continuar con Mercado Pago' : 'Ingresar para comprar' }}
+            }
+          </button>
+          @if (c.tipo !== 'GRATUITO') {
+            <p class="note center">El pago se confirma antes de habilitar el acceso a tu curso.</p>
+          }
+        } @else {
+          <div class="alert warn">
+            Este curso aún no está publicado. Podrás inscribirte cuando administración lo apruebe.
+          </div>
+        }
+
+        @if (
+          auth.autenticado &&
+          auth.tieneRol('ESTUDIANTE') &&
+          account.estado() === 'error' &&
+          !account.id()
+        ) {
+          <div class="alert warn">
+            <span>No pudimos cargar tu perfil de estudiante.</span>
+            <button
+              class="btn btn-small btn-outline"
+              type="button"
+              (click)="account.asegurar(true)"
+            >
+              Reintentar
+            </button>
+          </div>
+        }
+        @if (error()) {
+          <div class="alert error" role="alert">{{ error() }}</div>
+        }
+        @if (mensaje()) {
+          <div class="alert success" role="status">
+            <span>{{ mensaje() }}</span>
+            <a class="btn btn-small btn-outline" routerLink="/estudiante">Ir a mi aprendizaje</a>
+          </div>
+        }
+
+        <ul class="perks">
+          <li><app-icon name="check" [size]="16" />Acceso desde tu panel, a tu ritmo</li>
+          <li><app-icon name="check" [size]="16" />Progreso guardado lección por lección</li>
+          @if (contenido()?.configuracion; as cfg) {
+            @if (cfg.certificadoHabilitado) {
+              <li>
+                <app-icon name="check" [size]="16" />Certificado al completar el
+                {{ cfg.progresoMinimo }}% del curso
+              </li>
+            }
+          }
+        </ul>
+      </aside>
+    </div>
+  }
 </div>

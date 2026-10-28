@@ -1,3 +1,33 @@
-<article class="course"><a [routerLink]="['/cursos', curso().id]" class="cover" [class.alt]="curso().id % 3 === 1" [class.coral]="curso().id % 3 === 2" aria-label="Ver curso">
-  <div class="pattern">✦</div><div class="cap">{{ curso().categoria || 'Aprendizaje' }}</div><div class="glyph">{{curso().tipo === 'GRATUITO' ? '✳' : '✦'}}</div>
-</a><div class="body"><div class="overline"><span>{{curso().categoria || 'CURSO'}}</span><span class="pill" [class.green]="curso().tipo==='GRATUITO'">{{curso().tipo === 'GRATUITO'?'Gratis':'Premium'}}</span></div><h3><a [routerLink]="['/cursos',curso().id]">{{curso().titulo}}</a></h3><p>{{curso().descripcion}}</p><div class="bottom"><strong>{{curso().tipo === 'GRATUITO' ? 'Gratis' : ('S/ ' + curso().precio.toFixed(2))}}</strong><a [routerLink]="['/cursos',curso().id]">Ver curso ↗</a></div></div></article>
+<article class="course" [attr.data-tone]="tono()">
+  <a class="course-link" [routerLink]="['/cursos', curso().id]" [attr.aria-label]="'Ver curso ' + curso().titulo">
+  <div class="cover" aria-hidden="true">
+    @if (portada(); as imagen) {
+      <img class="cover-image" [src]="imagen" alt="" loading="lazy" />
+    } @else {
+      <span class="letter">{{ inicial() }}</span>
+    }
+    <span class="cat">{{ curso().categoria || 'General' }}</span>
+  </div>
+  <div class="body">
+    <h3>{{ curso().titulo }}</h3>
+    <p>{{ curso().descripcion }}</p>
+    <div class="foot">
+      @if (curso().tipo === 'GRATUITO') {
+        <span class="price free">Gratis</span>
+      } @else {
+        <span class="price">{{ curso().precio | soles }}</span>
+      }
+      <span class="go">Ver curso</span>
+    </div>
+  </div>
+  </a>
+  @if (deseados.permitido) {
+    <button class="wish-btn" type="button"
+      [disabled]="deseados.cargando() || deseados.pendiente().has(curso().id)"
+      [attr.aria-pressed]="deseados.contiene(curso().id)"
+      [attr.aria-label]="deseados.contiene(curso().id) ? 'Quitar de deseados' : 'Guardar en deseados'"
+      (click)="deseados.alternar(curso().id)">
+      {{ deseados.contiene(curso().id) ? '♥' : '♡' }}
+    </button>
+  }
+</article>

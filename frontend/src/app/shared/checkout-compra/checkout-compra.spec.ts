@@ -1,0 +1,17 @@
+import { TestBed } from '@angular/core/testing';
+import { provideHttpClient,withXhr } from '@angular/common/http';
+import { HttpTestingController,provideHttpClientTesting } from '@angular/common/http/testing';
+import { provideRouter } from '@angular/router';
+import { CheckoutCompra,EstadoCheckout } from './checkout-compra';
+
+describe('Compra con medios activos y condiciones',()=>{
+ let http:HttpTestingController;
+ beforeEach(()=>{TestBed.configureTestingModule({imports:[CheckoutCompra],providers:[provideHttpClient(withXhr()),provideHttpClientTesting(),provideRouter([])]});http=TestBed.inject(HttpTestingController);});
+ afterEach(()=>http.verify());
+ const comercio=(version=3)=>({lista:true,pendientes:[],datos:{version,razonSocial:'Comercio para pruebas',ruc:'20123456789',direccion:'Domicilio de prueba',emailSoporte:'test@example.invalid',terminos:'Condiciones de prueba',privacidad:'Privacidad de prueba',reembolsos:'Reembolsos de prueba',reclamacionesUrl:'https://example.invalid/libro',publicada:true}});
+ function responder(disponible=true,version=3){http.expectOne('/api/v1/pagos/metodos').flush([{id:'mercado-pago',nombre:'Mercado Pago',disponible,moneda:'PEN',ambiente:'produccion',medios:disponible?[{id:'visa',nombre:'Visa',tipo:'credit_card'},{id:'yape',nombre:'Yape',tipo:'bank_transfer'}]:[]}]);http.expectOne('/api/v1/pagos/informacion-comercial').flush(comercio(version));}
+ it('muestra solo medios informados y exige marcar la aceptacion',async()=>{const f=TestBed.createComponent(CheckoutCompra);const estados:EstadoCheckout[]=[];f.componentInstance.cambio.subscribe(e=>estados.push(e));f.detectChanges();responder();f.detectChanges();expect(f.nativeElement.textContent).toContain('Visa');expect(f.nativeElement.textContent).toContain('Yape');expect(f.nativeElement.textContent).not.toContain('Plin');expect(estados.at(-1)?.acepta).toBeFalse();const input=f.nativeElement.querySelector('input[type=checkbox]') as HTMLInputElement;input.click();await f.whenStable();expect(estados.at(-1)).toEqual({disponible:true,acepta:true,version:3});});
+ it('no solicita aceptacion ni anuncia medios cuando no se puede cobrar',()=>{const f=TestBed.createComponent(CheckoutCompra);f.detectChanges();responder(false);f.detectChanges();expect(f.nativeElement.querySelector('input[type=checkbox]')).toBeNull();expect(f.nativeElement.querySelector('.methods')).toBeNull();expect(f.nativeElement.textContent).toContain('no se realizará ningún cobro');});
+ it('recargar disponibilidad borra la aceptacion de una version anterior',()=>{const f=TestBed.createComponent(CheckoutCompra);const estados:EstadoCheckout[]=[];f.componentInstance.cambio.subscribe(e=>estados.push(e));f.detectChanges();responder();f.componentInstance.acepta=true;f.componentInstance.emitir();f.componentInstance.cargar();expect(estados.at(-1)?.acepta).toBeFalse();responder(true,4);expect(estados.at(-1)).toEqual({disponible:true,acepta:false,version:4});});
+ it('un fallo del proveedor no permite continuar',()=>{const f=TestBed.createComponent(CheckoutCompra);const estados:EstadoCheckout[]=[];f.componentInstance.cambio.subscribe(e=>estados.push(e));f.detectChanges();http.expectOne('/api/v1/pagos/informacion-comercial').flush(comercio());http.expectOne('/api/v1/pagos/metodos').flush({}, {status:503,statusText:'No disponible'});f.detectChanges();expect(estados.at(-1)?.disponible).toBeFalse();expect(f.nativeElement.textContent).toContain('No pudimos consultar');});
+});

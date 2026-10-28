@@ -1,0 +1,109 @@
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  background: var(--overlay);
+  animation: fade 0.12s ease;
+}
+.palette {
+  position: fixed;
+  z-index: 1101;
+  top: 12vh;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(600px, calc(100% - 24px));
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+  animation: pop 0.16s var(--ease);
+}
+.search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 16px;
+  border-bottom: 1px solid var(--line);
+  color: var(--muted);
+}
+.search input {
+  flex: 1;
+  height: 56px;
+  border: 0;
+  outline: 0;
+  background: none;
+  font-size: 16px;
+  color: var(--ink);
+}
+ul {
+  list-style: none;
+  margin: 0;
+  padding: 6px;
+  max-height: min(420px, 55vh);
+  overflow-y: auto;
+}
+li[role='option'] {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  color: var(--ink-2);
+}
+li.active {
+  background: var(--accent-soft);
+  color: var(--ink);
+}
+li.active app-icon {
+  color: var(--accent);
+}
+.title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.detail {
+  font-size: 12px;
+  color: var(--muted);
+}
+.group {
+  padding: 10px 12px 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+}
+footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 10px 16px;
+  border-top: 1px solid var(--line);
+  font-size: 12px;
+  color: var(--muted);
+}
+kbd {
+  display: inline-grid;
+  place-items: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  margin-right: 3px;
+  border: 1px solid var(--line-strong);
+  border-bottom-width: 2px;
+  border-radius: 5px;
+  font: 600 11px var(--font-body);
+  color: var(--ink-2);
+  background: var(--surface);
+}
+@media (max-width: 640px) {
+  .palette {
+    top: 8px;
+  }
+  footer span:last-child {
+    display: none;
+  }
+}

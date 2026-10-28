@@ -1,22 +1,140 @@
-<main class="login-page">
-  <section class="login-card">
-    <div class="logo">KIDO<span>.</span></div>
+<app-auth-shell modo="ingresar">
+  @if (redirigiendo()) {
+    <p class="muted loading" role="status"><span class="spinner"></span>Abriendo tu panel…</p>
+  } @else {
+    @if (auth.autenticado) {
+      <!-- Sesión activa (p. ej. llegó por un error de rol) -->
+      <div class="who">
+        <span class="avatar" aria-hidden="true">{{ auth.iniciales }}</span>
+        <div>
+          <span class="eyebrow">Sesión activa</span>
+          <h1>Hola, {{ auth.nombre }}</h1>
+          <p class="muted">
+            Ingresaste como <strong>{{ auth.etiquetaRol }}</strong
+            >.
+          </p>
+        </div>
+      </div>
+      @if (aviso()) {
+        <div class="alert warn" role="alert">{{ aviso() }}</div>
+      }
+      <div class="actions">
+        @if (esErrorDocente() && !auth.tieneRol('DOCENTE')) {
+          <a class="btn btn-primary btn-block big" routerLink="/postular-docente">
+            Postular como docente <app-icon name="arrow" [size]="16" />
+          </a>
+          <a class="btn btn-outline btn-block big" [routerLink]="auth.obtenerPanel()"
+            >Volver a mi panel</a
+          >
+        } @else {
+          <a class="btn btn-primary btn-block big" [routerLink]="auth.obtenerPanel()">
+            Ir a mi panel <app-icon name="arrow" [size]="16" />
+          </a>
+        }
+        <button class="btn btn-quiet btn-block" type="button" (click)="auth.logout()">
+          <app-icon name="logout" [size]="16" />Entrar con otra cuenta
+        </button>
+      </div>
+    } @else {
+      <span class="eyebrow">{{ registrado() ? 'Cuenta creada' : 'Bienvenido de vuelta' }}</span>
+      <h1>Ingresa a KIDO</h1>
+      <p class="muted lead">
+        Con tu correo y contraseña. El acceso lo valida Keycloak, el servidor de identidad de la
+        plataforma.
+      </p>
 
-    <p class="eyebrow">PLATAFORMA EDUCATIVA</p>
+      @if (registrado()) {
+        <div class="alert success" role="status">
+          <span
+            ><strong>{{ registrado() }}</strong> ya puede ingresar. Escribe la contraseña que acabas
+            de crear.</span
+          >
+        </div>
+      }
+      @if (aviso()) {
+        <div class="alert warn" role="alert">{{ aviso() }}</div>
+      }
 
-    <h1>Bienvenido a KIDO</h1>
+      @if (!auth.disponible) {
+        <button class="btn btn-primary btn-block big" type="button" (click)="recargar()">
+          <app-icon name="refresh" [size]="16" />Reintentar
+        </button>
+      } @else {
+        <button
+          class="btn btn-primary btn-block big"
+          type="button"
+          (click)="iniciarSesion()"
+          [disabled]="abriendo()"
+        >
+          @if (abriendo()) {
+            <span class="spinner on-accent"></span>Abriendo acceso seguro…
+          } @else {
+            Ingresar con mi correo <app-icon name="arrow" [size]="16" />
+          }
+        </button>
+        <p class="secure">
+          <app-icon name="shield" [size]="14" />Tu contraseña viaja solo a Keycloak; KIDO nunca la
+          ve.
+        </p>
 
-    <p class="description">
-      Aprende, enseña y desarrolla nuevas habilidades
-      desde una sola plataforma.
-    </p>
+        <a routerLink="/recuperar" class="btn btn-quiet btn-block">¿Olvidaste tu contraseña?</a>
+        <div class="divider"><span>¿Primera vez en KIDO?</span></div>
 
-    <button type="button" (click)="iniciarSesion()">
-      Iniciar sesión
-    </button>
+        <div class="choices">
+          <a class="choice" routerLink="/registro" [queryParams]="{ tipo: 'estudiante' }">
+            <span class="choice-icon"><app-icon name="book" [size]="20" /></span>
+            <span class="choice-copy">
+              <strong>Crear cuenta de estudiante</strong>
+              <small>Gratis · lista en un minuto</small>
+            </span>
+            <app-icon name="arrow" [size]="16" />
+          </a>
+          <a class="choice teach" routerLink="/registro" [queryParams]="{ tipo: 'docente' }">
+            <span class="choice-icon"><app-icon name="award" [size]="20" /></span>
+            <span class="choice-copy">
+              <strong>Postular como docente</strong>
+              <small>Verificamos tu perfil antes de publicar</small>
+            </span>
+            <app-icon name="arrow" [size]="16" />
+          </a>
+        </div>
 
-    <p class="security">
-      Inicio de sesión seguro mediante Keycloak
-    </p>
-  </section>
-</main>
+        <details class="demo">
+          <summary>
+            <app-icon name="command" [size]="15" />Cuentas de demostración
+            <span class="pill plain gray">sustentación</span>
+          </summary>
+          <p class="note">Toca «Usar» para abrir el acceso con el usuario ya escrito.</p>
+          <ul>
+            @for (c of demo; track c.usuario) {
+              <li>
+                <div class="demo-copy">
+                  <strong>{{ c.rol }}</strong>
+                  <small>{{ c.detalle }}</small>
+                  <code>
+                    {{ c.usuario }} ·
+                    <button
+                      type="button"
+                      class="copy"
+                      (click)="copiar(c.clave)"
+                      [title]="'Copiar ' + c.clave"
+                    >
+                      {{ copiado() === c.clave ? 'copiada ✓' : c.clave }}
+                    </button>
+                  </code>
+                </div>
+                <button
+                  class="btn btn-outline btn-small"
+                  type="button"
+                  (click)="iniciarSesion(c.usuario)"
+                >
+                  Usar
+                </button>
+              </li>
+            }
+          </ul>
+        </details>
+      }
+    }
+  }
+</app-auth-shell>

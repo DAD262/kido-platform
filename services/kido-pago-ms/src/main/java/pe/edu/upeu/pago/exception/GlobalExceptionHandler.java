@@ -18,6 +18,17 @@ public class GlobalExceptionHandler {
         return body(HttpStatus.SERVICE_UNAVAILABLE, e.getMessage());
     }
 
+    @ExceptionHandler(org.springframework.web.client.RestClientException.class)
+    ResponseEntity<?> paymentUnavailable(org.springframework.web.client.RestClientException e) {
+        return body(HttpStatus.BAD_GATEWAY, "No pudimos comunicarnos con el proveedor de pagos. Tu compra no se ha confirmado; vuelve a intentarlo.");
+    }
+
+    @ExceptionHandler({org.springframework.dao.DataIntegrityViolationException.class,org.springframework.orm.ObjectOptimisticLockingFailureException.class})
+    ResponseEntity<?> concurrentChange(RuntimeException e){return body(HttpStatus.CONFLICT,"La operación ya se registró o el saldo cambió. Recarga antes de continuar.");}
+
+    @ExceptionHandler(org.springframework.web.multipart.MaxUploadSizeExceededException.class)
+    ResponseEntity<?> archivoGrande(org.springframework.web.multipart.MaxUploadSizeExceededException e){return body(HttpStatus.PAYLOAD_TOO_LARGE,"La constancia no debe superar 5 MB");}
+
     @ExceptionHandler(IllegalArgumentException.class)
     ResponseEntity<?> badRequest(IllegalArgumentException e) { return body(HttpStatus.BAD_REQUEST, e.getMessage()); }
 

@@ -1,1 +1,220 @@
-.deco{font-size:87px;color:#ffffff42}.identity{display:flex;justify-content:space-between;gap:20px;align-items:center}.identity>div:first-child{max-width:680px}.identity-controls{display:flex;gap:12px;align-items:end}.identity-controls input{width:130px}.separator{border:none;border-top:1px solid #e8edf4;margin:27px 0}.module{display:flex;justify-content:space-between;background:#edf3fc;padding:11px;border-radius:8px;margin:8px 0;font-size:12px}.module small{color:#677d99}.checkbox{flex-direction:row;align-items:center}.checkbox input{width:auto}.money-row{background:linear-gradient(120deg,#2154b6,#347bd5);color:white;border-radius:15px;padding:23px;margin:20px 0}.money-row strong{display:block;font-size:28px;margin-top:8px}@media(max-width:650px){.identity,.identity-controls{flex-direction:column;align-items:stretch}.identity-controls input{width:100%}}
+.toolbar {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+.toolbar .field {
+  flex: 1 1 220px;
+}
+.toolbar .btn {
+  align-self: flex-end;
+}
+.course-list {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+}
+.course-list:empty {
+  display: none;
+}
+.course-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--line);
+}
+.course-row:last-child {
+  border-bottom: 0;
+}
+.course-main {
+  flex: 1;
+  min-width: 0;
+}
+.title-line {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 4px;
+}
+.title-line strong {
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 600;
+}
+.feedback {
+  margin: 8px 0 0;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: var(--danger-soft);
+  font-size: 13px;
+}
+/* ---------- Editor ---------- */
+.editor-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.editor-title {
+  font-size: 28px;
+  margin: 12px 0 18px;
+}
+.stepper {
+  display: flex;
+  gap: 4px;
+  margin: 0 0 24px;
+  padding: 4px;
+  list-style: none;
+  border-radius: 12px;
+  background: var(--surface-2);
+  overflow-x: auto;
+}
+.stepper li {
+  flex: 1;
+}
+.stepper button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  height: 40px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 9px;
+  background: none;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.stepper button.active {
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+.num {
+  display: inline-grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1.5px solid currentColor;
+  font-size: 11px;
+}
+.stepper button.done .num {
+  background: var(--success);
+  border-color: var(--success);
+  color: #fff;
+}
+.stepper button.active .num {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--bg);
+}
+.editor-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: 28px;
+  align-items: start;
+}
+.editor-main {
+  padding: 24px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+}
+.align-end {
+  justify-content: flex-end;
+}
+.wizard-bottom {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+}
+.right {
+  text-align: right;
+  margin-top: 8px;
+}
+.outline {
+  position: sticky;
+  top: 88px;
+  max-height: calc(100vh - 110px);
+  overflow-y: auto;
+}
+.outline-head {
+  margin-bottom: 12px;
+}
+.outline-head h3 {
+  margin-bottom: 0;
+}
+.o-module {
+  padding: 10px 0;
+  border-top: 1px solid var(--line);
+}
+.o-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 32px;
+  font-size: 14px;
+}
+.o-actions {
+  display: flex;
+  opacity: 0;
+  transition: opacity 0.12s;
+}
+.o-row:hover .o-actions,
+.o-row:focus-within .o-actions {
+  opacity: 1;
+}
+.o-lesson {
+  margin-left: 12px;
+  padding-left: 12px;
+  border-left: 1px solid var(--line);
+}
+.o-material .material-link {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+}
+.progress-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.progress-cell .progress {
+  width: 80px;
+}
+@media (hover: none) {
+  .o-actions {
+    opacity: 1;
+  }
+}
+@media (max-width: 960px) {
+  .editor-grid {
+    grid-template-columns: 1fr;
+  }
+  .outline {
+    position: static;
+    max-height: none;
+  }
+}
+@media (max-width: 640px) {
+  .course-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .editor-main {
+    padding: 18px;
+  }
+  .stepper button {
+    font-size: 13px;
+  }
+}

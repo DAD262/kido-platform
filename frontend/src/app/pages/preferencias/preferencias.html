@@ -1,0 +1,71 @@
+<div class="container page narrow">
+  <header class="dashboard-head">
+    <div>
+      <h1>Preferencias</h1>
+      <p class="muted">Se guardan en este navegador y solo cambian cómo ves KIDO.</p>
+    </div>
+  </header>
+
+  <section class="group">
+    <h2>Tema</h2>
+    <div class="themes" role="radiogroup" aria-label="Tema">
+      @for (t of temas; track t.valor) {
+        <button
+          type="button"
+          role="radio"
+          [attr.aria-checked]="visual.apariencia() === t.valor"
+          [class.on]="visual.apariencia() === t.valor"
+          (click)="visual.setApariencia(t.valor)"
+        >
+          <span class="preview" [attr.data-preview]="t.valor"><i></i><i></i><i></i></span>
+          <span>{{ t.texto }}</span>
+        </button>
+      }
+    </div>
+  </section>
+
+  <section class="group">
+    <h2>Comodidad</h2>
+    <label class="row">
+      <span>
+        <strong>Vista compacta</strong>
+        <small>Menos espacio entre elementos para ver más información a la vez.</small>
+      </span>
+      <input
+        type="checkbox"
+        role="switch"
+        class="switch"
+        [ngModel]="visual.compacto()"
+        (ngModelChange)="visual.setCompacto($event)"
+      />
+    </label>
+    <label class="row">
+      <span>
+        <strong>Reducir movimiento</strong>
+        <small>Desactiva animaciones y transiciones.</small>
+      </span>
+      <input
+        type="checkbox"
+        role="switch"
+        class="switch"
+        [ngModel]="visual.movimientoReducido()"
+        (ngModelChange)="visual.setMovimientoReducido($event)"
+      />
+    </label>
+  </section>
+
+  @if (auth.autenticado) {
+    <section class="group">
+      <h2>Cuenta</h2>
+      <div class="row">
+        <span>
+          <strong>{{ auth.usuario }}</strong>
+          <small>{{ auth.etiquetaRol }} · tu contraseña y datos personales se gestionan en Keycloak.</small>
+        </span>
+        <button class="btn btn-outline btn-small" type="button" (click)="auth.cuenta()">
+          Gestionar cuenta
+        </button>
+      </div>
+    </section>
+  }
+</div>

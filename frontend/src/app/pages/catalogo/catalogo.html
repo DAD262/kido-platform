@@ -1,5 +1,109 @@
-<section class="page-head"><div class="container"><span class="eyebrow">CONOCE TU PRÓXIMA PASIÓN</span><h1>Explora cursos que te inspiran.</h1><p>Encuentra tu próximo reto entre los cursos publicados por nuestros docentes.</p></div></section>
-<div class="container page catalog"><div class="filters panel"><label class="field">Buscar un curso<input class="search-input" type="search" placeholder="¿Qué te gustaría aprender?" [ngModel]="busqueda()" (ngModelChange)="busqueda.set($event)"/></label><label class="field">Modalidad<select [ngModel]="tipo()" (ngModelChange)="tipo.set($event)"><option value="TODOS">Todos los cursos</option><option value="GRATUITO">Gratuitos</option><option value="PAGO">De pago</option></select></label><label class="field">Categoría<select [ngModel]="categoria()" (ngModelChange)="categoria.set($event)"><option value="TODAS">Todas</option>@for(c of categorias();track c){<option [value]="c">{{c}}</option>}</select></label></div>
-<div class="results"><div><h2>Catálogo de cursos</h2><p>{{filtrados().length}} curso(s) disponible(s)</p></div><button class="btn btn-outline btn-small" (click)="cargar()" [disabled]="cargando()">↻ Actualizar</button></div>
-@if(cargando()){<div class="empty"><span class="spinner"></span> Cargando cursos desde KIDO…</div>}@else if(error()){<div class="alert error">{{error()}}</div>}@else if(!filtrados().length){<div class="empty"><strong>No se encontraron cursos</strong>Prueba otra búsqueda o espera a que un curso sea aprobado.</div>}@else{<div class="cards">@for(curso of filtrados();track curso.id){<app-curso-card [curso]="curso"/>}</div>}
+<div class="container page">
+  <header class="catalog-hero">
+    <div class="hero-copy">
+      <span class="eyebrow">UN NUEVO PASO EMPIEZA AQUÍ</span>
+      <h1>¿Qué quieres<br /><span>aprender hoy?</span></h1>
+      <p>Encuentra un tema que te inspire. Aprende a tu ritmo y convierte la curiosidad en tu próxima habilidad.</p>
+    </div>
+    <aside class="hero-note" aria-label="Cómo empezar">
+      <span class="hero-icon"><app-icon name="book" [size]="28" /></span>
+      <strong>Tu ritmo. Tu siguiente paso.</strong>
+      <p>Explora los cursos, revisa sus lecciones y elige por dónde comenzar.</p>
+      <span class="hero-note-link"><app-icon name="arrow" [size]="16" /> Empieza con lo que te interesa</span>
+    </aside>
+  </header>
+
+  @if (deseados.error()) {
+    <div class="alert error" role="alert">{{ deseados.error() }}</div>
+  }
+
+  <div class="toolbar">
+    <label class="search">
+      <app-icon name="search" />
+      <span class="sr-only">Buscar en el catálogo</span>
+      <input
+        type="search"
+        placeholder="Buscar por tema, título o categoría"
+        [ngModel]="busqueda()"
+        (ngModelChange)="actualizar({ q: $event })"
+      />
+    </label>
+
+    <div class="segmented" role="group" aria-label="Precio">
+      @for (t of tipos; track t.valor) {
+        <button
+          type="button"
+          [attr.aria-pressed]="tipo() === t.valor"
+          [class.on]="tipo() === t.valor"
+          (click)="actualizar({ tipo: t.valor })"
+        >
+          {{ t.texto }}
+        </button>
+      }
+    </div>
+
+    <label class="sort">
+      <span class="sr-only">Ordenar</span>
+      <select [ngModel]="ordenar()" (ngModelChange)="actualizar({ orden: $event })">
+        <option value="RECIENTES">Más recientes</option>
+        <option value="NOMBRE">Nombre (A–Z)</option>
+        <option value="PRECIO_MENOR">Menor precio</option>
+        <option value="PRECIO_MAYOR">Mayor precio</option>
+      </select>
+    </label>
+  </div>
+
+  @if (categorias().length > 1) {
+    <div class="chips" role="group" aria-label="Categoría">
+      <button type="button" [class.on]="categoria() === 'TODAS'" [attr.aria-pressed]="categoria() === 'TODAS'" (click)="actualizar({ categoria: 'TODAS' })">
+        Todas
+      </button>
+      @for (c of categorias(); track c) {
+        <button type="button" [class.on]="categoria() === c" [attr.aria-pressed]="categoria() === c" (click)="actualizar({ categoria: c })">
+          {{ c }}
+        </button>
+      }
+    </div>
+  }
+
+  <div class="results-heading">
+    <h2>Encuentra tu próximo curso</h2>
+    <div class="results-meta">
+      <span role="status" aria-live="polite">{{ cargando() ? 'Cargando cursos…' : error() ? 'Catálogo no disponible' : filtrados().length + ' cursos disponibles' }}</span>
+      @if (hayFiltros()) {
+        <button type="button" class="clear-filters" (click)="limpiarFiltros()"><app-icon name="close" [size]="14" /> Limpiar filtros</button>
+      }
+    </div>
+  </div>
+
+  @if (cargando()) {
+    <div class="cards" aria-label="Cargando catálogo" aria-busy="true">
+      @for (i of [1, 2, 3, 4, 5, 6]; track i) {
+        <div class="skeleton" style="height: 290px"></div>
+      }
+    </div>
+  } @else if (error()) {
+    <div class="alert error" role="alert">
+      <span>No se pudo cargar el catálogo. {{ error() }}</span>
+      <button class="btn btn-small btn-outline" (click)="cargar()">Reintentar</button>
+    </div>
+  } @else if (!filtrados().length) {
+    <div class="empty">
+      @if (hayFiltros()) {
+        <strong>Ningún curso coincide</strong>
+        Prueba con otra palabra o quita algún filtro.
+        <br />
+        <button class="btn btn-outline btn-small" (click)="limpiarFiltros()">Quitar filtros</button>
+      } @else {
+        <strong>Aún no hay cursos publicados</strong>
+        Los cursos aparecen aquí cuando administración aprueba su publicación.
+      }
+    </div>
+  } @else {
+    <div class="cards">
+      @for (curso of filtrados(); track curso.id) {
+        <app-curso-card [curso]="curso" />
+      }
+    </div>
+  }
 </div>

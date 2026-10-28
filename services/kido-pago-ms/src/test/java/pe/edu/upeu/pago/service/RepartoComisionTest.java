@@ -1,0 +1,13 @@
+package pe.edu.upeu.pago.service;
+import static org.junit.jupiter.api.Assertions.*;import static org.mockito.Mockito.*;import java.math.BigDecimal;import java.util.*;
+import org.junit.jupiter.api.*;import org.junit.jupiter.api.extension.ExtendWith;import org.mockito.*;import org.mockito.junit.jupiter.MockitoExtension;import org.springframework.test.util.ReflectionTestUtils;
+import pe.edu.upeu.pago.entity.*;import pe.edu.upeu.pago.dto.*;import pe.edu.upeu.pago.client.*;import pe.edu.upeu.pago.repository.*;
+@ExtendWith(MockitoExtension.class) class RepartoComisionTest {
+ @Mock OrdenCompraRepository ordenes;@Mock MovimientoSaldoRepository movimientos;@Mock CursoClient cursos;@InjectMocks PagoService service;
+ @BeforeEach void setup(){ReflectionTestUtils.setField(service,"comision",new BigDecimal("0.20"));}
+ void curso(String monto){when(cursos.obtener(2L)).thenReturn(new CursoCompraDto(2L,"Curso","PAGO",new BigDecimal(monto),7L,"PUBLICADO",List.of(1L),100,0,false,BigDecimal.ZERO));when(ordenes.save(any())).thenAnswer(i->i.getArgument(0));}
+ @Test void cienSeReparteVeinteYOchenta(){curso("100.00");var o=service.crear(new CrearOrdenRequest(1001L,2L));assertEquals(new BigDecimal("20.00"),o.comisionKido());assertEquals(new BigDecimal("80.00"),o.montoDocente());assertEquals(new BigDecimal("20.00"),o.porcentajeComision());}
+ @Test void redondeoMantieneTotalSinPerderCentavos(){curso("0.03");var o=service.crear(new CrearOrdenRequest(1001L,2L));assertEquals(o.montoTotal(),o.comisionKido().add(o.montoDocente()));assertEquals(new BigDecimal("0.02"),o.montoDocente());}
+ @Test void ordenAnteriorNoCambiaPorNuevaTarifa(){when(cursos.obtener(2L)).thenReturn(new CursoCompraDto(2L,"Curso","PAGO",new BigDecimal("100"),7L,"PUBLICADO",List.of(),100,0,false,BigDecimal.ZERO));var vieja=new OrdenCompra();vieja.setMontoTotal(new BigDecimal("100.00"));vieja.setComisionKido(new BigDecimal("10.00"));vieja.setMontoDocente(new BigDecimal("90.00"));vieja.setPorcentajeComision(new BigDecimal("10.00"));vieja.setEstado(OrdenCompra.EstadoOrden.PENDIENTE);when(ordenes.findFirstByEstudianteIdAndCursoIdAndEstadoInOrderByIdDesc(any(),any(),any())).thenReturn(Optional.of(vieja));assertEquals(new BigDecimal("90.00"),service.crear(new CrearOrdenRequest(1001L,2L)).montoDocente());verify(ordenes,never()).save(any());}
+ @Test void saldoNoIncluyeHistoricoSinConciliar(){var m=new MovimientoSaldo();m.setMonto(new BigDecimal("90.00"));m.setEstado(MovimientoSaldo.EstadoMovimiento.DISPONIBLE);when(movimientos.findByDocenteId(7L)).thenReturn(List.of(m));assertEquals(new BigDecimal("0.00"),service.saldo(7L).disponible());}
+}

@@ -49,7 +49,7 @@ public class CursoService {
         if (configuracionCursoRepository.findByCursoId(guardado.getId()).isEmpty()) {
             var cfg = new pe.edu.upeu.curso.entity.ConfiguracionCurso();
             cfg.setCursoId(guardado.getId()); cfg.setProgresoMinimo(100); cfg.setAsistenciaMinima(0);
-            cfg.setCertificadoHabilitado(false); cfg.setCertificadoCosto(java.math.BigDecimal.ZERO);
+            cfg.setCertificadoHabilitado(true); cfg.setCertificadoCosto(java.math.BigDecimal.ZERO);
             configuracionCursoRepository.save(cfg);
         }
         return mapper.toResponse(guardado);

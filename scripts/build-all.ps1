@@ -6,7 +6,8 @@ $projects = @(
   "services/kido-curso-ms",
   "services/kido-inscripcion-ms",
   "services/kido-pago-ms",
-  "services/kido-notificacion-ms"
+  "services/kido-notificacion-ms",
+  "services/kido-usuario-ms"
 )
 foreach ($project in $projects) {
   Write-Host "Construyendo $project" -ForegroundColor Cyan

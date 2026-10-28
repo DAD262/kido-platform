@@ -1,59 +1,47 @@
-# Frontend
+# KIDO · Frontend
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.3.37.
+Angular 20 (componentes standalone y señales) + Keycloak 26 (`keycloak-js`, PKCE) contra el API Gateway.
+La guía completa para levantar todo el proyecto está en [`../docs/guias/GUIA_LEVANTAR_KIDO.md`](../docs/guias/GUIA_LEVANTAR_KIDO.md).
 
-## Development server
+## Ejecutar
 
-To start a local development server, run:
-
-```bash
-ng serve
+```powershell
+cd frontend
+npm.cmd install
+npm.cmd start        # http://localhost:4200 (proxy /api → http://localhost:18080)
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+`npm.cmd run build` genera `dist/`. `npm.cmd test` ejecuta las pruebas unitarias.
 
-## Code scaffolding
+## Acceso y cuentas (separado por responsabilidades)
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+| Ruta | Qué hace | Quién la resuelve |
+|---|---|---|
+| `/login` | Elige cómo entrar: ingresar, crear cuenta o usar una cuenta demo | Angular |
+| (Keycloak) | Formulario de correo y contraseña con el tema `kido` | Keycloak `:19090` |
+| `/registro` | Elegir **estudiante** (1 paso) o **docente** (3 pasos: cuenta, perfil profesional, verificación con PDF) | Angular → `kido-usuario-ms` |
+| `/postular-docente` | Un estudiante con cuenta postula, ve el estado o corrige lo observado | Angular → `kido-usuario-ms` |
+| `/admin` → «Docentes y cuentas» | Aprobar, pedir corrección o rechazar postulaciones (con visor del PDF) | Angular → `kido-usuario-ms` → Keycloak |
 
-```bash
-ng generate component component-name
+El número de estudiante / docente ya no se escribe a mano: `AccountContext` lo obtiene de `GET /api/v1/usuarios/me`.
+
+## Estructura
+
 ```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
-```bash
-ng generate --help
+src/app/
+  core/
+    config/keycloak.config.ts   realm, cliente y URL de Keycloak
+    services/auth.ts            sesión, roles, login(returnUrl, loginHint), refrescarSesion()
+    services/account-context.ts perfil KIDO (/me) e id numérico de la sesión
+    services/api.ts             rutas del Gateway (incluye registro y verificación docente)
+    utils/registro.ts           reglas del registro (iguales a las del backend y del realm)
+    guards/role.guard.ts        roleGuard(rol) y sesionGuard
+  shared/
+    auth-shell/                 marco visual de /login y /registro
+    docente-form/               formulario de verificación docente (registro y postulación)
+    logo/                       marca KIDO (también en favicon.svg y en el tema de Keycloak)
+    perfil-estado/              aviso si el perfil no carga (con reintento y modo demo)
+  pages/
+    login, registro, postular-docente, admin/solicitudes-docentes,
+    home, catalogo, curso-detalle, estudiante, docente, admin, pago-resultado, preferencias
 ```
-
-## Building
-
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.

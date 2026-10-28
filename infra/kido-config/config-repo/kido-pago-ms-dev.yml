@@ -1,6 +1,10 @@
 server:
   port: 8083
 spring:
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 6MB
   datasource:
     url: jdbc:postgresql://localhost:15435/kido_pago_db
     username: ${DB_USER}
@@ -22,6 +26,9 @@ spring:
           default:
             connectTimeout: 1000
             readTimeout: 3000
+          kido-curso-ms:
+            connectTimeout: 2000
+            readTimeout: 5000
     circuitbreaker:
       resilience4j:
         enabled: true
@@ -30,6 +37,7 @@ spring:
       resourceserver:
         jwt:
           jwk-set-uri: ${KEYCLOAK_JWK_SET_URI:http://localhost:19090/realms/kido/protocol/openid-connect/certs}
+          issuer-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:19090/realms/kido}
   kafka:
     bootstrap-servers: localhost:19092
     producer:
@@ -49,15 +57,26 @@ spring:
         spring.json.use.type.headers: false
 kido:
   pagos:
-    comision: 0.10
+    comision: 0.20
     dias-retencion: 7
     retiro-minimo: 50.00
     dias-reembolso: 7
     progreso-max-reembolso: 20
     permitir-simulacion: ${KIDO_PAGOS_PERMITIR_SIMULACION:false}
   mercadopago:
+    modelo-recaudacion-confirmado: ${MERCADO_PAGO_MODELO_RECAUDACION_CONFIRMADO:false}
+    ambiente: ${MERCADO_PAGO_AMBIENTE:pruebas}
+    # Access Token de PRUEBA de tu aplicación (Tus integraciones → Credenciales de prueba).
     access-token: ${MERCADO_PAGO_ACCESS_TOKEN:}
+    # URL pública https del webhook, p. ej. https://xxxx.ngrok-free.app/api/v1/pagos/webhooks/mercado-pago?source_news=webhooks
     notification-url: ${MERCADO_PAGO_NOTIFICATION_URL:}
+    # Página del frontend a la que vuelve el estudiante tras pagar.
+    return-url: ${MERCADO_PAGO_RETURN_URL:http://localhost:4200/pago/resultado}
+    # true solo si return-url es pública (https); con localhost se deja en false.
+    auto-return: ${MERCADO_PAGO_AUTO_RETURN:false}
+    statement-descriptor: ${MERCADO_PAGO_STATEMENT_DESCRIPTOR:KIDO}
+    # Clave secreta de Webhooks (Tus integraciones → Webhooks). Vacía = no se verifica la firma.
+    webhook-secret: ${MERCADO_PAGO_WEBHOOK_SECRET:}
 app:
   kafka:
     topic:
@@ -85,6 +104,11 @@ eureka:
     service-url:
       defaultZone: http://localhost:18761/eureka
 resilience4j:
+  timelimiter:
+    instances:
+      KidoCursoObtener:
+        timeoutDuration: 8s
+        cancelRunningFuture: true
   circuitbreaker:
     instances:
       KidoCursoObtener:

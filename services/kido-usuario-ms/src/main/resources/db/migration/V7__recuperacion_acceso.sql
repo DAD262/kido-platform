@@ -1,0 +1,6 @@
+CREATE TABLE recuperaciones_acceso (
+ id VARCHAR(36) PRIMARY KEY, email_hash VARCHAR(64) NOT NULL UNIQUE,
+ keycloak_id VARCHAR(64), codigo_hash VARCHAR(64) NOT NULL,
+ creado_en TIMESTAMP NOT NULL, expira_en TIMESTAMP NOT NULL,
+ intentos INTEGER NOT NULL DEFAULT 0, usado BOOLEAN NOT NULL DEFAULT FALSE
+);

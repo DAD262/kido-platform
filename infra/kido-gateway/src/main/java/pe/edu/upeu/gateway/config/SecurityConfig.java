@@ -31,9 +31,22 @@ public class SecurityConfig {
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/v1/pagos/metodos", "/api/v1/pagos/informacion-comercial").permitAll()
+                .requestMatchers("/api/v1/pagos/admin/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.POST,"/api/v1/pagos/liquidaciones/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.GET,"/api/v1/pagos/liquidaciones").hasRole("ADMIN")
+                .requestMatchers("/api/v1/pagos/liquidaciones/**").hasAnyRole("ADMIN","DOCENTE")
                 .requestMatchers("/actuator/health", "/actuator/info", "/actuator/prometheus", "/error").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/cursos/**").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/v1/pagos/webhooks/mercado-pago").permitAll()
+                // Registro de cuentas (estudiante o docente): público, con límite por IP en kido-usuario-ms.
+                .requestMatchers(HttpMethod.POST, "/api/v1/usuarios/registro").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/v1/usuarios/recuperacion/solicitar", "/api/v1/usuarios/recuperacion/confirmar").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/v1/usuarios/registro/disponibilidad", "/api/v1/usuarios/recuperacion/configuracion").permitAll()
+                .requestMatchers("/api/v1/usuarios/admin/**").hasRole("ADMIN")
+                .requestMatchers("/api/v1/usuarios/supervision/**").hasAnyRole("SUPERVISOR", "ADMIN")
+                .requestMatchers("/api/v1/usuarios/me/deseados", "/api/v1/usuarios/me/deseados/**").hasRole("ESTUDIANTE")
+                .requestMatchers("/api/v1/usuarios/**").authenticated()
 
                 .requestMatchers(HttpMethod.POST, "/api/v1/cursos/*/aprobar", "/api/v1/cursos/*/rechazar").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.POST, "/api/v1/cursos/**").hasAnyRole("DOCENTE", "ADMIN")

@@ -3,7 +3,15 @@
 **/target/
 **/logs/
 **/.env
+**/.env.backup*
 *.log
 .DS_Store
 
 /backups/
+
+# Archivos privados y evidencias locales
+/.backups/
+/.design-review/
+/respaldos/
+/tmp/
+*.bak*

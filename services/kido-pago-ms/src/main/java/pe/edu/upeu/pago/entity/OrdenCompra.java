@@ -29,5 +29,11 @@ public class OrdenCompra {
  @Column(name="certificado_costo_snapshot",nullable=false,precision=10,scale=2) private BigDecimal certificadoCostoSnapshot = BigDecimal.ZERO;
  @Column(name="fecha_creacion",nullable=false) private LocalDateTime fechaCreacion;
  @Column(name="fecha_aprobacion") private LocalDateTime fechaAprobacion;
- public enum EstadoOrden { PENDIENTE, PAGO_INICIADO, APROBADA, RECHAZADA, REEMBOLSADA }
+ @Column(precision=12,scale=2) private BigDecimal costoProcesamiento;
+ @Column(precision=12,scale=2) private BigDecimal netoRecibido;
+ @Column(length=40) private String fondosEstado;
+ private LocalDateTime fechaConciliacion;
+ private LocalDateTime fechaLiberacion;
+ private boolean requiereRevocacion;
+ public enum EstadoOrden { PENDIENTE, PAGO_INICIADO, APROBADA, RECHAZADA, REEMBOLSADA, CONTRACARGO }
 }

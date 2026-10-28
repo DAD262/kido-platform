@@ -1,0 +1,23 @@
+package pe.edu.upeu.usuario.service;
+import org.junit.jupiter.api.*;import static org.junit.jupiter.api.Assertions.*;import static org.mockito.Mockito.*;import static org.mockito.ArgumentMatchers.*;
+import java.time.*;import java.util.*;import org.springframework.jdbc.core.JdbcTemplate;import org.springframework.transaction.support.*;
+import pe.edu.upeu.usuario.dto.ConfirmarRecuperacionRequest;import pe.edu.upeu.usuario.keycloak.KeycloakAdminClient;
+import pe.edu.upeu.usuario.repository.PerfilRepository;import pe.edu.upeu.usuario.entity.*;
+class RecuperacionServiceTest {
+ final JdbcTemplate jdbc=mock(JdbcTemplate.class);final TransactionTemplate tx=mock(TransactionTemplate.class);
+ final KeycloakAdminClient kc=mock(KeycloakAdminClient.class);final CorreoRecuperacion correo=mock(CorreoRecuperacion.class);final PerfilRepository perfiles=mock(PerfilRepository.class);
+ final Clock clock=Clock.fixed(Instant.parse("2026-10-27T18:00:00Z"),ZoneOffset.UTC);
+ final RecuperacionService service=new RecuperacionService(jdbc,tx,kc,correo,perfiles,clock,"secreto-de-pruebas-de-al-menos-32-caracteres");
+ final String id="12345678-1234-1234-1234-123456789abc";
+ @BeforeEach void transacciones(){when(tx.execute(any())).thenAnswer(i->((TransactionCallback<?>)i.getArgument(0)).doInTransaction(mock(org.springframework.transaction.TransactionStatus.class)));}
+ Map<String,Object> desafio(){var m=new HashMap<String,Object>();m.put("id",id);m.put("keycloak_id","user");m.put("codigo_hash",service.hash(id+":123456"));m.put("expira_en",java.sql.Timestamp.from(clock.instant().plusSeconds(600)));m.put("intentos",0);m.put("usado",false);return m;}
+ void preparar(Map<String,Object> fila){when(jdbc.queryForList("SELECT * FROM recuperaciones_acceso WHERE id=? FOR UPDATE",id)).thenReturn(List.of(fila));when(kc.cuenta("user")).thenReturn(Map.of("email","persona@example.invalid","enabled",true));}
+ @Test void codigoIncorrectoCuentaIntentoYNoCambiaClave(){preparar(desafio());assertThrows(IllegalArgumentException.class,()->service.confirmar(new ConfirmarRecuperacionRequest(id,"111111",null)));verify(jdbc).update("UPDATE recuperaciones_acceso SET intentos=intentos+1 WHERE id=?",id);verify(kc,never()).restablecerPassword(anyString(),anyString(),anyBoolean());}
+ @Test void codigoCaducadoNoCambiaClave(){var f=desafio();f.put("expira_en",java.sql.Timestamp.from(clock.instant().minusSeconds(1)));preparar(f);assertThrows(IllegalArgumentException.class,()->service.confirmar(new ConfirmarRecuperacionRequest(id,"123456",null)));verify(kc,never()).restablecerPassword(anyString(),anyString(),anyBoolean());}
+ @Test void cincoIntentosBloqueanCodigoCorrecto(){var f=desafio();f.put("intentos",5);preparar(f);assertThrows(IllegalArgumentException.class,()->service.confirmar(new ConfirmarRecuperacionRequest(id,"123456",null)));verify(kc,never()).restablecerPassword(anyString(),anyString(),anyBoolean());}
+ @Test void codigoUsadoNoSeReutiliza(){var f=desafio();f.put("usado",true);preparar(f);assertThrows(IllegalArgumentException.class,()->service.confirmar(new ConfirmarRecuperacionRequest(id,"123456",null)));verify(kc,never()).restablecerPassword(anyString(),anyString(),anyBoolean());}
+ @Test void estudianteRecibeDniTemporalSoloTrasCodigoCorrecto(){preparar(desafio());when(kc.rolesCuenta("user")).thenReturn(List.of("ESTUDIANTE"));var perfil=new Perfil("user","persona","persona@example.invalid","Ana","Rojas",TipoCuenta.ESTUDIANTE);perfil.setDni("83492516");when(perfiles.findByKeycloakId("user")).thenReturn(Optional.of(perfil));assertTrue(service.confirmar(new ConfirmarRecuperacionRequest(id,"123456",null)));verify(kc).restablecerPassword("user","83492516",true);verify(jdbc).update("UPDATE recuperaciones_acceso SET usado=true WHERE id=?",id);}
+ @Test void estudianteSinDniNoRecibeClaveInventada(){preparar(desafio());when(kc.rolesCuenta("user")).thenReturn(List.of("ESTUDIANTE"));when(perfiles.findByKeycloakId("user")).thenReturn(Optional.empty());assertThrows(IllegalArgumentException.class,()->service.confirmar(new ConfirmarRecuperacionRequest(id,"123456",null)));verify(kc,never()).restablecerPassword(anyString(),anyString(),anyBoolean());}
+ @Test void rolPrivilegiadoNuncaUsaDniAunqueTambienSeaEstudiante(){preparar(desafio());when(kc.rolesCuenta("user")).thenReturn(List.of("ADMIN","ESTUDIANTE"));assertFalse(service.confirmar(new ConfirmarRecuperacionRequest(id,"123456","NuevaClave!864")));verify(kc).restablecerPassword("user","NuevaClave!864",false);verifyNoInteractions(perfiles);}
+ @Test void codigoEstaVinculadoASuSolicitud(){assertNotEquals(service.hash(id+":123456"),service.hash("otra-solicitud:123456"));}
+}

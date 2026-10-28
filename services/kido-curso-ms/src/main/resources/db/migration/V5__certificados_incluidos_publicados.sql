@@ -1,0 +1,1 @@
+UPDATE configuraciones_curso cfg SET certificado_habilitado=TRUE WHERE certificado_habilitado=FALSE AND certificado_costo=0 AND EXISTS(SELECT 1 FROM cursos c WHERE c.id=cfg.curso_id AND c.estado='PUBLICADO');

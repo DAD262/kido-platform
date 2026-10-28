@@ -1,0 +1,64 @@
+<div class="container page">
+  <section class="card" [attr.data-estado]="estado()" aria-live="polite">
+    @switch (estado()) {
+      @case ('verificando') {
+        <span class="badge"><span class="spinner"></span></span>
+        <h1>Confirmando tu pago…</h1>
+        <p class="muted">
+          Estamos verificando el pago directamente con Mercado Pago. No cierres esta página.
+        </p>
+      }
+      @case ('aprobado') {
+        <span class="badge ok"><app-icon name="check" [size]="28" /></span>
+        <h1>¡Pago aprobado!</h1>
+        <p class="muted">
+          @if (tipo() === 'certificado') {
+            Tu certificado quedará disponible para descargar en unos segundos.
+          } @else {
+            Tu inscripción se está activando; el curso aparecerá en «Mi aprendizaje» en unos segundos.
+          }
+        </p>
+        <div class="actions">
+          <a class="btn btn-primary" routerLink="/estudiante">Ir a mi aprendizaje</a>
+        </div>
+        <p class="note">Operación de Mercado Pago n.º {{ pagoId() }}</p>
+      }
+      @case ('pendiente') {
+        <span class="badge warn"><app-icon name="refresh" [size]="26" /></span>
+        <h1>Tu pago está en proceso</h1>
+        <p class="muted">
+          Mercado Pago aún no confirma el pago. Cuando se apruebe, KIDO lo registrará automáticamente y verás
+          el curso en tu panel.
+        </p>
+        <div class="actions">
+          <a class="btn btn-primary" routerLink="/estudiante">Ir a mi aprendizaje</a>
+        </div>
+      }
+      @case ('rechazado') {
+        <span class="badge bad"><app-icon name="close" [size]="26" /></span>
+        <h1>No se completó el pago</h1>
+        <p class="muted">No se realizó ningún cobro. Puedes intentarlo de nuevo con otro medio de pago.</p>
+        <div class="actions">
+          @if (cursoId(); as c) {
+            <a class="btn btn-primary" [routerLink]="['/cursos', c]">Volver al curso</a>
+          }
+          <a class="btn btn-outline" routerLink="/estudiante">Ir a mi aprendizaje</a>
+        </div>
+      }
+      @case ('error') {
+        <span class="badge bad"><app-icon name="close" [size]="26" /></span>
+        <h1>No pudimos confirmar el pago</h1>
+        <p class="muted">{{ detalle() }}</p>
+        <div class="actions">
+          @if (pagoId()) {
+            <button class="btn btn-primary" type="button" (click)="confirmar()">Volver a verificar</button>
+          }
+          <a class="btn btn-outline" routerLink="/estudiante">Ir a mi aprendizaje</a>
+        </div>
+        <p class="note">
+          Si Mercado Pago te cobró, no vuelvas a pagar: el pago se registrará cuando llegue la notificación.
+        </p>
+      }
+    }
+  </section>
+</div>

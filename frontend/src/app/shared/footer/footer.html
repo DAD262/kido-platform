@@ -1,1 +1,13 @@
-<footer><div class="container"><div class="footer-grid"><div><div class="brand">✳ KIDO<span>.</span></div><p>Un espacio para aprender a tu ritmo, compartir conocimiento y crecer juntos.</p></div><div><strong>Explora</strong><a routerLink="/cursos">Catálogo de cursos</a><a routerLink="/">Inicio</a></div><div><strong>Tu experiencia</strong><a routerLink="/login">Ingresar a KIDO</a><p>Conexión protegida por Keycloak</p></div></div><div class="bottom"><span>© KIDO · Plataforma de aprendizaje</span><span>Construido con Angular y microservicios</span></div></div></footer>
+<footer>
+  <div class="container row">
+    <app-logo [tamano]="22" />
+    <nav aria-label="Pie de página">
+      <a routerLink="/cursos">Cursos</a>
+      <a routerLink="/registro" [queryParams]="{ tipo: 'docente' }">Enseñar en KIDO</a>
+      <a routerLink="/configuracion">Preferencias</a>
+      <a routerLink="/condiciones-compra">Condiciones y privacidad</a>
+      @if(reclamaciones()){<a [href]="reclamaciones()" target="_blank" rel="noopener noreferrer">Libro de Reclamaciones</a>}
+    </nav>
+    <span class="muted">© {{ anio }} KIDO</span>
+  </div>
+</footer>

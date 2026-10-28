@@ -25,7 +25,11 @@ public class RestClientConfig {
 
     @Bean
     RestClient mercadoPagoRestClient() {
+        var http = new org.springframework.http.client.SimpleClientHttpRequestFactory();
+        http.setConnectTimeout(java.time.Duration.ofSeconds(5));
+        http.setReadTimeout(java.time.Duration.ofSeconds(20));
         return RestClient.builder()
+                .requestFactory(http)
                 .baseUrl("https://api.mercadopago.com")
                 .build();
     }

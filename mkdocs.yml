@@ -19,5 +19,11 @@ nav:
   - S09 Validación y evidencias: s09-implementacion-validacion.md
   - Backend funcional: backend-funcional-completo.md
   - Roadmap de producción: roadmap-produccion.md
+  - Guía para levantar KIDO: guias/GUIA_LEVANTAR_KIDO.md
+  - Lista de deseados: guias/lista-deseados.md
+  - Guía de pruebas y rediseño: guias/GUIA_PRUEBAS_Y_REDISENO.md
+  - Lista de microservicios: informes/LISTA_MICROSERVICIOS.md
+  - Validación S09: informes/VALIDACION_S09.md
+  - Cambios del backend: cambios/CAMBIOS_BACKEND_COMPLETO.md
 
 # Documentación agregada para el cierre funcional del backend

@@ -1,24 +1,57 @@
 {
   "realm": "kido",
   "enabled": true,
-  "displayName": "Kido",
+  "displayName": "KIDO",
+  "displayNameHtml": "<span class=\"kido-wordmark\">kido</span>",
   "registrationAllowed": false,
   "resetPasswordAllowed": true,
+  "rememberMe": true,
   "loginWithEmailAllowed": true,
   "duplicateEmailsAllowed": false,
+  "passwordPolicy": "length(8) and upperCase(1) and lowerCase(1) and digits(1) and notUsername(undefined) and notEmail(undefined)",
   "roles": {
     "realm": [
       {
         "name": "ADMIN",
-        "description": "Administración de la plataforma Kido"
+        "description": "Administración de la plataforma KIDO"
       },
       {
         "name": "DOCENTE",
-        "description": "Docente creador de cursos"
+        "description": "Docente verificado: crea y publica cursos"
       },
       {
         "name": "ESTUDIANTE",
-        "description": "Estudiante que consume cursos"
+        "description": "Estudiante: compra cursos, aprende y obtiene certificados"
+      },
+      {
+        "name": "offline_access",
+        "description": "${role_offline-access}"
+      },
+      {
+        "name": "uma_authorization",
+        "description": "${role_uma_authorization}"
+      },
+      {
+        "name": "default-roles-kido",
+        "description": "Roles de toda cuenta nueva",
+        "composite": true,
+        "composites": {
+          "realm": [
+            "offline_access",
+            "uma_authorization",
+            "ESTUDIANTE"
+          ],
+          "client": {
+            "account": [
+              "manage-account",
+              "view-profile"
+            ]
+          }
+        }
+      },
+      {
+        "name": "SUPERVISOR",
+        "description": "Seguimiento de estudiantes y docentes de cursos asignados; sin acceso administrativo."
       }
     ]
   },
@@ -30,7 +63,12 @@
       "publicClient": true,
       "directAccessGrantsEnabled": true,
       "standardFlowEnabled": false,
-      "protocol": "openid-connect"
+      "protocol": "openid-connect",
+      "defaultClientScopes": [
+        "profile",
+        "email",
+        "roles"
+      ]
     },
     {
       "clientId": "kido-frontend",
@@ -47,15 +85,40 @@
       "webOrigins": [
         "http://localhost:4200",
         "http://localhost:5173"
+      ],
+      "rootUrl": "http://localhost:4200",
+      "baseUrl": "http://localhost:4200/",
+      "attributes": {
+        "pkce.code.challenge.method": "S256",
+        "post.logout.redirect.uris": "+"
+      },
+      "defaultClientScopes": [
+        "profile",
+        "email",
+        "roles"
       ]
+    },
+    {
+      "clientId": "kido-usuario-admin",
+      "name": "KIDO · servicio de usuarios",
+      "description": "Cuenta de servicio de kido-usuario-ms: crea cuentas y asigna roles por la Admin API.",
+      "enabled": true,
+      "publicClient": false,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "${KIDO_USUARIO_ADMIN_SECRET:CAMBIAR_SECRETO_CLIENTE_USUARIOS}",
+      "serviceAccountsEnabled": true,
+      "standardFlowEnabled": false,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "protocol": "openid-connect"
     }
   ],
   "users": [
     {
       "username": "admin",
       "email": "admin@kido.local",
-      "firstName": "Admin",
-      "lastName": "Kido",
+      "firstName": "Equipo",
+      "lastName": "KIDO",
       "enabled": true,
       "emailVerified": true,
       "credentials": [
@@ -66,14 +129,21 @@
         }
       ],
       "realmRoles": [
-        "ADMIN"
-      ]
+        "ADMIN",
+        "default-roles-kido"
+      ],
+      "clientRoles": {
+        "account": [
+          "manage-account",
+          "view-profile"
+        ]
+      }
     },
     {
       "username": "docente",
       "email": "docente@kido.local",
-      "firstName": "Docente",
-      "lastName": "Demo",
+      "firstName": "Daniela",
+      "lastName": "Rojas",
       "enabled": true,
       "emailVerified": true,
       "credentials": [
@@ -84,14 +154,21 @@
         }
       ],
       "realmRoles": [
-        "DOCENTE"
-      ]
+        "DOCENTE",
+        "default-roles-kido"
+      ],
+      "clientRoles": {
+        "account": [
+          "manage-account",
+          "view-profile"
+        ]
+      }
     },
     {
       "username": "estudiante",
       "email": "estudiante@kido.local",
-      "firstName": "Estudiante",
-      "lastName": "Demo",
+      "firstName": "Mateo",
+      "lastName": "Quispe",
       "enabled": true,
       "emailVerified": true,
       "credentials": [
@@ -102,8 +179,53 @@
         }
       ],
       "realmRoles": [
-        "ESTUDIANTE"
-      ]
+        "ESTUDIANTE",
+        "default-roles-kido"
+      ],
+      "clientRoles": {
+        "account": [
+          "manage-account",
+          "view-profile"
+        ]
+      }
+    },
+    {
+      "username": "service-account-kido-usuario-admin",
+      "enabled": true,
+      "serviceAccountClientId": "kido-usuario-admin",
+      "realmRoles": [
+        "default-roles-kido"
+      ],
+      "clientRoles": {
+        "realm-management": [
+          "manage-users",
+          "view-users",
+          "query-users",
+          "view-realm"
+        ]
+      }
     }
-  ]
+  ],
+  "loginTheme": "kido",
+  "internationalizationEnabled": true,
+  "defaultLocale": "es",
+  "supportedLocales": [
+    "es",
+    "en"
+  ],
+  "bruteForceProtected": true,
+  "permanentLockout": false,
+  "failureFactor": 5,
+  "waitIncrementSeconds": 60,
+  "maxFailureWaitSeconds": 900,
+  "minimumQuickLoginWaitSeconds": 60,
+  "quickLoginCheckMilliSeconds": 1000,
+  "maxDeltaTimeSeconds": 43200,
+  "defaultRole": {
+    "name": "default-roles-kido",
+    "description": "Roles de toda cuenta nueva",
+    "composite": true
+  },
+  "editUsernameAllowed": true,
+  "registrationEmailAsUsername": false
 }

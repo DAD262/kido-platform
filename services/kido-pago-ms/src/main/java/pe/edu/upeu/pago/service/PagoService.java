@@ -24,7 +24,9 @@ public class PagoService {
  private final PagoEventosProducer pagoEventosProducer;
  private final MercadoPagoClient mercadoPagoClient;
  private final CertificadoPagoService certificadoPagoService;
- @Value("${kido.pagos.comision:0.10}") private BigDecimal comision;
+ private final LiquidacionService liquidaciones;
+ private final ConciliacionPagoService conciliacion;
+ @Value("${kido.pagos.comision:0.20}") private BigDecimal comision;
  @Value("${kido.pagos.dias-retencion:7}") private long diasRetencion;
  @Value("${kido.pagos.permitir-simulacion:false}") private boolean permitirSimulacion;
 
@@ -55,7 +57,7 @@ public class PagoService {
    o.setAsistenciaMinimaSnapshot(c.asistenciaMinima()==null ? 0 : c.asistenciaMinima());
    o.setCertificadoHabilitadoSnapshot(c.certificadoHabilitado());
    o.setCertificadoCostoSnapshot(c.certificadoCosto()==null ? BigDecimal.ZERO : c.certificadoCosto());
-   o.setEstado(OrdenCompra.EstadoOrden.PENDIENTE); o.setFechaCreacion(LocalDateTime.now());
+   o.setEstado(OrdenCompra.EstadoOrden.PENDIENTE); o.setFechaCreacion(LocalDateTime.now(ZoneId.of("America/Lima")));
    return map(ordenRepo.save(o));
  }
 
@@ -76,7 +78,8 @@ public class PagoService {
    if(!"approved".equalsIgnoreCase(p.status())) throw new IllegalStateException("Mercado Pago aún no reporta el pago como approved: "+p.status());
    if(!String.valueOf(id).equals(p.externalReference()))
      throw new IllegalArgumentException("El pago debe tener external_reference igual a la orden");
-   if(p.amount()!=null && new BigDecimal(p.amount()).compareTo(o.getMontoTotal())!=0) throw new IllegalArgumentException("El monto aprobado por Mercado Pago no coincide con la orden");
+   p.validarImporte(o.getMontoTotal());
+   ConciliacionPagoService.copiar(o,p);
    return aprobar(o,p.id());
  }
 
@@ -86,17 +89,17 @@ public class PagoService {
  @Transactional
  public OrdenResponse procesarWebhook(String paymentId){
    MercadoPagoClient.PagoExterno p=mercadoPagoClient.obtenerPago(paymentId); if(p.externalReference()==null) throw new IllegalArgumentException("Webhook sin external_reference");
-   if(p.externalReference().startsWith("CERT-")){ if("approved".equalsIgnoreCase(p.status())) certificadoPagoService.procesarWebhook(paymentId,p.externalReference()); return null; }
-   Long id=Long.valueOf(p.externalReference()); if(!"approved".equalsIgnoreCase(p.status())) return obtener(id); return confirmarMercadoPago(id,p.id());
+   if(p.externalReference().startsWith("CERT-")){Long certId=Long.valueOf(p.externalReference().substring(5));if("approved".equalsIgnoreCase(p.status()))certificadoPagoService.procesarWebhook(paymentId,p.externalReference());if("APROBADA".equals(certificadoPagoService.obtener(certId).estado()))conciliacion.certificado(certId);return null;}
+   Long id=Long.valueOf(p.externalReference());if("approved".equalsIgnoreCase(p.status()))confirmarMercadoPago(id,p.id());if("APROBADA".equals(obtener(id).estado()))conciliacion.compra(id);return obtener(id);
  }
 
  private OrdenResponse aprobar(OrdenCompra o,String paymentId){
    if(o.getEstado()==OrdenCompra.EstadoOrden.APROBADA) return map(o);
    if(o.getEstado()==OrdenCompra.EstadoOrden.REEMBOLSADA || o.getEstado()==OrdenCompra.EstadoOrden.RECHAZADA) throw new IllegalStateException("La orden está cerrada y no puede aprobarse de nuevo");
    ordenRepo.findByMercadoPagoPaymentId(paymentId).filter(x->!x.getId().equals(o.getId())).ifPresent(x->{throw new IllegalStateException("El paymentId ya fue utilizado");});
-   o.setEstado(OrdenCompra.EstadoOrden.APROBADA); o.setMercadoPagoPaymentId(paymentId); o.setFechaAprobacion(LocalDateTime.now()); ordenRepo.save(o);
+   o.setEstado(OrdenCompra.EstadoOrden.APROBADA); o.setMercadoPagoPaymentId(paymentId); o.setFechaAprobacion(LocalDateTime.now(ZoneId.of("America/Lima"))); ordenRepo.save(o);
    if(movimientoRepo.findByOrdenIdAndTipo(o.getId(),MovimientoSaldo.TipoMovimiento.VENTA).isEmpty()){
-     MovimientoSaldo m=new MovimientoSaldo(); m.setDocenteId(o.getDocenteId()); m.setOrdenId(o.getId()); m.setTipo(MovimientoSaldo.TipoMovimiento.VENTA); m.setEstado(MovimientoSaldo.EstadoMovimiento.PENDIENTE); m.setMonto(o.getMontoDocente()); m.setFechaDisponible(o.getFechaAprobacion().plusDays(diasRetencion)); m.setFechaCreacion(LocalDateTime.now()); m.setDescripcion("Venta del curso "+o.getCursoTitulo()+"; neto docente S/ "+o.getMontoDocente()); movimientoRepo.save(m);
+     MovimientoSaldo m=new MovimientoSaldo(); m.setDocenteId(o.getDocenteId()); m.setOrdenId(o.getId()); m.setTipo(MovimientoSaldo.TipoMovimiento.VENTA);m.setConciliado(!paymentId.startsWith("SIM-")&&o.getCostoProcesamiento()!=null&&o.getNetoRecibido()!=null); m.setEstado(MovimientoSaldo.EstadoMovimiento.PENDIENTE); m.setMonto(o.getMontoDocente()); m.setFechaDisponible(o.getFechaAprobacion().plusDays(diasRetencion)); m.setFechaCreacion(LocalDateTime.now(ZoneId.of("America/Lima"))); m.setDescripcion("Venta del curso "+o.getCursoTitulo()+"; neto docente S/ "+o.getMontoDocente()); movimientoRepo.save(m);
    }
    o.setInscripcionSincronizada(false);
    ordenRepo.save(o);
@@ -134,6 +137,7 @@ public class PagoService {
    if(o.getEstado()!=OrdenCompra.EstadoOrden.APROBADA){return false;}
 
    var movimiento = movimientoRepo.findByOrdenIdAndTipo(o.getId(),MovimientoSaldo.TipoMovimiento.VENTA);
+   if(movimiento.isPresent()&&movimiento.get().isConciliado())liquidaciones.bloquearPendientes(o.getDocenteId(),"Compensación por fallo de inscripción");
    if(movimiento.isPresent() && (movimiento.get().getEstado()==MovimientoSaldo.EstadoMovimiento.RESERVADO
        || movimiento.get().getEstado()==MovimientoSaldo.EstadoMovimiento.PAGADO)) {
      throw new IllegalStateException("Venta con saldo ya comprometido: requiere conciliación manual antes del reembolso");
@@ -188,14 +192,15 @@ public class PagoService {
      throw new IllegalArgumentException("El resultado académico no corresponde a la orden " + o.getId());
  }
 
- @Transactional @Scheduled(fixedDelayString="${kido.pagos.liberacion-ms:60000}")
- public void liberarSaldosVencidos(){movimientoRepo.findByEstadoAndFechaDisponibleLessThanEqual(MovimientoSaldo.EstadoMovimiento.PENDIENTE,LocalDateTime.now()).forEach(m->{m.setEstado(MovimientoSaldo.EstadoMovimiento.DISPONIBLE);movimientoRepo.save(m);});}
+ public void liberarSaldosVencidos(){ /* La liberación requiere conciliación de Mercado Pago; no basta el reloj local. */ }
 
  @Transactional(readOnly=true)
  public SaldoResponse saldo(Long docenteId){
    BigDecimal pend=BigDecimal.ZERO,disp=BigDecimal.ZERO,res=BigDecimal.ZERO,ret=BigDecimal.ZERO;
    for(MovimientoSaldo m:movimientoRepo.findByDocenteId(docenteId)){
+     if(!m.isConciliado())continue;
      switch(m.getEstado()){
+       case BLOQUEADO -> pend=pend.add(m.getMonto());
        case PENDIENTE -> pend=pend.add(m.getMonto());
        case DISPONIBLE -> disp=disp.add(m.getMonto());
        case RESERVADO -> {disp=disp.add(m.getMonto()); res=res.add(m.getMonto().abs());}
@@ -207,5 +212,5 @@ public class PagoService {
  }
 
  private OrdenCompra buscar(Long id){return ordenRepo.findById(id).orElseThrow(()->new ResourceNotFoundException("Orden no encontrada: "+id));}
- public OrdenResponse map(OrdenCompra o){return new OrdenResponse(o.getId(),o.getEstudianteId(),o.getCursoId(),o.getDocenteId(),o.getCursoTitulo(),o.getMontoTotal(),o.getComisionKido(),o.getMontoDocente(),o.getEstado().name(),o.getMercadoPagoPreferenceId(),o.getMercadoPagoPaymentId(),o.isInscripcionSincronizada(),o.getFechaCreacion(),o.getFechaAprobacion());}
+ public OrdenResponse map(OrdenCompra o){return new OrdenResponse(o.getId(),o.getEstudianteId(),o.getCursoId(),o.getDocenteId(),o.getCursoTitulo(),o.getMontoTotal(),o.getComisionKido(),o.getMontoDocente(),o.getEstado().name(),o.getMercadoPagoPreferenceId(),o.getMercadoPagoPaymentId(),o.isInscripcionSincronizada(),o.getFechaCreacion(),o.getFechaAprobacion(),o.getPorcentajeComision(),o.getCostoProcesamiento(),o.getNetoRecibido(),o.getEstado()!=OrdenCompra.EstadoOrden.APROBADA||o.getNetoRecibido()==null?null:o.getNetoRecibido().subtract(o.getMontoDocente()),o.getFondosEstado(),o.getFechaConciliacion(),o.getMercadoPagoPaymentId()!=null&&o.getMercadoPagoPaymentId().startsWith("SIM-"));}
 }

@@ -1,5 +1,7 @@
 # Kido Platform
 
+> **¿Primera vez?** Sigue la [guía para levantar KIDO](docs/guias/GUIA_LEVANTAR_KIDO.md): levanta todo el proyecto y explica el acceso (ingreso, registro de estudiantes y verificación de docentes).
+
 Kido es una plataforma distribuida para cursos digitales gratuitos y pagados. Este repositorio conserva el avance de **Yana Rojas Adan** y continúa con el aporte de **Coila Mamani Jhoel Midwar** sobre la misma arquitectura.
 
 ## Estado actual
@@ -10,6 +12,7 @@ Kido es una plataforma distribuida para cursos digitales gratuitos y pagados. Es
 | `kido-inscripcion-ms` | Adan | Implementado |
 | `kido-pago-ms` | Midwar | Implementado |
 | `kido-notificacion-ms` | Midwar | Implementado |
+| `kido-usuario-ms` | Compartido | Implementado: registro, perfil `/me` y verificación de docentes |
 | `kido-config` | Compartido | Implementado |
 | `kido-eureka` | Compartido | Implementado |
 | `kido-gateway` | Compartido | Implementado |
@@ -48,7 +51,7 @@ Accesos principales:
 
 - Gateway: http://localhost:18080
 - Eureka: http://localhost:18761
-- Config Server: http://localhost:18888/kido-pago-ms/prod
+- Config Server: http://localhost:18889/kido-pago-ms/prod
 - Cursos: http://localhost:18080/api/v1/cursos
 - Inscripciones: http://localhost:18080/api/v1/inscripciones
 - Pagos: http://localhost:18080/api/v1/pagos/ordenes
@@ -133,12 +136,18 @@ Para un lanzamiento público **todavía hay controles P0 pendientes**, especialm
 
 ## Documentación
 
+La lista de deseados permite a estudiantes guardar cursos publicados. Está disponible en `/deseados` y se conserva en PostgreSQL por cuenta de Keycloak. Consulta la [guía de deseados](docs/guias/lista-deseados.md) para configurar y comprobar esta función.
+
 - [Brief técnico](docs/brief-tecnico.md)
 - [Producto Unidad I](docs/u1-producto.md)
 - [Guía S5](docs/guia-s5.md)
 - [Aporte de Midwar](docs/continuacion-midwar.md)
 - [Avance técnico de Midwar](docs/avance-midwar.md)
-- [Lista de microservicios](LISTA_MICROSERVICIOS.md)
+- [Lista de microservicios](docs/informes/LISTA_MICROSERVICIOS.md)
+- [Guía para levantar KIDO](docs/guias/GUIA_LEVANTAR_KIDO.md)
+- [Guía de pruebas y rediseño](docs/guias/GUIA_PRUEBAS_Y_REDISENO.md)
+- [Cambios y notas de entrega](docs/cambios/)
+- [Informes y validaciones](docs/informes/)
 
 
 ## Seguridad Keycloak
@@ -179,7 +188,7 @@ La base S08 se amplió para dejar la lógica de negocio preparada antes de inici
 - Kafka para desacoplar eventos de pago y notificaciones;
 - Keycloak/JWT, Gateway, Eureka, Config Server, PostgreSQL, Flyway, Prometheus y Grafana.
 
-La documentación funcional agregada está en `docs/backend-funcional-completo.md` y el detalle de cambios en `CAMBIOS_BACKEND_COMPLETO.md`.
+La documentación funcional agregada está en `docs/backend-funcional-completo.md` y el detalle de cambios en [`docs/cambios/CAMBIOS_BACKEND_COMPLETO.md`](docs/cambios/CAMBIOS_BACKEND_COMPLETO.md).
 
 - eventos académicos Kafka para curso completado y certificado disponible.
 

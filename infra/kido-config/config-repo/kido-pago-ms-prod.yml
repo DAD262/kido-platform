@@ -1,6 +1,10 @@
 server:
   port: 8080
 spring:
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 6MB
   datasource:
     url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
     username: ${DB_USER}
@@ -22,6 +26,9 @@ spring:
           default:
             connectTimeout: 1000
             readTimeout: 3000
+          kido-curso-ms:
+            connectTimeout: 2000
+            readTimeout: 5000
     circuitbreaker:
       resilience4j:
         enabled: true
@@ -30,6 +37,7 @@ spring:
       resourceserver:
         jwt:
           jwk-set-uri: ${KEYCLOAK_JWK_SET_URI:http://kido-keycloak:8080/realms/kido/protocol/openid-connect/certs}
+          issuer-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:19090/realms/kido}
   kafka:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:kido-kafka:9092}
     producer:
@@ -49,15 +57,21 @@ spring:
         spring.json.use.type.headers: false
 kido:
   pagos:
-    comision: 0.10
+    comision: 0.20
     dias-retencion: 7
     retiro-minimo: 50.00
     dias-reembolso: 7
     progreso-max-reembolso: 20
     permitir-simulacion: ${KIDO_PAGOS_PERMITIR_SIMULACION:false}
   mercadopago:
+    modelo-recaudacion-confirmado: ${MERCADO_PAGO_MODELO_RECAUDACION_CONFIRMADO:false}
+    ambiente: ${MERCADO_PAGO_AMBIENTE:pruebas}
     access-token: ${MERCADO_PAGO_ACCESS_TOKEN:}
     notification-url: ${MERCADO_PAGO_NOTIFICATION_URL:}
+    return-url: ${MERCADO_PAGO_RETURN_URL:http://localhost:4200/pago/resultado}
+    auto-return: ${MERCADO_PAGO_AUTO_RETURN:false}
+    statement-descriptor: ${MERCADO_PAGO_STATEMENT_DESCRIPTOR:KIDO}
+    webhook-secret: ${MERCADO_PAGO_WEBHOOK_SECRET:}
 app:
   kafka:
     topic:
@@ -86,6 +100,11 @@ eureka:
     service-url:
       defaultZone: http://kido-eureka:8761/eureka
 resilience4j:
+  timelimiter:
+    instances:
+      KidoCursoObtener:
+        timeoutDuration: 8s
+        cancelRunningFuture: true
   circuitbreaker:
     instances:
       KidoCursoObtener:

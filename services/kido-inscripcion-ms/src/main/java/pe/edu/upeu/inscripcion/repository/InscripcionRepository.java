@@ -16,4 +16,7 @@ public interface InscripcionRepository extends JpaRepository<Inscripcion,Long> {
     Optional<Inscripcion> findByEstudianteIdAndCursoIdConProgresos(@Param("estudianteId") Long estudianteId, @Param("cursoId") Long cursoId);
     List<Inscripcion> findByEstudianteIdOrderByIdDesc(Long estudianteId);
     List<Inscripcion> findByCursoIdOrderByIdDesc(Long cursoId);
+ @Query("select i.estudianteId from Inscripcion i where i.id=:id") Optional<Long> estudianteDe(@Param("id")Long id);
+ @Query("select i.cursoId from Inscripcion i where i.id=:id") Optional<Long> cursoDe(@Param("id")Long id);
+ @Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE) @Query("select i from Inscripcion i where i.id=:id") Optional<Inscripcion> bloquear(@Param("id")Long id);
 }

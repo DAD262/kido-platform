@@ -1,0 +1,16 @@
+﻿<div class="container page">
+<header class="dashboard-head"><div><span class="eyebrow">SEGUIMIENTO ACADÉMICO</span><h1>Supervisión de clases</h1><p class="muted">Hola, {{auth.nombre}}. Consulta los cursos que administración te ha asignado.</p></div><button class="btn btn-outline" (click)="cargar()" [disabled]="cargando()"><app-icon name="refresh" />Actualizar</button></header>
+<p class="scope-note"><app-icon name="shield" />Acceso de consulta: clases asignadas, docentes y avance de sus estudiantes.</p>
+@if(error()){<div class="alert error" role="alert">{{error()}}</div>}
+@if(cargando()){<div class="skeleton" style="height:220px" aria-label="Cargando clases"></div>}
+@else if(!error()&&!cursos().length){<div class="empty"><strong>Aún no tienes clases asignadas</strong>Administración puede asignarlas desde Usuarios y docentes. Luego aparecerán aquí.</div>}
+@else {<div class="supervision-layout"><section aria-label="Cursos asignados"><h2>Mis clases <span class="note">{{cursos().length}}</span></h2><div class="course-list">@for(c of cursos();track c.id){<button class="supervised-course" [class.active]="seleccionado()===c.id" [attr.aria-pressed]="seleccionado()===c.id" (click)="abrir(c)"><app-icon name="book" /><span><strong>{{c.titulo}}</strong><small>{{c.docente}}</small></span><app-icon name="arrow" [size]="16" /></button>}</div></section>
+<section class="panel" aria-label="Seguimiento de la clase">
+@if(cargandoDetalle()){<p role="status">Cargando seguimiento…</p>}
+@else if(errorDetalle()){<div class="alert error" role="alert">{{errorDetalle()}}</div>}
+@else if(detalle();as d){<h2>{{d.curso.titulo}}</h2><p class="muted">Docente: {{d.curso.docente}}</p><div class="supervision-stats"><div><strong>{{d.estudiantes.length}}</strong><span>Estudiantes</span></div><div><strong>{{promedio(d)}}%</strong><span>Avance promedio</span></div></div>
+<h3>Estudiantes y progreso</h3>@if(!d.estudiantes.length){<p class="note">Todavía no hay estudiantes inscritos.</p>}@else{<div class="table-wrap"><table><thead><tr><th>Estudiante</th><th>Estado</th><th>Avance</th></tr></thead><tbody>@for(e of d.estudiantes;track e.id){<tr><td>{{e.nombre}}</td><td>{{e.estado | estado}}</td><td><strong>{{e.progreso}}%</strong><div class="progress"><span [style.width.%]="e.progreso"></span></div></td></tr>}</tbody></table></div>}
+<h3 class="space-top">Clases y lecciones</h3>@for(m of d.contenido.modulos;track m.id){<h4 class="module">{{m.titulo}}</h4>@for(l of m.lecciones;track l.id){<div class="lesson"><span>{{l.titulo}}</span>@if(enlace(l.urlContenido);as url){<a class="btn btn-outline btn-small" [href]="url" target="_blank" rel="noopener noreferrer">Abrir clase <app-icon name="external" [size]="14" /></a>}@else{<small class="note">Sin enlace de clase</small>}</div>}}@empty{<p class="note">El docente todavía no ha agregado lecciones.</p>}
+}@else{<div class="empty"><strong>Selecciona una clase</strong>Verás al docente, los estudiantes, su avance y los enlaces de las lecciones.</div>}
+</section></div>}
+</div>

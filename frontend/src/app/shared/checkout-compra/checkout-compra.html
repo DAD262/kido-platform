@@ -1,0 +1,16 @@
+<section class="checkout" aria-label="Medios de pago y condiciones de compra">
+  <div class="provider"><span class="mark" aria-hidden="true">MP</span><div><strong>{{ metodo()?.nombre || 'Mercado Pago' }}</strong><span>Pago y confirmación en su plataforma</span></div><app-icon name="shield" [size]="20" /></div>
+  @if(cargando()) { <p class="note" role="status">Consultando medios de pago…</p> }
+  @else if(metodo()?.disponible && comercial()?.lista) {
+    <p class="methods-title">Puedes pagar con</p>
+    <div class="methods" aria-label="Medios habilitados">
+      @for(medio of metodo()!.medios; track medio.id) { <span class="method" [attr.data-medio]="medio.id">{{ medio.nombre }}</span> }
+    </div>
+    <p class="note">Elige tu medio al continuar. Las opciones finales dependen de Mercado Pago.</p>
+    @if(metodo()?.ambiente === 'pruebas') { <p class="testing" role="status">Entorno de pruebas: esta compra no es un cobro de producción.</p> }
+    <p class="seller">Vendido por <strong>{{ comercial()!.datos.razonSocial }}</strong><br>RUC {{ comercial()!.datos.ruc }}</p>
+    <label class="accept"><input type="checkbox" [(ngModel)]="acepta" (ngModelChange)="emitir()"><span>Acepto las <a routerLink="/condiciones-compra" fragment="terminos" target="_blank" rel="noopener">condiciones de compra</a> y la <a routerLink="/condiciones-compra" fragment="reembolsos" target="_blank" rel="noopener">política de reembolsos</a>. He leído la <a routerLink="/condiciones-compra" fragment="privacidad" target="_blank" rel="noopener">política de privacidad</a>.</span></label>
+  } @else {
+    <div class="notice" role="status"><p>{{ error() || 'Estamos habilitando los pagos de este curso. Por ahora no se realizará ningún cobro.' }}</p><button type="button" class="btn btn-small btn-outline" (click)="cargar()">Revisar disponibilidad</button></div>
+  }
+</section>

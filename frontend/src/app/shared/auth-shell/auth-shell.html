@@ -1,0 +1,64 @@
+<div class="auth">
+  <aside class="brand-side" aria-label="KIDO">
+    <div class="brand-glow" aria-hidden="true"></div>
+    <a routerLink="/" class="brand-logo" aria-label="KIDO, ir al inicio">
+      <app-logo [tamano]="34" [sobreOscuro]="true" />
+    </a>
+
+    <div class="pitch">
+      <h2>{{ pitch().titulo }}</h2>
+      <p>{{ pitch().texto }}</p>
+      <ul>
+        @for (p of pitch().puntos; track p.texto) {
+          <li>
+            <span class="dot"><app-icon [name]="p.icono" [size]="16" /></span>{{ p.texto }}
+          </li>
+        }
+      </ul>
+    </div>
+
+    <!-- Muestra del producto: una tarjeta de avance y un certificado -->
+    <div class="showcase" aria-hidden="true">
+      <div class="glass progress-card">
+        <div class="pc-head">
+          <span class="pc-cover">x²</span>
+          <div>
+            <strong>Álgebra desde cero</strong>
+            <small>Módulo 3 · Ecuaciones lineales</small>
+          </div>
+        </div>
+        <div class="pc-bar"><span></span></div>
+        <div class="pc-foot"><span>68% completado</span><span>Continuar →</span></div>
+      </div>
+      <div class="glass cert-card">
+        <app-icon name="award" [size]="18" />
+        <div>
+          <strong>Certificado emitido</strong>
+          <small>KIDO-7F3A-2026</small>
+        </div>
+      </div>
+    </div>
+
+    <p class="brand-foot">KIDO · Plataforma de cursos · UPeU</p>
+  </aside>
+
+  <section class="form-side">
+    <div class="form-top">
+      <a routerLink="/" class="mobile-logo" aria-label="KIDO, ir al inicio"
+        ><app-logo [tamano]="28"
+      /></a>
+      <a routerLink="/cursos" class="back"><app-icon name="back" [size]="16" />Ver cursos</a>
+      <button
+        type="button"
+        class="theme"
+        (click)="visual.alternarTema()"
+        [attr.aria-label]="visual.oscuro() ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro'"
+      >
+        <app-icon [name]="visual.oscuro() ? 'sun' : 'moon'" />
+      </button>
+    </div>
+    <div class="form-body">
+      <ng-content />
+    </div>
+  </section>
+</div>

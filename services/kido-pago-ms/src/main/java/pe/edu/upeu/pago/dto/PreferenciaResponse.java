@@ -1,1 +1,12 @@
-package pe.edu.upeu.pago.dto; public record PreferenciaResponse(String preferenceId,String initPoint,String sandboxInitPoint){}
+package pe.edu.upeu.pago.dto;
+
+/**
+ * @param checkoutUrl URL a la que el frontend debe redirigir: {@code sandbox_init_point} si se usan
+ *     credenciales TEST-..., {@code init_point} en cualquier otro caso (incluidas las credenciales de
+ *     una cuenta vendedora de prueba).
+ */
+public record PreferenciaResponse(String preferenceId, String initPoint, String sandboxInitPoint, String checkoutUrl) {
+  public PreferenciaResponse(String preferenceId, String initPoint, String sandboxInitPoint) {
+    this(preferenceId, initPoint, sandboxInitPoint, null);
+  }
+}

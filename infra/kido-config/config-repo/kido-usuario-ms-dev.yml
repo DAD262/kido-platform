@@ -1,0 +1,48 @@
+server:
+  port: 8085
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:15437/kido_usuario_db
+    username: ${DB_USER}
+    password: ${DB_PASS}
+    driver-class-name: org.postgresql.Driver
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 6MB
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: ${KEYCLOAK_JWK_SET_URI:http://localhost:19090/realms/kido/protocol/openid-connect/certs}
+          issuer-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:19090/realms/kido}
+kido:
+  keycloak:
+    server-url: ${KEYCLOAK_SERVER_URL:http://localhost:19090}
+    realm: kido
+    client-id: kido-usuario-admin
+    client-secret: ${KIDO_USUARIO_ADMIN_SECRET:}
+    timeout: 5s
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+eureka:
+  instance:
+    hostname: localhost
+    instance-id: ${spring.application.name}:${server.port}
+  client:
+    service-url:
+      defaultZone: http://localhost:18761/eureka

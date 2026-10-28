@@ -1,0 +1,24 @@
+<div class="container page">
+  <header class="head">
+    <a routerLink="/cursos" class="back">← Explorar cursos</a>
+    <h1>Mi lista de deseados</h1>
+    <p class="muted">Guarda los cursos que te interesan para encontrarlos fácilmente después.</p>
+  </header>
+  @if (error() || deseados.error()) {
+    <div class="alert error" role="alert">{{ error() || deseados.error() }}</div>
+    <button class="btn btn-outline" type="button" (click)="deseados.cargar(true)">Reintentar lista</button>
+  }
+  @if (cargando() || deseados.cargando()) {
+    <div class="skeleton" style="height: 240px"></div>
+  } @else if (!cursos().length && !error() && !deseados.error()) {
+    <div class="empty">
+      <strong>Tu lista aún está vacía</strong>
+      Descubre cursos y guárdalos con el corazón ♡.
+      <a routerLink="/cursos" class="btn btn-primary btn-small">Explorar cursos</a>
+    </div>
+  } @else {
+    <div class="cards">
+      @for (curso of cursos(); track curso.id) { <app-curso-card [curso]="curso" /> }
+    </div>
+  }
+</div>

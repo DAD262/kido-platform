@@ -1,0 +1,46 @@
+.card {
+  width: min(520px, 100%);
+  margin: 24px auto 0;
+  padding: 36px 32px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  text-align: center;
+}
+.badge {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 18px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--surface-2);
+  color: var(--accent);
+}
+.badge .spinner {
+  margin: 0;
+  width: 26px;
+  height: 26px;
+}
+.badge.ok {
+  background: var(--success-soft);
+  color: var(--success);
+}
+.badge.warn {
+  background: var(--warning-soft);
+  color: var(--warning);
+}
+.badge.bad {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+h1 {
+  font-size: 28px;
+}
+.actions {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 22px 0 14px;
+}

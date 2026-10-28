@@ -1,0 +1,22 @@
+<app-auth-shell modo="ingresar">
+<span class="eyebrow">RECUPERAR ACCESO</span><h1>{{paso()==='listo'?'Tu acceso está listo':paso()==='codigo'?'Revisa tu correo':'Vuelve a ingresar a KIDO'}}</h1>
+@if(local()){<aside class="test-mail"><app-icon name="bell" /><div><strong>Entorno de pruebas</strong><p>Los mensajes llegan a la bandeja local, no al correo real.</p><a href="http://localhost:18025" target="_blank" rel="noopener noreferrer">Abrir bandeja de pruebas <app-icon name="external" [size]="14" /></a></div></aside>}
+@if(error()){<div class="alert error" role="alert">{{error()}}</div>}
+@if(mensaje()){<div class="alert" [class.success]="paso()==='listo'" role="status">{{mensaje()}}</div>}
+@if(paso()==='correo'){
+<p class="muted">Escribe el correo con el que te registraste. Te enviaremos un código para comprobar que la cuenta es tuya.</p>
+<form (ngSubmit)="solicitar()"><label class="field">Correo de tu cuenta<input name="email" type="email" [(ngModel)]="email" autocomplete="email" required maxlength="160" /></label><button class="btn btn-primary btn-block space-top" type="submit" [disabled]="ocupado()||espera()>0">{{ocupado()?'Enviando…':espera()>0?'Espera '+espera()+' s':'Enviar código'}}</button></form>
+<p class="note space-top">Estudiantes: después de confirmar el correo se habilita el DNI como clave temporal y deberás cambiarla al ingresar. Los demás cargos eligen una clave nueva.</p>
+}@else if(paso()==='codigo'){
+<form (ngSubmit)="confirmar()"><label class="field">Código de recuperación<input class="code-input" name="codigo" [(ngModel)]="codigo" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="000000" required /></label>
+<p class="note">Caduca en 10 minutos. Tienes hasta 5 intentos.</p>
+<fieldset class="recovery-kind"><legend>Tu cuenta</legend><label><input name="tipo" type="radio" [value]="true" [(ngModel)]="estudiante" />Estudiante</label><label><input name="tipo" type="radio" [value]="false" [(ngModel)]="estudiante" />Docente, administrador o supervisor</label></fieldset>
+@if(estudiante){<p class="note">Usarás tu correo y tu DNI como contraseña temporal. Deberás cambiarla al ingresar. Si falta tu DNI, administración debe completarlo.</p>}@else{
+<label class="field space-top">Nueva contraseña<input name="password" [type]="mostrar?'text':'password'" [(ngModel)]="password" autocomplete="new-password" autocapitalize="none" spellcheck="false" required /></label>
+<label class="field space-top">Confirmar nueva contraseña<input name="confirmacion" [type]="mostrar?'text':'password'" [(ngModel)]="confirmacion" autocomplete="new-password" autocapitalize="none" spellcheck="false" required /></label>
+<label class="check-row"><input name="mostrar" type="checkbox" [(ngModel)]="mostrar" />Mostrar ambas contraseñas</label><p class="note">De 8 a 72 caracteres, con mayúscula, minúscula y número.</p>}
+<button type="submit" class="btn btn-primary btn-block space-top" [disabled]="ocupado()">{{ocupado()?'Comprobando…':'Confirmar y recuperar acceso'}}</button></form>
+<div class="recovery-links"><button type="button" class="btn btn-quiet btn-small" (click)="otroCorreo()" [disabled]="ocupado()">Solicitar otro código o cambiar correo</button><span class="note">{{espera()>0?'Puedes solicitar otro en '+espera()+' s.':''}}</span></div>
+}@else{<a class="btn btn-primary btn-block space-top" routerLink="/login">Ingresar a KIDO <app-icon name="arrow" [size]="16" /></a>}
+@if(paso()!=='listo'){<p class="note space-top"><a routerLink="/login">Volver al ingreso</a></p>}
+</app-auth-shell>

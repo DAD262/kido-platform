@@ -1,0 +1,11 @@
+import { Component,OnInit,inject,signal } from '@angular/core';import { FormsModule } from '@angular/forms';import { RouterLink } from '@angular/router';import { forkJoin } from 'rxjs';
+import { Api,mensajeError } from '../../../core/services/api';import { EstadoComercial,ActivacionPagos,DatosComerciales } from '../../../core/models/api.models';
+@Component({selector:'app-comercio-admin',standalone:true,imports:[FormsModule,RouterLink],templateUrl:'./comercio-admin.html',styleUrl:'./comercio-admin.scss'})
+export class ComercioAdmin implements OnInit {
+ private readonly api=inject(Api);readonly estado=signal<EstadoComercial|null>(null);readonly activacion=signal<ActivacionPagos|null>(null);readonly error=signal('');readonly mensaje=signal('');readonly cargando=signal(true);readonly guardando=signal(false);
+ datos:DatosComerciales={version:0,razonSocial:'',ruc:'',direccion:'',emailSoporte:'',terminos:'',privacidad:'',reembolsos:'',reclamacionesUrl:'',publicada:false};
+ readonly textos=[{id:'terminos' as const,label:'Condiciones de compra',ayuda:'Describe el acceso al curso, contenido incluido, precio final, obligaciones y atención al alumno.'},{id:'reembolsos' as const,label:'Cancelaciones y reembolsos',ayuda:'Explica cómo solicitar un reembolso, los plazos aplicables y el procedimiento de atención.'},{id:'privacidad' as const,label:'Política de privacidad',ayuda:'Identifica al responsable, datos tratados, finalidades, destinatarios, conservación y canales para ejercer derechos.'}];
+ ngOnInit(){this.cargar();}
+ cargar(){this.cargando.set(true);this.error.set('');forkJoin({comercio:this.api.comercioAdmin(),activacion:this.api.activacionPagos()}).subscribe({next:v=>{this.estado.set(v.comercio);this.datos={...v.comercio.datos};this.activacion.set(v.activacion);this.cargando.set(false);},error:e=>{this.error.set(mensajeError(e));this.cargando.set(false);}});}
+ guardar(){this.guardando.set(true);this.error.set('');this.mensaje.set('');this.api.guardarComercio(this.datos).subscribe({next:d=>{this.estado.set(d);this.datos={...d.datos};this.guardando.set(false);this.mensaje.set(d.lista?'Información comercial publicada.':'Borrador guardado.');this.api.activacionPagos().subscribe({next:a=>this.activacion.set(a)});},error:e=>{this.error.set(mensajeError(e));this.guardando.set(false);}});}
+}

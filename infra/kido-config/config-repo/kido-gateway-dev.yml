@@ -2,11 +2,17 @@ server:
   port: 18080
 
 spring:
+  servlet:
+    multipart:
+      # Debe alcanzar el mayor upload que se reenvía (materiales de curso: 50 MB).
+      max-file-size: 50MB
+      max-request-size: 55MB
   security:
     oauth2:
       resourceserver:
         jwt:
           jwk-set-uri: ${KEYCLOAK_JWK_SET_URI:http://localhost:19090/realms/kido/protocol/openid-connect/certs}
+          issuer-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:19090/realms/kido}
   cloud:
     gateway:
       server:
@@ -44,6 +50,10 @@ spring:
               uri: lb://kido-pago-ms
               predicates:
                 - Path=/api/v1/reembolsos/**
+            - id: kido-usuarios
+              uri: lb://kido-usuario-ms
+              predicates:
+                - Path=/api/v1/usuarios/**
             - id: kido-notificaciones
               uri: lb://kido-notificacion-ms
               predicates:

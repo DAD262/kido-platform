@@ -1,0 +1,8 @@
+<main class="container page legal"><a routerLink="/cursos">← Volver a cursos</a><h1>Información de compra</h1>
+@if(cargando()){<p role="status">Cargando información…</p>}@else if(error()){<p class="alert error" role="alert">{{error()}}</p>}@else if(datos()?.lista){@let d=datos()!.datos;
+<address><strong>{{d.razonSocial}}</strong><br>RUC {{d.ruc}}<br>{{d.direccion}}<br>Atención: <a [href]="'mailto:'+d.emailSoporte">{{d.emailSoporte}}</a></address><p class="note">Versión {{d.version}} de la información comercial.</p>
+<section id="terminos"><h2>Condiciones de compra</h2><div class="copy">{{d.terminos}}</div></section>
+<section id="reembolsos"><h2>Cancelaciones y reembolsos</h2><div class="copy">{{d.reembolsos}}</div></section>
+<section id="privacidad"><h2>Política de privacidad</h2><div class="copy">{{d.privacidad}}</div></section>
+<section id="reclamaciones"><h2>Libro de Reclamaciones</h2><p>Registra tu reclamo o queja en el libro del vendedor.</p><a class="btn btn-outline" [href]="d.reclamacionesUrl" target="_blank" rel="noopener noreferrer">Abrir Libro de Reclamaciones</a></section>
+}@else{<p class="alert warn">La información comercial aún no está publicada. Las compras permanecerán deshabilitadas hasta que esté disponible.</p>}</main>

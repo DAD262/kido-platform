@@ -1,0 +1,48 @@
+﻿<section class="accounts" aria-labelledby="cuentas-titulo">
+  <header class="account-head">
+    <div><span class="eyebrow">PERSONAS EN KIDO</span><h2 id="cuentas-titulo">Usuarios y acceso</h2><p class="muted">Administra los datos de las cuentas y ayuda a recuperar su acceso.</p></div>
+    <button type="button" class="btn btn-outline btn-small" (click)="cargar()" [disabled]="cargando()"><app-icon name="refresh" [size]="16" />Actualizar usuarios</button>
+  </header>
+  @if(mensaje()){<div class="alert success" role="status">{{mensaje()}}</div>}
+  @if(error()){<div class="alert error" role="alert">{{error()}} <button class="btn btn-outline btn-small" (click)="cargar()">Reintentar</button></div>}
+  <div class="account-filters" role="group" aria-label="Categoría de usuarios">
+    @for(cat of categorias;track cat.id){<button type="button" [class.on]="categoria()===cat.id" [attr.aria-pressed]="categoria()===cat.id" (click)="filtrar(cat.id)">{{cat.nombre}} <span>{{cantidad(cat.id)}}</span></button>}
+  </div>
+  <label class="account-search"><app-icon name="search" [size]="18" /><span class="sr-only">Buscar usuarios por nombre, correo o usuario</span><input type="search" placeholder="Buscar por nombre, correo o usuario" [ngModel]="consulta()" (ngModelChange)="buscar($event)" /></label>
+  @if(cargando()){<div class="skeleton" style="height:220px" aria-label="Cargando usuarios" aria-busy="true"></div>}
+  @else if(!error()) {
+    <p class="note results" role="status">{{filtradas().length}} cuentas encontradas</p>
+    @if(!filtradas().length){<div class="empty"><strong>No hay cuentas con estos filtros</strong>Prueba otra búsqueda o selecciona otra categoría.</div>}
+    @else {<div class="table-wrap"><table><thead><tr><th>Persona</th><th>Usuario de acceso</th><th>Categoría</th><th>Estado</th><th>Acciones</th></tr></thead><tbody>
+      @for(c of visibles();track c.id){<tr><td><strong>{{c.nombres}} {{c.apellidos}}</strong><span class="cell-caption">{{c.email || 'Sin correo'}}</span><small class="note">DNI: {{c.dni || 'Pendiente'}}</small></td><td>{{c.sinAcceso ? 'Sin cuenta de acceso' : c.username}}</td><td><span class="pill role-badge" [attr.data-role]="grupo(c)">{{etiqueta(c)}}</span></td><td><span class="pill" [class.green]="c.habilitada">{{c.sinAcceso?'Sin acceso':c.habilitada?'Activa':'Desactivada'}}</span></td><td>@if(c.sinAcceso){<span class="note">Perfil #{{c.perfilId}} conservado. No tiene credenciales activas.</span>}@else{<div class="account-actions"><button type="button" class="btn btn-outline btn-small" (click)="abrir(c,'editar')" [attr.aria-label]="'Editar datos de '+c.username">Editar datos</button><button type="button" class="btn btn-quiet btn-small" (click)="abrir(c,'password')" [attr.aria-label]="'Restablecer contraseña de '+c.username">Restablecer clave</button><button type="button" class="btn btn-quiet btn-small" (click)="abrir(c,'supervision')" [attr.aria-label]="'Configurar supervisión de '+c.username">Supervisión</button></div>}</td></tr>}
+    </tbody></table></div>
+    @if(paginas()>1){<nav class="pagination" aria-label="Páginas de usuarios"><button class="btn btn-outline btn-small" [disabled]="pagina()===1" (click)="pagina.set(pagina()-1)">Anterior</button><span>{{pagina()}} / {{paginas()}}</span><button class="btn btn-outline btn-small" [disabled]="pagina()===paginas()" (click)="pagina.set(pagina()+1)">Siguiente</button></nav>}}
+  }
+  <p class="note account-note"><app-icon name="shield" [size]="15" />Los perfiles históricos conservan datos, pero no pueden ingresar. Sus correos pueden reutilizarse al editar una cuenta activa. Las contraseñas se restablecen; nunca se muestran las claves actuales. Los roles docentes se otorgan al aprobar la verificación profesional.</p>
+</section>
+<dialog #dialogo class="account-dialog" aria-labelledby="editar-cuenta-titulo" (cancel)="cancelar($event)">
+  @if(seleccionada();as c){<form (ngSubmit)="guardar()">
+    <div class="dialog-head"><div><span class="eyebrow">{{c.username}}</span><h2 id="editar-cuenta-titulo">{{modo()==='editar'?'Editar cuenta':modo()==='supervision'?'Asignar supervisión':'Restablecer contraseña'}}</h2></div><button type="button" class="btn btn-quiet" (click)="cerrar()" [disabled]="guardando()" aria-label="Cerrar"><app-icon name="close" /></button></div>
+    @if(errorFormulario()){<div class="alert error" role="alert">{{errorFormulario()}}</div>}
+    @if(modo()==='editar'){
+      <div class="form-grid"><label class="field full">Usuario de acceso<input name="username" [(ngModel)]="datos.username" autocomplete="off" autocapitalize="none" spellcheck="false" required minlength="3" maxlength="160" /><small class="note">Puede ingresar con este usuario o con su correo. Deben identificar una sola cuenta.</small></label><label class="field full">DNI<input name="dni" [(ngModel)]="datos.dni" inputmode="numeric" maxlength="8" autocomplete="off" /><small class="note">Completa el DNI real. No se asignan números ficticios a las cuentas antiguas.</small></label><label class="field">Nombres<input name="nombres" [(ngModel)]="datos.nombres" required maxlength="80" autocomplete="off" /></label><label class="field">Apellidos<input name="apellidos" [(ngModel)]="datos.apellidos" required maxlength="80" autocomplete="off" /></label><label class="field full">Correo<input name="email" type="email" [(ngModel)]="datos.email" required maxlength="160" autocomplete="off" /></label></div>
+      <label class="checkbox-row"><input type="checkbox" name="habilitada" [(ngModel)]="datos.habilitada" [disabled]="c.roles.includes('ADMIN')" />Cuenta habilitada para ingresar</label>
+      <p class="note">Se puede ingresar con el usuario de acceso o con el correo de la persona. Cambiar estos datos conserva sus cursos e inscripciones.</p>
+      @if(c.roles.includes('ADMIN')){<p class="note space-top">Las cuentas administradoras permanecen activas para proteger el acceso de administración.</p>}
+    }@else if(modo()==='supervision'){
+      <p class="muted">El supervisor consulta únicamente las clases que le asignes, sus estudiantes y sus docentes.</p>
+      <label class="checkbox-row"><input type="checkbox" name="supervisor" [(ngModel)]="supervisor" />Habilitar rol supervisor</label>
+      @if(cargandoSupervision()){<p role="status">Cargando asignaciones…</p>}@else if(supervisor){<fieldset class="course-assignment"><legend>Clases que puede supervisar</legend>@for(curso of cursosSupervision();track curso.id){<label class="checkbox-row"><input type="checkbox" [name]="'curso-'+curso.id" [ngModel]="tieneCurso(curso.id)" (ngModelChange)="alternarCurso(curso.id,$event)" />{{curso.titulo}}</label>}@empty{<p class="note">No hay cursos disponibles para asignar.</p>}</fieldset>}
+      <p class="note">No permite administrar usuarios, cambiar contraseñas, aprobar docentes ni acceder a finanzas.</p>
+    }@else{
+      <div class="recovery-option"><strong>Recuperación por correo</strong><p class="note">El usuario verifica un código en su correo. Estudiantes: DNI temporal y cambio obligatorio. Los demás cargos eligen su nueva clave.</p><button type="button" class="btn btn-outline btn-small" (click)="enviarRecuperacion()" [disabled]="guardando()">Enviar código al correo</button></div>
+      <p class="muted">O asigna una nueva contraseña para <strong>{{c.nombres || c.username}}</strong>. La anterior dejará de funcionar.</p>
+      <label class="field">Nueva contraseña<input name="password" [type]="mostrar?'text':'password'" [(ngModel)]="password" autocomplete="new-password" autocapitalize="none" spellcheck="false" required /></label>
+      <label class="field space-top">Confirmar nueva contraseña<input name="confirmacion" [type]="mostrar?'text':'password'" [(ngModel)]="confirmacion" autocomplete="new-password" autocapitalize="none" spellcheck="false" required /></label>
+      <label class="checkbox-row"><input name="mostrar" type="checkbox" [(ngModel)]="mostrar" />Mostrar ambas contraseñas</label>
+      <p class="note">8–72 caracteres, con mayúscula, minúscula y número. Evita usar el correo de la cuenta.</p>
+      <label class="checkbox-row"><input name="temporal" type="checkbox" [(ngModel)]="temporal" />Solicitar que cambie la clave en su próximo ingreso</label>
+    }
+    <div class="dialog-actions"><button type="button" class="btn btn-outline" (click)="cerrar()" [disabled]="guardando()">Cancelar</button><button type="submit" class="btn btn-primary" [disabled]="guardando() || (modo()==='supervision' && !supervisionLista())">{{guardando()?'Guardando…':modo()==='password'?'Restablecer contraseña':'Guardar cambios'}}</button></div>
+  </form>}
+</dialog>
