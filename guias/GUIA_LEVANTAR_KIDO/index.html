@@ -1,0 +1,1592 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../../roadmap-produccion/">
+      
+      
+        <link rel="next" href="../lista-deseados/">
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.20">
+    
+    
+      
+        <title>Guía para levantar KIDO - Kido - Desarrollo de aplicaciones distribuidas</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.e53b48f4.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="blue-grey" data-md-color-accent="blue">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#guia-para-levantar-kido-completo" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Kido - Desarrollo de aplicaciones distribuidas" class="md-header__button md-logo" aria-label="Kido - Desarrollo de aplicaciones distribuidas" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Kido - Desarrollo de aplicaciones distribuidas
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Guía para levantar KIDO
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Kido - Desarrollo de aplicaciones distribuidas" class="md-nav__button md-logo" aria-label="Kido - Desarrollo de aplicaciones distribuidas" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Kido - Desarrollo de aplicaciones distribuidas
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Inicio
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../brief-tecnico/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Brief técnico
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../u1-producto/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Producto Unidad 1
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guia-s5/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Guía S5
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../github/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Preparación de GitHub
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../continuacion-midwar/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Aporte Midwar
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../avance-midwar/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Avance técnico Midwar
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api-midwar/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    API Midwar
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../seguridad-keycloak/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Seguridad Keycloak
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../s08-mensajeria-asincrona/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    S08 Mensajería asíncrona
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../s09-saga-kido/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    S09 Saga en KIDO
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../s09-implementacion-validacion/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    S09 Validación y evidencias
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../backend-funcional-completo/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Backend funcional
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../roadmap-produccion/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Roadmap de producción
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Guía para levantar KIDO
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    Guía para levantar KIDO
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-que-vas-a-levantar" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Qué vas a levantar
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-requisitos" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Requisitos
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-prepara-env" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Prepara .env
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-levanta-el-backend" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Levanta el backend
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Levanta el backend">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41-primera-vez-o-si-quieres-empezar-limpio" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.1 Primera vez (o si quieres empezar limpio)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42-si-ya-tenias-kido-levantado-antes-de-esta-version" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.2 Si ya tenías KIDO levantado antes de esta versión
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-levanta-el-frontend" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. Levanta el frontend
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-acceso-como-esta-separado-y-definido" class="md-nav__link">
+    <span class="md-ellipsis">
+      6. Acceso: cómo está separado y definido
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. Acceso: cómo está separado y definido">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61-quien-hace-que" class="md-nav__link">
+    <span class="md-ellipsis">
+      6.1 Quién hace qué
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#62-roles-como-se-obtiene-cada-uno" class="md-nav__link">
+    <span class="md-ellipsis">
+      6.2 Roles: cómo se obtiene cada uno
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#63-ingreso" class="md-nav__link">
+    <span class="md-ellipsis">
+      6.3 Ingreso
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#64-registro-de-estudiante-1-paso" class="md-nav__link">
+    <span class="md-ellipsis">
+      6.4 Registro de estudiante (1 paso)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#65-registro-de-docente-3-pasos-y-verificacion" class="md-nav__link">
+    <span class="md-ellipsis">
+      6.5 Registro de docente (3 pasos) y verificación
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#66-del-usuario-de-keycloak-al-numero-de-kido" class="md-nav__link">
+    <span class="md-ellipsis">
+      6.6 Del usuario de Keycloak al número de KIDO
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#67-endpoints-de-identidad" class="md-nav__link">
+    <span class="md-ellipsis">
+      6.7 Endpoints de identidad
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-recorrido-para-la-sustentacion" class="md-nav__link">
+    <span class="md-ellipsis">
+      7. Recorrido para la sustentación
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-comprobaciones-rapidas-desde-la-terminal" class="md-nav__link">
+    <span class="md-ellipsis">
+      8. Comprobaciones rápidas desde la terminal
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-problemas-frecuentes" class="md-nav__link">
+    <span class="md-ellipsis">
+      9. Problemas frecuentes
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-que-cambio-en-esta-version" class="md-nav__link">
+    <span class="md-ellipsis">
+      10. Qué cambió en esta versión
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11-limites-conocidos-para-mencionarlos-con-honestidad" class="md-nav__link">
+    <span class="md-ellipsis">
+      11. Límites conocidos (para mencionarlos con honestidad)
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../lista-deseados/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Lista de deseados
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../GUIA_PRUEBAS_Y_REDISENO/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Guía de pruebas y rediseño
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../informes/LISTA_MICROSERVICIOS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Lista de microservicios
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../informes/VALIDACION_S09/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Validación S09
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../cambios/CAMBIOS_BACKEND_COMPLETO/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Cambios del backend
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-que-vas-a-levantar" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Qué vas a levantar
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-requisitos" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Requisitos
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-prepara-env" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Prepara .env
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-levanta-el-backend" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Levanta el backend
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Levanta el backend">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41-primera-vez-o-si-quieres-empezar-limpio" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.1 Primera vez (o si quieres empezar limpio)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42-si-ya-tenias-kido-levantado-antes-de-esta-version" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.2 Si ya tenías KIDO levantado antes de esta versión
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-levanta-el-frontend" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. Levanta el frontend
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-acceso-como-esta-separado-y-definido" class="md-nav__link">
+    <span class="md-ellipsis">
+      6. Acceso: cómo está separado y definido
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. Acceso: cómo está separado y definido">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61-quien-hace-que" class="md-nav__link">
+    <span class="md-ellipsis">
+      6.1 Quién hace qué
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#62-roles-como-se-obtiene-cada-uno" class="md-nav__link">
+    <span class="md-ellipsis">
+      6.2 Roles: cómo se obtiene cada uno
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#63-ingreso" class="md-nav__link">
+    <span class="md-ellipsis">
+      6.3 Ingreso
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#64-registro-de-estudiante-1-paso" class="md-nav__link">
+    <span class="md-ellipsis">
+      6.4 Registro de estudiante (1 paso)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#65-registro-de-docente-3-pasos-y-verificacion" class="md-nav__link">
+    <span class="md-ellipsis">
+      6.5 Registro de docente (3 pasos) y verificación
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#66-del-usuario-de-keycloak-al-numero-de-kido" class="md-nav__link">
+    <span class="md-ellipsis">
+      6.6 Del usuario de Keycloak al número de KIDO
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#67-endpoints-de-identidad" class="md-nav__link">
+    <span class="md-ellipsis">
+      6.7 Endpoints de identidad
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-recorrido-para-la-sustentacion" class="md-nav__link">
+    <span class="md-ellipsis">
+      7. Recorrido para la sustentación
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-comprobaciones-rapidas-desde-la-terminal" class="md-nav__link">
+    <span class="md-ellipsis">
+      8. Comprobaciones rápidas desde la terminal
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-problemas-frecuentes" class="md-nav__link">
+    <span class="md-ellipsis">
+      9. Problemas frecuentes
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-que-cambio-en-esta-version" class="md-nav__link">
+    <span class="md-ellipsis">
+      10. Qué cambió en esta versión
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11-limites-conocidos-para-mencionarlos-con-honestidad" class="md-nav__link">
+    <span class="md-ellipsis">
+      11. Límites conocidos (para mencionarlos con honestidad)
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="guia-para-levantar-kido-completo">Guía para levantar KIDO completo</h1>
+<p>Esta guía deja funcionando todo el proyecto en tu PC: backend (microservicios, Keycloak, Kafka, bases de datos), frontend Angular y, sobre todo, el <strong>acceso</strong>: ingreso, registro de estudiantes, postulación y verificación de docentes.</p>
+<p>Los comandos están pensados para <strong>Windows + PowerShell</strong> (los mismos sirven en macOS/Linux quitando <code>.cmd</code>).</p>
+<hr />
+<h2 id="1-que-vas-a-levantar">1. Qué vas a levantar</h2>
+<pre><code>Navegador ──▶ Angular :4200 ──proxy /api──▶ Gateway :18080 ──▶ microservicios (vía Eureka)
+   │                                            │
+   └──── login (tema «kido») ──▶ Keycloak :19090 ◀── kido-usuario-ms (cuenta de servicio)
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Pieza</th>
+<th>Puerto en tu PC</th>
+<th>Para qué</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Frontend Angular</td>
+<td><code>4200</code></td>
+<td>La aplicación</td>
+</tr>
+<tr>
+<td>API Gateway</td>
+<td><code>18080</code></td>
+<td>Única puerta del API; valida el JWT y el rol</td>
+</tr>
+<tr>
+<td>Keycloak</td>
+<td><code>19090</code></td>
+<td>Contraseñas, sesiones y roles (realm <code>kido</code>)</td>
+</tr>
+<tr>
+<td>Eureka</td>
+<td><code>18761</code></td>
+<td>Registro de servicios (debes ver todos en UP)</td>
+</tr>
+<tr>
+<td>Config Server</td>
+<td><code>18889</code></td>
+<td>Configuración central (<code>infra/kido-config/config-repo</code>)</td>
+</tr>
+<tr>
+<td>Kafka UI</td>
+<td><code>18085</code></td>
+<td>Eventos de pagos y SAGA</td>
+</tr>
+<tr>
+<td>Prometheus / Grafana</td>
+<td><code>19091</code> / <code>13000</code></td>
+<td>Métricas</td>
+</tr>
+<tr>
+<td>PostgreSQL</td>
+<td><code>15432</code> cursos · <code>15434</code> inscripciones · <code>15435</code> pagos · <code>15436</code> notificaciones · <strong><code>15437</code> usuarios</strong></td>
+<td>Una base por servicio</td>
+</tr>
+</tbody>
+</table>
+<p>Microservicios: <code>kido-curso-ms</code> (2 instancias), <code>kido-inscripcion-ms</code>, <code>kido-pago-ms</code>, <code>kido-notificacion-ms</code> y el nuevo <strong><code>kido-usuario-ms</code></strong> (identidad).</p>
+<h2 id="2-requisitos">2. Requisitos</h2>
+<ul>
+<li><strong>Docker Desktop</strong> en marcha, con al menos 6 GB de RAM asignados (Settings → Resources).</li>
+<li><strong>Node.js 20 o 22</strong> (<code>node -v</code>).</li>
+<li>Opcional: Java 21 si quieres compilar o probar un servicio fuera de Docker.</li>
+</ul>
+<h2 id="3-prepara-env">3. Prepara <code>.env</code></h2>
+<p>En la raíz de <code>kido-platform</code>:</p>
+<pre><code class="language-powershell">Copy-Item .env.example .env   # solo la primera vez
+notepad .env
+</code></pre>
+<p>Revisa al menos:</p>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Valor sugerido en tu PC</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>DB_PASS</code></td>
+<td>una contraseña cualquiera para las bases locales</td>
+</tr>
+<tr>
+<td><code>KEYCLOAK_ADMIN_PASSWORD</code></td>
+<td>la clave de la consola de Keycloak (usuario <code>admin</code>)</td>
+</tr>
+<tr>
+<td><code>KIDO_USUARIO_ADMIN_SECRET</code></td>
+<td><code>CAMBIAR_SECRETO_CLIENTE_USUARIOS</code> (o tu propio secreto; ver 9.3)</td>
+</tr>
+<tr>
+<td><code>MERCADO_PAGO_*</code></td>
+<td>solo si vas a probar pagos reales de prueba (<code>docs/mercado-pago.md</code>)</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>Si ya tenías un <code>.env</code>, <strong>agrega</strong> <code>KIDO_USUARIO_ADMIN_SECRET</code>. Si no lo pones, se usa <code>CAMBIAR_SECRETO_CLIENTE_USUARIOS</code> en Keycloak y en el servicio, que coinciden.</p>
+</blockquote>
+<h2 id="4-levanta-el-backend">4. Levanta el backend</h2>
+<h3 id="41-primera-vez-o-si-quieres-empezar-limpio">4.1 Primera vez (o si quieres empezar limpio)</h3>
+<pre><code class="language-powershell">docker compose up -d --build
+</code></pre>
+<p>La primera construcción tarda varios minutos (Maven descarga dependencias dentro de Docker). Después:</p>
+<pre><code class="language-powershell">docker compose ps                    # todo en &quot;running&quot; / &quot;healthy&quot;
+docker compose logs -f kido-usuario-ms
+</code></pre>
+<p>Espera a ver <code>Started KidoUsuarioApplication</code>. Luego abre <a href="http://localhost:18761">http://localhost:18761</a>: deben aparecer <code>KIDO-GATEWAY</code>, <code>KIDO-CURSO-MS</code> (×2), <code>KIDO-INSCRIPCION-MS</code>, <code>KIDO-PAGO-MS</code>, <code>KIDO-NOTIFICACION-MS</code> y <strong><code>KIDO-USUARIO-MS</code></strong>.</p>
+<h3 id="42-si-ya-tenias-kido-levantado-antes-de-esta-version">4.2 Si ya tenías KIDO levantado antes de esta versión</h3>
+<p>Keycloak <strong>solo importa el realm cuando no existe</strong>. Como el realm cambió (cliente de servicio, política de contraseñas, nuevas cuentas demo, tema), recrea su contenedor para actualizar montajes y tema. Los clientes de un realm existente se actualizan con <code>scripts/sincronizar-keycloak-local.ps1</code>, no mediante la importación inicial:</p>
+<pre><code class="language-powershell">docker compose up -d --force-recreate kido-keycloak       # conserva usuarios; actualiza montajes y tema
+docker compose restart kido-config                         # lee las rutas y configs nuevas
+docker compose up -d --build kido-usuario-ms kido-gateway  # servicio nuevo + reglas del Gateway
+</code></pre>
+<blockquote>
+<p>Keycloak usa PostgreSQL persistente. Recrear su contenedor conserva las cuentas y no vuelve a importar un realm existente. Para actualizar clientes y permisos sin borrar usuarios, ejecuta <code>scripts/sincronizar-keycloak-local.ps1</code> con las credenciales administrativas vigentes.</p>
+</blockquote>
+<h2 id="5-levanta-el-frontend">5. Levanta el frontend</h2>
+<pre><code class="language-powershell">cd frontend
+npm.cmd install
+npm.cmd start
+</code></pre>
+<p>Abre <a href="http://localhost:4200">http://localhost:4200</a>. El proxy de Angular manda <code>/api</code> al Gateway, así no hay problemas de CORS.</p>
+<hr />
+<h2 id="6-acceso-como-esta-separado-y-definido">6. Acceso: cómo está separado y definido</h2>
+<h3 id="61-quien-hace-que">6.1 Quién hace qué</h3>
+<table>
+<thead>
+<tr>
+<th>Responsabilidad</th>
+<th>Dónde</th>
+<th>Archivo clave</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Guardar y comprobar contraseñas, sesiones, roles</td>
+<td><strong>Keycloak</strong></td>
+<td><code>infra/keycloak/kido-realm.json</code></td>
+</tr>
+<tr>
+<td>Pantalla de correo y contraseña con la marca KIDO</td>
+<td><strong>Keycloak, tema <code>kido</code></strong></td>
+<td><code>infra/keycloak/themes/kido/login/</code></td>
+</tr>
+<tr>
+<td>Elegir cómo entrar, crear cuenta, postular como docente</td>
+<td><strong>Angular</strong></td>
+<td><code>pages/login</code>, <code>pages/registro</code>, <code>pages/postular-docente</code></td>
+</tr>
+<tr>
+<td>Crear cuentas, perfil (<code>/me</code>), verificar docentes</td>
+<td><strong>kido-usuario-ms</strong></td>
+<td><code>services/kido-usuario-ms</code></td>
+</tr>
+<tr>
+<td>Exigir sesión y rol en cada ruta del API</td>
+<td><strong>Gateway</strong> (y cada servicio)</td>
+<td><code>infra/kido-gateway/.../SecurityConfig.java</code></td>
+</tr>
+</tbody>
+</table>
+<p>KIDO nunca ve ni guarda contraseñas: el formulario de contraseña es de Keycloak y la app solo recibe un token (PKCE).</p>
+<h3 id="62-roles-como-se-obtiene-cada-uno">6.2 Roles: cómo se obtiene cada uno</h3>
+<table>
+<thead>
+<tr>
+<th>Rol</th>
+<th>Cómo se obtiene</th>
+<th>Qué habilita</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ESTUDIANTE</code></td>
+<td>Automático al registrarse (y rol por defecto del realm)</td>
+<td>Comprar cursos, aprender, certificados</td>
+</tr>
+<tr>
+<td><code>DOCENTE</code></td>
+<td><strong>Solo</strong> cuando administración aprueba una postulación</td>
+<td>Crear cursos, ver alumnos, saldo y retiros</td>
+</tr>
+<tr>
+<td><code>ADMIN</code></td>
+<td>Solo desde la consola de Keycloak</td>
+<td>Aprobar cursos, pagos, retiros y docentes</td>
+</tr>
+</tbody>
+</table>
+<p>El navegador <strong>nunca elige un rol</strong>. Registrarse «como docente» crea una cuenta ESTUDIANTE + una postulación PENDIENTE.</p>
+<h3 id="63-ingreso">6.3 Ingreso</h3>
+<ol>
+<li><code>/login</code> (Angular) → <strong>Ingresar con mi correo</strong>.</li>
+<li>Keycloak muestra su formulario (tema <code>kido</code>): correo o usuario + contraseña.</li>
+<li>Vuelve a <code>/login</code>, que te lleva a tu panel según tu rol: Administración, Enseñar o Mi aprendizaje.</li>
+</ol>
+<p>Protecciones activas: política de contraseña (8+ caracteres, mayúscula, minúscula, número; no puede ser el usuario ni el correo) y bloqueo temporal tras 5 intentos fallidos.</p>
+<h3 id="64-registro-de-estudiante-1-paso">6.4 Registro de estudiante (1 paso)</h3>
+<p><code>/registro</code> → <strong>Quiero aprender</strong> → nombres, apellidos, correo, contraseña (con medidor y reglas en vivo) y términos → <strong>Crear mi cuenta</strong> → <strong>Ingresar ahora</strong> (el correo ya viene escrito en Keycloak).</p>
+<h3 id="65-registro-de-docente-3-pasos-y-verificacion">6.5 Registro de docente (3 pasos) y verificación</h3>
+<table>
+<thead>
+<tr>
+<th>Paso</th>
+<th>Qué se pide</th>
+<th>Por qué</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1. Tu cuenta</td>
+<td>Nombres, apellidos, correo, contraseña</td>
+<td>Igual que un estudiante</td>
+</tr>
+<tr>
+<td>2. Perfil profesional</td>
+<td><strong>DNI</strong> (8 dígitos), <strong>celular</strong> (+51, 9 dígitos), <strong>grado académico</strong> (técnico → doctor), <strong>qué enseñará</strong>, <strong>institución</strong>, <strong>años de experiencia</strong>, enlace LinkedIn/portafolio/ORCID (opcional), <strong>presentación</strong> (80–1200 caracteres)</td>
+<td>Identificar a la persona y su trayectoria</td>
+</tr>
+<tr>
+<td>3. Verificación</td>
+<td><strong>PDF de sustento</strong> (CV, título, constancia o colegiatura; máx. 5 MB, se comprueba que sea un PDF real) y <strong>declaración jurada</strong></td>
+<td>Evidencia que administración revisa</td>
+</tr>
+</tbody>
+</table>
+<p>Estados de la postulación:</p>
+<pre><code>PENDIENTE ──aprobar──▶ APROBADA  (Keycloak asigna DOCENTE)
+    │
+    ├──observar (con comentario)──▶ OBSERVADA ──la persona corrige y reenvía──▶ PENDIENTE
+    └──rechazar (con motivo)──────▶ RECHAZADA ──puede volver a postular──────▶ PENDIENTE
+</code></pre>
+<ul>
+<li><strong>Administración</strong> revisa en <code>/admin</code> → pestaña <strong>Docentes y cuentas</strong>: ve los datos, el PDF incrustado y debe marcar 3 verificaciones antes de poder aprobar.</li>
+<li><strong>El postulante</strong> sigue el estado en <code>/postular-docente</code> (menú de su avatar → «Enseñar en KIDO»). Cuando lo aprueban, pulsa <strong>Activar mi panel docente</strong>: la app renueva el token y aparece el panel de docente sin cerrar sesión.</li>
+<li>Un estudiante que ya tiene cuenta también puede postular desde <code>/postular-docente</code>.</li>
+</ul>
+<h3 id="66-del-usuario-de-keycloak-al-numero-de-kido">6.6 Del usuario de Keycloak al número de KIDO</h3>
+<p>Cursos, inscripciones y pagos identifican a las personas con un número (<code>docenteId</code>, <code>estudianteId</code>). Antes había que escribirlo a mano; ahora <code>GET /api/v1/usuarios/me</code> lo devuelve:</p>
+<ul>
+<li>Cuentas nuevas: número desde 2001.</li>
+<li>Cuentas demo: <code>docente</code> = <strong>1</strong> y <code>estudiante</code> = <strong>1001</strong>, para que coincidan con los cursos e inscripciones sembrados.</li>
+<li>Cuentas creadas a mano en la consola de Keycloak: se les crea el perfil la primera vez que entran.</li>
+</ul>
+<h3 id="67-endpoints-de-identidad">6.7 Endpoints de identidad</h3>
+<table>
+<thead>
+<tr>
+<th>Método y ruta</th>
+<th>Acceso</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>POST /api/v1/usuarios/registro</code> (multipart: <code>datos</code> JSON + <code>documento</code> PDF)</td>
+<td>público</td>
+</tr>
+<tr>
+<td><code>GET /api/v1/usuarios/registro/disponibilidad?email=</code></td>
+<td>público</td>
+</tr>
+<tr>
+<td><code>GET /api/v1/usuarios/me</code></td>
+<td>con sesión</td>
+</tr>
+<tr>
+<td><code>POST /api/v1/usuarios/me/solicitud-docente</code> · <code>GET …/documento</code></td>
+<td>con sesión</td>
+</tr>
+<tr>
+<td><code>GET /api/v1/usuarios/admin/solicitudes[?estado=]</code> · <code>/resumen</code> · <code>/{id}</code> · <code>/{id}/documento</code></td>
+<td>ADMIN</td>
+</tr>
+<tr>
+<td><code>POST /api/v1/usuarios/admin/solicitudes/{id}/aprobar</code> · <code>/observar</code> · <code>/rechazar</code></td>
+<td>ADMIN</td>
+</tr>
+</tbody>
+</table>
+<p>Más detalle en <code>services/kido-usuario-ms/README.md</code>.</p>
+<hr />
+<h2 id="7-recorrido-para-la-sustentacion">7. Recorrido para la sustentación</h2>
+<p>Cuentas demo (también aparecen en <code>/login</code> → «Cuentas de demostración», con botón <strong>Usar</strong>):</p>
+<table>
+<thead>
+<tr>
+<th>Usuario</th>
+<th>Contraseña</th>
+<th>Qué muestra</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>estudiante</code></td>
+<td><code>Estudiante123!</code></td>
+<td>Mi aprendizaje (estudiante n.º 1001)</td>
+</tr>
+<tr>
+<td><code>docente</code></td>
+<td><code>Docente123!</code></td>
+<td>Panel docente con cursos (docente n.º 1)</td>
+</tr>
+<tr>
+<td><code>postulante</code></td>
+<td><code>Postulante123!</code></td>
+<td>Postulación docente <strong>pendiente</strong> con su PDF</td>
+</tr>
+<tr>
+<td><code>admin</code></td>
+<td><code>Admin123!</code></td>
+<td>Administración</td>
+</tr>
+</tbody>
+</table>
+<ol>
+<li><strong>Registro de estudiante.</strong> <code>/registro</code> → Quiero aprender → crea una cuenta → Ingresar ahora → llegas a Mi aprendizaje sin vincular nada.</li>
+<li><strong>Registro de docente.</strong> En otra ventana de incógnito: <code>/registro</code> → Quiero enseñar → completa los 3 pasos con un PDF cualquiera → «Postulación enviada».</li>
+<li><strong>Revisión.</strong> Entra como <code>admin</code> → Administración → <strong>Docentes y cuentas</strong> (el contador muestra las pendientes) → abre la postulación de <code>postulante</code> → revisa el PDF, marca las 3 verificaciones → <strong>Aprobar y dar rol docente</strong>.</li>
+<li><strong>Activación.</strong> Entra como <code>postulante</code> → avatar → «Enseñar en KIDO» → <strong>Activar mi panel docente</strong> → ya puede crear cursos.</li>
+<li><strong>Corrección.</strong> Con la postulación del paso 2: <strong>Pedir corrección</strong> con un comentario → el postulante lo ve en <code>/postular-docente</code>, corrige, reemplaza el PDF y reenvía.</li>
+<li><strong>Seguridad.</strong> Intenta abrir <code>/docente</code> con una cuenta estudiante: la app explica que debe postular. Intenta 5 contraseñas erradas: Keycloak bloquea un minuto.</li>
+</ol>
+<h2 id="8-comprobaciones-rapidas-desde-la-terminal">8. Comprobaciones rápidas desde la terminal</h2>
+<pre><code class="language-powershell"># Token del estudiante demo (cliente kido-cli, solo para pruebas)
+$t = (Invoke-RestMethod -Method Post http://localhost:19090/realms/kido/protocol/openid-connect/token `
+  -Body @{grant_type='password'; client_id='kido-cli'; username='estudiante'; password='Estudiante123!'}).access_token
+
+# Perfil y número de estudiante (debe decir id 1001)
+Invoke-RestMethod http://localhost:18080/api/v1/usuarios/me -Headers @{Authorization=&quot;Bearer $t&quot;}
+
+# ¿Un correo está libre?
+Invoke-RestMethod &quot;http://localhost:18080/api/v1/usuarios/registro/disponibilidad?email=nuevo@correo.pe&quot;
+
+# Registro de estudiante por API (archivo registro.json con el cuerpo de abajo)
+curl.exe -F &quot;datos=@registro.json;type=application/json&quot; http://localhost:18080/api/v1/usuarios/registro
+</code></pre>
+<p><code>registro.json</code>:</p>
+<pre><code class="language-json">{ &quot;tipo&quot;: &quot;ESTUDIANTE&quot;, &quot;nombres&quot;: &quot;Ana&quot;, &quot;apellidos&quot;: &quot;Torres&quot;, &quot;email&quot;: &quot;ana.torres@correo.pe&quot;,
+  &quot;password&quot;: &quot;Aprender2026&quot;, &quot;aceptaTerminos&quot;: true, &quot;docente&quot;: null }
+</code></pre>
+<p>Pruebas automáticas: <code>services/kido-usuario-ms</code> → <code>.\mvnw.cmd test</code>; <code>frontend</code> → <code>npm.cmd test</code>.</p>
+<h2 id="9-problemas-frecuentes">9. Problemas frecuentes</h2>
+<table>
+<thead>
+<tr>
+<th>Síntoma</th>
+<th>Causa probable</th>
+<th>Solución</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>El login de Keycloak se ve con el diseño antiguo o sin estilos</td>
+<td>El realm se importó antes de este cambio</td>
+<td>Paso 4.2: <code>docker compose up -d --force-recreate kido-keycloak</code>. Recarga con Ctrl+F5.</td>
+</tr>
+<tr>
+<td>«El servicio de cuentas no está disponible» / 503 al registrarse</td>
+<td><code>kido-usuario-ms</code> caído o aún iniciando</td>
+<td><code>docker compose logs kido-usuario-ms</code>. Revisa que esté en Eureka.</td>
+</tr>
+<tr>
+<td>503 «Keycloak rechazó al cliente kido-usuario-admin (HTTP 401)»</td>
+<td>El secreto de Keycloak y el del servicio no coinciden</td>
+<td>Mismo <code>KIDO_USUARIO_ADMIN_SECRET</code> para ambos; luego paso 4.2. O en la consola: Clients → <code>kido-usuario-admin</code> → Credentials → copia el secreto a <code>.env</code> y <code>docker compose up -d kido-usuario-ms</code>.</td>
+</tr>
+<tr>
+<td>503 «…no tiene permisos en Keycloak…»</td>
+<td>La cuenta de servicio perdió sus roles</td>
+<td>Consola → Clients → <code>kido-usuario-admin</code> → Service account roles → asigna <code>realm-management</code>: manage-users, view-users, query-users, view-realm.</td>
+</tr>
+<tr>
+<td>«Ya existe una cuenta con ese correo»</td>
+<td>El correo ya está en Keycloak</td>
+<td>Ingresa con él o usa otro.</td>
+</tr>
+<tr>
+<td>La contraseña no se acepta al registrarse</td>
+<td>Política del realm</td>
+<td>8+ caracteres, mayúscula, minúscula y número; sin incluir tu correo.</td>
+</tr>
+<tr>
+<td>Aprobé al docente pero sigue viendo el panel de estudiante</td>
+<td>Su token aún no trae el rol</td>
+<td>En <code>/postular-docente</code> pulsa <strong>Activar mi panel docente</strong>, o cierra sesión y vuelve a entrar.</td>
+</tr>
+<tr>
+<td>«No pudimos cargar tu perfil» en Mi aprendizaje</td>
+<td><code>/me</code> no responde</td>
+<td>Reintentar; mientras tanto el aviso permite un número manual (solo demo).</td>
+</tr>
+<tr>
+<td>El PDF se rechaza</td>
+<td>Pesa más de 5 MB o no es un PDF real</td>
+<td>Exporta el documento a PDF; una imagen renombrada a <code>.pdf</code> no pasa.</td>
+</tr>
+<tr>
+<td>Pantalla en blanco en <code>localhost:4200</code></td>
+<td>Keycloak no responde al iniciar</td>
+<td>La app entra en modo público; levanta Keycloak y recarga.</td>
+</tr>
+<tr>
+<td>Desde otra PC de la red no inicia sesión</td>
+<td><code>redirectUris</code> solo incluye localhost</td>
+<td>Agrega <code>http://TU-IP:4200/*</code> al cliente <code>kido-frontend</code> en Keycloak.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="10-que-cambio-en-esta-version">10. Qué cambió en esta versión</h2>
+<p><strong>Nuevo servicio <code>services/kido-usuario-ms</code>:</strong> registro con compensación (si falla la base, se borra la cuenta creada en Keycloak), perfil <code>/me</code>, postulaciones docentes con PDF, bandeja de revisión, límite de registros por IP, validación real de PDF (firma <code>%PDF-</code>), mensajes de error por campo. Migraciones Flyway con perfiles demo y una postulación de muestra.</p>
+<p><strong>Keycloak (<code>infra/keycloak</code>):</strong>
+- <code>kido-realm.json</code>: cliente confidencial <code>kido-usuario-admin</code> con cuenta de servicio y permisos mínimos; rol por defecto ESTUDIANTE; política de contraseñas; protección contra fuerza bruta; registro nativo desactivado (vive en la app); PKCE S256 en <code>kido-frontend</code>; cuentas demo con nombres reales y la nueva <code>postulante</code>.
+- Tema <code>kido</code> reescrito sobre <code>base</code> (sin PatternFly): panel de marca, formulario limpio, «Ver/Ocultar» contraseña, enlaces a registro de estudiante y postulación docente, modo oscuro automático, textos en español e inglés.</p>
+<p><strong>Infraestructura:</strong> <code>compose.yml</code> (Postgres <code>15437</code>, servicio, secreto compartido), rutas y reglas del Gateway para <code>/api/v1/usuarios/**</code>, límites multipart del Gateway, Prometheus y <code>scripts/build-all.ps1</code>.</p>
+<p><strong>Frontend:</strong>
+- <code>/login</code> rediseñado (marco de marca, ingreso, opciones de registro y cuentas demo con «Usar»).
+- <code>/registro</code> con elección estudiante/docente y asistente de 3 pasos para docentes.
+- <code>/postular-docente</code> con seguimiento del estado, corrección y activación del rol.
+- Administración → <strong>Docentes y cuentas</strong> con bandeja, visor de PDF, lista de verificación y decisiones.
+- Paneles sin «vincular número»: el id llega de <code>/me</code>. Logo KIDO nuevo (barra, pie, favicon y Keycloak).</p>
+<h2 id="11-limites-conocidos-para-mencionarlos-con-honestidad">11. Límites conocidos (para mencionarlos con honestidad)</h2>
+<ul>
+<li>Los servicios de cursos, inscripciones y pagos todavía <strong>confían en el número</strong> (<code>estudianteId</code> / <code>docenteId</code>) que envía el frontend. Ahora ese número sale de <code>/me</code> y no se escribe a mano, pero el siguiente paso sería que cada servicio lo derive del JWT en el servidor.</li>
+<li>No hay verificación de correo por email (no hay SMTP configurado): las cuentas nacen con el correo marcado como verificado.</li>
+<li>El límite de registros por IP vive en memoria; con varias réplicas conviene moverlo al Gateway o a Redis.</li>
+<li>El PDF se guarda en PostgreSQL (suficiente para la demo; en producción iría a un almacenamiento de objetos).</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.973d3a69.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.f55a23d4.min.js"></script>
+      
+    
+  </body>
+</html>

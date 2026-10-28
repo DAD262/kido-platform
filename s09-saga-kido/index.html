@@ -1,0 +1,994 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../s08-mensajeria-asincrona/">
+      
+      
+        <link rel="next" href="../s09-implementacion-validacion/">
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.20">
+    
+    
+      
+        <title>S09 Saga en KIDO - Kido - Desarrollo de aplicaciones distribuidas</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.e53b48f4.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="blue-grey" data-md-color-accent="blue">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#s09-saga-coreografiada-en-kido" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Kido - Desarrollo de aplicaciones distribuidas" class="md-header__button md-logo" aria-label="Kido - Desarrollo de aplicaciones distribuidas" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Kido - Desarrollo de aplicaciones distribuidas
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              S09 Saga en KIDO
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Kido - Desarrollo de aplicaciones distribuidas" class="md-nav__button md-logo" aria-label="Kido - Desarrollo de aplicaciones distribuidas" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Kido - Desarrollo de aplicaciones distribuidas
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Inicio
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../brief-tecnico/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Brief técnico
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../u1-producto/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Producto Unidad 1
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guia-s5/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Guía S5
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../github/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Preparación de GitHub
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../continuacion-midwar/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Aporte Midwar
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../avance-midwar/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Avance técnico Midwar
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api-midwar/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    API Midwar
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../seguridad-keycloak/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Seguridad Keycloak
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../s08-mensajeria-asincrona/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    S08 Mensajería asíncrona
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    S09 Saga en KIDO
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    S09 Saga en KIDO
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#objetivo" class="md-nav__link">
+    <span class="md-ellipsis">
+      Objetivo
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#flujo" class="md-nav__link">
+    <span class="md-ellipsis">
+      Flujo
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#idempotencia" class="md-nav__link">
+    <span class="md-ellipsis">
+      Idempotencia
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#compensacion" class="md-nav__link">
+    <span class="md-ellipsis">
+      Compensación
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fallo-reproducible-para-la-evidencia" class="md-nav__link">
+    <span class="md-ellipsis">
+      Fallo reproducible para la evidencia
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#prueba-automatica" class="md-nav__link">
+    <span class="md-ellipsis">
+      Prueba automática
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#estado-de-la-entidad-ordencompra" class="md-nav__link">
+    <span class="md-ellipsis">
+      Estado de la entidad OrdenCompra
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#limitacion-conocida-y-siguiente-paso-de-produccion" class="md-nav__link">
+    <span class="md-ellipsis">
+      Limitación conocida y siguiente paso de producción
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../s09-implementacion-validacion/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    S09 Validación y evidencias
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../backend-funcional-completo/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Backend funcional
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../roadmap-produccion/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Roadmap de producción
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guias/GUIA_LEVANTAR_KIDO/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Guía para levantar KIDO
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guias/lista-deseados/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Lista de deseados
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guias/GUIA_PRUEBAS_Y_REDISENO/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Guía de pruebas y rediseño
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../informes/LISTA_MICROSERVICIOS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Lista de microservicios
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../informes/VALIDACION_S09/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Validación S09
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cambios/CAMBIOS_BACKEND_COMPLETO/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Cambios del backend
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#objetivo" class="md-nav__link">
+    <span class="md-ellipsis">
+      Objetivo
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#flujo" class="md-nav__link">
+    <span class="md-ellipsis">
+      Flujo
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#idempotencia" class="md-nav__link">
+    <span class="md-ellipsis">
+      Idempotencia
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#compensacion" class="md-nav__link">
+    <span class="md-ellipsis">
+      Compensación
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fallo-reproducible-para-la-evidencia" class="md-nav__link">
+    <span class="md-ellipsis">
+      Fallo reproducible para la evidencia
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#prueba-automatica" class="md-nav__link">
+    <span class="md-ellipsis">
+      Prueba automática
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#estado-de-la-entidad-ordencompra" class="md-nav__link">
+    <span class="md-ellipsis">
+      Estado de la entidad OrdenCompra
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#limitacion-conocida-y-siguiente-paso-de-produccion" class="md-nav__link">
+    <span class="md-ellipsis">
+      Limitación conocida y siguiente paso de producción
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="s09-saga-coreografiada-en-kido">S09 — Saga coreografiada en KIDO</h1>
+<h2 id="objetivo">Objetivo</h2>
+<p>La compra de un curso deja de depender de una llamada síncrona de Pago a Inscripción. El pago aprobado publica <code>pago.aprobado</code>; Inscripción crea el acceso de forma idempotente y publica <code>inscripcion.activada</code>. Si no puede crear el acceso, publica <code>inscripcion.fallida</code>; Pago compensa la venta y deja la orden <code>REEMBOLSADA</code>.</p>
+<h2 id="flujo">Flujo</h2>
+<pre><code class="language-text">kido-pago-ms
+  APROBADA
+     |
+     | pago.aprobado
+     v
+Kafka: kido-pago-eventos
+     |
+     v
+kido-inscripcion-ms
+  ¿ya existe COMPRA estudiante+curso?
+     | sí -&gt; ignored + inscripcion.activada
+     | no -&gt; crear ACTIVA + inscripcion.activada
+     | error -&gt; inscripcion.fallida
+     v
+Kafka: kido-academico-eventos
+     |
+     v
+kido-pago-ms
+  inscripcion.activada -&gt; inscripcionSincronizada=true
+  inscripcion.fallida  -&gt; reversa saldo + reembolso/compensación -&gt; REEMBOLSADA
+</code></pre>
+<p>No hay orquestador central. Cada servicio reacciona a eventos: es una <strong>Saga coreografiada</strong>.</p>
+<h2 id="idempotencia">Idempotencia</h2>
+<p>La inscripción tiene dos capas:</p>
+<ol>
+<li>revisión explícita por <code>(estudiante_id, curso_id)</code> antes de crear;</li>
+<li>restricción <code>UNIQUE(estudiante_id, curso_id)</code> en PostgreSQL como garantía ante carreras.</li>
+</ol>
+<p>Al repetir <code>pago.aprobado</code>, no se crea una segunda inscripción. Se registra <code>status=ignored</code> y se vuelve a publicar <code>inscripcion.activada</code>, permitiendo que Pago converja a <code>inscripcionSincronizada=true</code> aunque el ACK anterior se hubiera perdido.</p>
+<p>La compensación también es idempotente. Pago solo compensa una orden <code>APROBADA</code>; si ya está <code>REEMBOLSADA</code>, un <code>inscripcion.fallida</code> repetido produce <code>status=ignored</code>.</p>
+<h2 id="compensacion">Compensación</h2>
+<p>Cuando Inscripción publica <code>inscripcion.fallida</code>:</p>
+<ul>
+<li>una venta simulada se marca compensada sin llamar a un proveedor externo;</li>
+<li>una venta real intenta el reembolso de Mercado Pago con <code>X-Idempotency-Key=KIDO-SAGA-{ordenId}</code>;</li>
+<li>el movimiento del docente pasa a <code>REVERTIDO</code>;</li>
+<li>la orden pasa de <code>APROBADA</code> a <code>REEMBOLSADA</code>.</li>
+</ul>
+<p>Esto conserva trazabilidad: la orden no se borra.</p>
+<h2 id="fallo-reproducible-para-la-evidencia">Fallo reproducible para la evidencia</h2>
+<p>Solo en perfil DEV, <code>estudianteId=999999</code> fuerza un fallo de inscripción. En PROD el valor es <code>0</code>, por lo que el gatillo queda deshabilitado. Es equivalente al fallo determinista usado en la guía del curso, pero aplicado al dominio KIDO.</p>
+<h2 id="prueba-automatica">Prueba automática</h2>
+<p>Con el stack levantado:</p>
+<pre><code class="language-powershell">powershell -ExecutionPolicy Bypass -File .\scripts\demo-s9-saga.ps1
+</code></pre>
+<p>El script demuestra:</p>
+<ol>
+<li>compra normal e inscripción activada;</li>
+<li><code>pago.aprobado</code> duplicado ignorado;</li>
+<li>fallo de inscripción y compensación de la compra;</li>
+<li>compensación repetida ignorada;</li>
+<li>consumer groups y lag.</li>
+</ol>
+<h2 id="estado-de-la-entidad-ordencompra">Estado de la entidad OrdenCompra</h2>
+<pre><code class="language-text">PENDIENTE
+   |
+   v
+PAGO_INICIADO
+   |
+   v
+APROBADA ----------------------&gt; REEMBOLSADA
+   |                                ^
+   | inscripcion.activada           | inscripcion.fallida
+   v                                |
+APROBADA + inscripcion sincronizada-+
+</code></pre>
+<p><code>RECHAZADA</code> sigue reservado para un pago que la pasarela no aprueba antes de completar la venta. <code>REEMBOLSADA</code> representa una venta que sí fue aprobada pero debió compensarse después.</p>
+<h2 id="limitacion-conocida-y-siguiente-paso-de-produccion">Limitación conocida y siguiente paso de producción</h2>
+<p><code>pago.aprobado</code> se publica después del commit. Existe una ventana pequeña entre guardar la orden y publicar el evento. Para producción real, el siguiente endurecimiento debe ser <strong>Transactional Outbox</strong>, de modo que estado y evento se persistan en la misma transacción local y un publicador confiable entregue después a Kafka.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.973d3a69.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.f55a23d4.min.js"></script>
+      
+    
+  </body>
+</html>

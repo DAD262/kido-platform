@@ -1,0 +1,985 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../lista-deseados/">
+      
+      
+        <link rel="next" href="../../informes/LISTA_MICROSERVICIOS/">
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.20">
+    
+    
+      
+        <title>Guía de pruebas y rediseño - Kido - Desarrollo de aplicaciones distribuidas</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.e53b48f4.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="blue-grey" data-md-color-accent="blue">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#kido-rediseno-y-pruebas-de-integracion" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Kido - Desarrollo de aplicaciones distribuidas" class="md-header__button md-logo" aria-label="Kido - Desarrollo de aplicaciones distribuidas" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Kido - Desarrollo de aplicaciones distribuidas
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Guía de pruebas y rediseño
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Kido - Desarrollo de aplicaciones distribuidas" class="md-nav__button md-logo" aria-label="Kido - Desarrollo de aplicaciones distribuidas" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Kido - Desarrollo de aplicaciones distribuidas
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Inicio
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../brief-tecnico/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Brief técnico
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../u1-producto/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Producto Unidad 1
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guia-s5/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Guía S5
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../github/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Preparación de GitHub
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../continuacion-midwar/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Aporte Midwar
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../avance-midwar/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Avance técnico Midwar
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api-midwar/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    API Midwar
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../seguridad-keycloak/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Seguridad Keycloak
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../s08-mensajeria-asincrona/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    S08 Mensajería asíncrona
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../s09-saga-kido/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    S09 Saga en KIDO
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../s09-implementacion-validacion/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    S09 Validación y evidencias
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../backend-funcional-completo/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Backend funcional
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../roadmap-produccion/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Roadmap de producción
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../GUIA_LEVANTAR_KIDO/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Guía para levantar KIDO
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../lista-deseados/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Lista de deseados
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Guía de pruebas y rediseño
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    Guía de pruebas y rediseño
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#cambios-integrados" class="md-nav__link">
+    <span class="md-ellipsis">
+      Cambios integrados
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ejecucion-en-la-pc-principal-windows" class="md-nav__link">
+    <span class="md-ellipsis">
+      Ejecución en la PC principal (Windows)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#prueba-con-dos-pc-del-mismo-laboratorio" class="md-nav__link">
+    <span class="md-ellipsis">
+      Prueba con dos PC del mismo laboratorio
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pruebas-minimas-antes-de-integrar-a-github" class="md-nav__link">
+    <span class="md-ellipsis">
+      Pruebas mínimas antes de integrar a GitHub
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pendientes-conocidos-no-confundir-diseno-con-seguridad-real" class="md-nav__link">
+    <span class="md-ellipsis">
+      Pendientes conocidos: no confundir diseño con seguridad real
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#diagnostico-rapido" class="md-nav__link">
+    <span class="md-ellipsis">
+      Diagnóstico rápido
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../informes/LISTA_MICROSERVICIOS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Lista de microservicios
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../informes/VALIDACION_S09/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Validación S09
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../cambios/CAMBIOS_BACKEND_COMPLETO/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Cambios del backend
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#cambios-integrados" class="md-nav__link">
+    <span class="md-ellipsis">
+      Cambios integrados
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ejecucion-en-la-pc-principal-windows" class="md-nav__link">
+    <span class="md-ellipsis">
+      Ejecución en la PC principal (Windows)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#prueba-con-dos-pc-del-mismo-laboratorio" class="md-nav__link">
+    <span class="md-ellipsis">
+      Prueba con dos PC del mismo laboratorio
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pruebas-minimas-antes-de-integrar-a-github" class="md-nav__link">
+    <span class="md-ellipsis">
+      Pruebas mínimas antes de integrar a GitHub
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pendientes-conocidos-no-confundir-diseno-con-seguridad-real" class="md-nav__link">
+    <span class="md-ellipsis">
+      Pendientes conocidos: no confundir diseño con seguridad real
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#diagnostico-rapido" class="md-nav__link">
+    <span class="md-ellipsis">
+      Diagnóstico rápido
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="kido-rediseno-y-pruebas-de-integracion">KIDO — Rediseño y pruebas de integración</h1>
+<p>Esta entrega continúa el proyecto KIDO basado en Angular, Spring Boot, PostgreSQL, Keycloak y Kafka. Es una actualización de interfaz y experiencia; no sustituye los microservicios ni sus reglas de negocio.</p>
+<h2 id="cambios-integrados">Cambios integrados</h2>
+<ul>
+<li>Inicio renovado, navegación más compacta y uniforme; acceso directo a Keycloak desde el botón superior.</li>
+<li>Ruta <code>/login</code> como portada de entrada y registro; el formulario real sigue en Keycloak, con tema visual adaptado.</li>
+<li>Ruta <code>/configuracion</code> con tema claro, oscuro o automático, densidad compacta y reducción de movimiento. La elección se guarda en el navegador.</li>
+<li>Administrador con bandeja de moderación, vista previa de módulos y lecciones, acceso a materiales, decisión de aprobar o pedir correcciones, búsqueda general y finanzas con filtros y resúmenes.</li>
+<li>Docente con edición guiada en cinco pasos: datos, módulos, lecciones, materiales y requisitos académicos/certificados. Mantiene llamadas API existentes y la subida real.</li>
+<li>Estudiante con indicadores más comprensibles, progreso visible y conexión numérica de prueba presentada explícitamente como demo.</li>
+<li>Catálogo con búsqueda, modalidad, categoría y orden por nombre/precio. Sin calificaciones inventadas ni cursos ficticios.</li>
+<li>Errores de conexión explicados de manera más clara. Si una API responde con HTML, se recomienda revisar proxy/Gateway en lugar de mostrar al usuario el error crudo de JSON.</li>
+<li>Config Server cambia su puerto publicado por defecto a <code>18889</code>, configurable con <code>KIDO_CONFIG_PORT</code>, evitando el conflicto previo de <code>18888</code>. El puerto interno sigue siendo <code>8888</code>.</li>
+</ul>
+<h2 id="ejecucion-en-la-pc-principal-windows">Ejecución en la PC principal (Windows)</h2>
+<p>Abre PowerShell en la raíz de <code>kido-platform</code>:</p>
+<pre><code class="language-powershell">Copy-Item .env.example .env
+notepad .env
+docker compose config --services
+docker compose up -d --build
+docker compose ps -a
+</code></pre>
+<p>Si <code>.env</code> ya existe, NO lo reemplaces: conserva la contraseña que corresponde a tus volúmenes PostgreSQL. Tampoco ejecutes <code>docker compose down -v</code> a menos que decidas borrar todas las bases y registros de la demo.</p>
+<p>En otra terminal:</p>
+<pre><code class="language-powershell">cd frontend
+npm.cmd install
+npx.cmd ng serve --proxy-config proxy.conf.json
+</code></pre>
+<p>En esa misma PC entra a <code>http://localhost:4200</code>. Keycloak suele publicarse en <code>http://localhost:19090</code> y Gateway en <code>http://localhost:18080</code>, según <code>compose.yml</code>.</p>
+<h2 id="prueba-con-dos-pc-del-mismo-laboratorio">Prueba con dos PC del mismo laboratorio</h2>
+<p>Las dos PC deben estar en la misma red y tener autorización para comunicarse. Solo la <strong>PC A</strong> necesita ejecutar Docker y Angular; la PC B accede mediante navegador.</p>
+<ol>
+<li>En PC A identifica la IP LAN con <code>ipconfig</code> (por ejemplo <code>192.168.1.50</code>; úsala únicamente como ejemplo, no como dirección real).</li>
+<li>Ejecuta en la PC A <code>frontend\iniciar-red-local.cmd</code>. Eso sirve Angular en <code>0.0.0.0:4200</code> <strong>solo para desarrollo</strong>. No lo expongas a Internet.</li>
+<li>Desde la PC B comprueba <code>Test-NetConnection -ComputerName IP_DE_PC_A -Port 4200</code> y lo mismo con <code>-Port 19090</code>. Si falla, revisa Firewall de Windows y la red del laboratorio; pide autorización al administrador.</li>
+<li>En Keycloak Admin de la PC A, dentro del realm <code>kido</code> y cliente <code>kido-frontend</code>, agrega el origen exacto <code>http://IP_DE_PC_A:4200</code> a <strong>Web origins</strong> y la ruta <code>http://IP_DE_PC_A:4200/*</code> a <strong>Valid redirect URIs</strong>. Conserva los valores de localhost para PC A. No uses <code>*</code> como acceso universal.</li>
+<li>Desde PC B abre <code>http://IP_DE_PC_A:4200</code>. Angular usa su propio proxy de desarrollo para enviar <code>/api</code> al Gateway <code>localhost:18080</code> <strong>desde la PC A</strong>. Keycloak se resuelve con el hostname de la página (no <code>localhost</code> del cliente).</li>
+<li>Inicia sesión en PC A como DOCENTE y en PC B como ADMIN; crea un curso y sube un PDF o imagen, envía a revisión y revisa desde la bandeja de moderación en PC B. Prueba la aprobación y vuelve a consultar el catálogo.</li>
+<li>Si falla la autenticación entre equipos, verifica también el <code>issuer</code> de JWT y la configuración de los Resource Servers. Las configuraciones de tokens/servidores deben ser consistentes. No desactives la validación del JWT para “hacerlo funcionar”.</li>
+</ol>
+<h2 id="pruebas-minimas-antes-de-integrar-a-github">Pruebas mínimas antes de integrar a GitHub</h2>
+<table>
+<thead>
+<tr>
+<th>Prueba</th>
+<th>Resultado esperado</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Login</td>
+<td>Keycloak autentica y se navega al panel del rol</td>
+</tr>
+<tr>
+<td>Registro</td>
+<td>Keycloak crea cuenta según sus políticas; el rol docente debe aprobarse/asignarse según la política de KIDO</td>
+</tr>
+<tr>
+<td>Curso DOCENTE</td>
+<td>Se crea un borrador real; se agregan módulos, lecciones y materiales</td>
+</tr>
+<tr>
+<td>Moderación ADMIN</td>
+<td>Se inspecciona el curso completo antes de aprobar o pedir correcciones</td>
+</tr>
+<tr>
+<td>Catálogo</td>
+<td>Solo aparecen cursos publicados que devuelve la API</td>
+</tr>
+<tr>
+<td>ESTUDIANTE</td>
+<td>Una inscripción real muestra progreso, materiales y estado académico</td>
+</tr>
+<tr>
+<td>Finanzas</td>
+<td>Las órdenes y solicitudes vienen del backend; no son montos simulados de UI</td>
+</tr>
+<tr>
+<td>Pago/Certificado</td>
+<td>Se validan contra la pasarela sandbox y las reglas de negocio, sin cobros automáticos en el navegador</td>
+</tr>
+<tr>
+<td>Temas</td>
+<td>Claro/oscuro/automático persisten después de recargar</td>
+</tr>
+<tr>
+<td>Dos equipos</td>
+<td>Curso enviado desde una PC se puede revisar desde la otra</td>
+</tr>
+</tbody>
+</table>
+<h2 id="pendientes-conocidos-no-confundir-diseno-con-seguridad-real">Pendientes conocidos: no confundir diseño con seguridad real</h2>
+<p><strong>Identidad numérica de prueba:</strong> algunos endpoints existentes todavía usan IDs numéricos para docentes y estudiantes, mientras Keycloak autentica por UUID. Actualmente el navegador permite seleccionar un ID local para demostración, pero eso <strong>no comprueba propiedad ni autorización del dato</strong>. Antes de una prueba con cuentas reales o una publicación externa, el backend debe resolver el usuario académico a partir de un JWT validado y comprobar que solo accede a su información. No elimines esa comprobación ni la sustituyas con un campo oculto.</p>
+<p><strong>Keycloak:</strong> el registro público no debe conceder privilegios de docente ni administrador automáticamente. La asignación de roles está bajo políticas de identidad.</p>
+<p><strong>Verificación automática:</strong> se han comprobado sintácticamente archivos TypeScript; el build de Angular completo depende de <code>npm install</code> y no se pudo ejecutar en el entorno de entrega por falta de conexión al registro de npm. Ejecuta <code>npm.cmd install</code> y <code>npm.cmd run build</code> en tu PC antes del Pull Request, además de las pruebas de interfaz/API.</p>
+<h2 id="diagnostico-rapido">Diagnóstico rápido</h2>
+<p>Desde la raíz en PowerShell:</p>
+<pre><code class="language-powershell">powershell -ExecutionPolicy Bypass -File scripts\diagnostico-local.ps1
+</code></pre>
+<p>Este diagnóstico solo lee estado de servicios y puertos; no reinicia nada ni borra datos.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.973d3a69.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.f55a23d4.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,1054 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../s09-saga-kido/">
+      
+      
+        <link rel="next" href="../backend-funcional-completo/">
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.20">
+    
+    
+      
+        <title>S09 Validación y evidencias - Kido - Desarrollo de aplicaciones distribuidas</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.e53b48f4.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="blue-grey" data-md-color-accent="blue">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#s09-implementacion-y-validacion-de-saga-en-kido" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Kido - Desarrollo de aplicaciones distribuidas" class="md-header__button md-logo" aria-label="Kido - Desarrollo de aplicaciones distribuidas" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Kido - Desarrollo de aplicaciones distribuidas
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              S09 Validación y evidencias
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Kido - Desarrollo de aplicaciones distribuidas" class="md-nav__button md-logo" aria-label="Kido - Desarrollo de aplicaciones distribuidas" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Kido - Desarrollo de aplicaciones distribuidas
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Inicio
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../brief-tecnico/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Brief técnico
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../u1-producto/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Producto Unidad 1
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guia-s5/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Guía S5
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../github/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Preparación de GitHub
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../continuacion-midwar/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Aporte Midwar
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../avance-midwar/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Avance técnico Midwar
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api-midwar/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    API Midwar
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../seguridad-keycloak/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Seguridad Keycloak
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../s08-mensajeria-asincrona/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    S08 Mensajería asíncrona
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../s09-saga-kido/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    S09 Saga en KIDO
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    S09 Validación y evidencias
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    S09 Validación y evidencias
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#arquitectura-operativa" class="md-nav__link">
+    <span class="md-ellipsis">
+      Arquitectura operativa
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#estados" class="md-nav__link">
+    <span class="md-ellipsis">
+      Estados
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#arranque-para-pruebas-s09" class="md-nav__link">
+    <span class="md-ellipsis">
+      Arranque para pruebas S09
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#evidencia-requerida-por-s09" class="md-nav__link">
+    <span class="md-ellipsis">
+      Evidencia requerida por S09
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tabla-de-eventos" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tabla de eventos
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#limitaciones-pendientes-para-lanzamiento-publico" class="md-nav__link">
+    <span class="md-ellipsis">
+      Limitaciones pendientes para lanzamiento público
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#comandos-git-seguros-no-ejecutados-automaticamente" class="md-nav__link">
+    <span class="md-ellipsis">
+      Comandos Git seguros (no ejecutados automáticamente)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#actualizacion-de-revision-s09" class="md-nav__link">
+    <span class="md-ellipsis">
+      Actualización de revisión S09
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../backend-funcional-completo/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Backend funcional
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../roadmap-produccion/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Roadmap de producción
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guias/GUIA_LEVANTAR_KIDO/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Guía para levantar KIDO
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guias/lista-deseados/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Lista de deseados
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guias/GUIA_PRUEBAS_Y_REDISENO/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Guía de pruebas y rediseño
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../informes/LISTA_MICROSERVICIOS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Lista de microservicios
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../informes/VALIDACION_S09/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Validación S09
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cambios/CAMBIOS_BACKEND_COMPLETO/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Cambios del backend
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#arquitectura-operativa" class="md-nav__link">
+    <span class="md-ellipsis">
+      Arquitectura operativa
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#estados" class="md-nav__link">
+    <span class="md-ellipsis">
+      Estados
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#arranque-para-pruebas-s09" class="md-nav__link">
+    <span class="md-ellipsis">
+      Arranque para pruebas S09
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#evidencia-requerida-por-s09" class="md-nav__link">
+    <span class="md-ellipsis">
+      Evidencia requerida por S09
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tabla-de-eventos" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tabla de eventos
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#limitaciones-pendientes-para-lanzamiento-publico" class="md-nav__link">
+    <span class="md-ellipsis">
+      Limitaciones pendientes para lanzamiento público
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#comandos-git-seguros-no-ejecutados-automaticamente" class="md-nav__link">
+    <span class="md-ellipsis">
+      Comandos Git seguros (no ejecutados automáticamente)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#actualizacion-de-revision-s09" class="md-nav__link">
+    <span class="md-ellipsis">
+      Actualización de revisión S09
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="s09-implementacion-y-validacion-de-saga-en-kido">S09 — Implementación y validación de Saga en KIDO</h1>
+<p><strong>Alcance S09:</strong> backend de KIDO; el frontend existente se conserva sin modificaciones. El caso propio de negocio es <strong>compra de curso → inscripción</strong>, no el ejemplo Pagatu. La prueba se realiza con un Keycloak local, pagos simulados y Kafka; no efectuar las pruebas sobre dinero real.</p>
+<h2 id="arquitectura-operativa">Arquitectura operativa</h2>
+<ol>
+<li>Pago guarda en la orden un <strong>snapshot del curso y sus reglas académicas al crearla</strong>, de modo que no necesite consultar Curso cuando confirma un cobro externo; después guarda la orden <code>APROBADA</code> y publica <code>pago.aprobado</code> en <code>kido-pago-eventos</code> (clave: <code>ordenId</code>, <code>schemaVersion=2</code>). El consumidor nuevo de S09 <strong>ignora eventos históricos S08 sin esa versión</strong>, para no compensar ventas anteriores al migrar Kafka.</li>
+<li>Inscripción procesa el pago desde un consumer group propio, consulta explícitamente si la compra ya existe y persiste una inscripción. PostgreSQL respalda el control con <code>UNIQUE(estudiante_id, curso_id)</code> y <code>UNIQUE(orden_compra_id)</code>.</li>
+<li>Inscripción publica <code>inscripcion.activada</code> (si se creó o ya existía) en <code>kido-academico-eventos</code>.</li>
+<li>Pago consume ese evento y marca <code>inscripcionSincronizada=true</code> si la identidad del alumno/curso coincide y la orden sigue <code>APROBADA</code>.</li>
+<li>Si existe un <strong>rechazo permanente del negocio</strong>, Inscripción publica <code>inscripcion.fallida</code> y Pago compensa la venta, revierte el movimiento del docente y, cuando se trata de una compra real, solicita el reembolso al proveedor usando clave de idempotencia.</li>
+<li>Una repetición del evento produce <code>ignored</code>; la misma compensación no se aplica dos veces.</li>
+<li>Una <strong>caída temporal</strong> de base de datos o Kafka NO publica <code>inscripcion.fallida</code>: se reintenta la entrega para evitar devolver dinero por un simple corte de infraestructura.</li>
+<li>Notificaciones generadas por Kafka están protegidas con clave de evento única para evitar duplicados en la bandeja.</li>
+</ol>
+<h2 id="estados">Estados</h2>
+<pre><code class="language-mermaid">stateDiagram-v2
+  [*] --&gt; PENDIENTE: crear orden
+  PENDIENTE --&gt; PAGO_INICIADO: solicitar pago
+  PENDIENTE --&gt; APROBADA: pago simulado en laboratorio
+  PAGO_INICIADO --&gt; APROBADA: pasarela confirma
+  APROBADA --&gt; APROBADA: inscripcion.activada / sincronizada=true
+  APROBADA --&gt; REEMBOLSADA: inscripcion.fallida o reembolso aprobado
+  APROBADA --&gt; APROBADA: pago.aprobado duplicado / sin nuevo efecto
+  REEMBOLSADA --&gt; REEMBOLSADA: inscripcion.fallida duplicada / ignored
+</code></pre>
+<p><code>RECHAZADA</code> está declarado en el enum, pero el código actual no asigna ese estado: no se presenta como transición implementada. La pasarela no aprobada se rechaza con una excepción o se ignora en el webhook según la ruta.</p>
+<p>El fallo <strong>no borra</strong> la compra; queda el estado final <code>REEMBOLSADA</code> para auditoría. <code>inscripcion.activada</code> tardía se ignora si la venta ya fue compensada.</p>
+<h2 id="arranque-para-pruebas-s09">Arranque para pruebas S09</h2>
+<ol>
+<li>Copiar <code>.env.example</code> a <code>.env</code> (no subir <code>.env</code> a GitHub). Usar contraseñas locales únicas. Habilitar <strong>solo en el laboratorio</strong>:</li>
+</ol>
+<p><code>dotenv
+   KIDO_PAGOS_PERMITIR_SIMULACION=true
+   KIDO_SAGA_ESTUDIANTE_FALLO_DEMO=999999</code></p>
+<p>Para cualquier servidor real, establecer ambas en <code>false</code> y <code>0</code>, respectivamente.
+2. Desde la raíz del proyecto, ejecutar <code>docker compose up -d --build</code> (Docker Desktop debe estar abierto). Verificar <code>docker compose ps</code>.
+3. Validar compilación y tests desde Windows: <code>powershell -ExecutionPolicy Bypass -File .\scripts\verificar-s09.ps1</code> (Maven requiere conexión para dependencias la primera vez).
+4. Ejecutar <code>powershell -ExecutionPolicy Bypass -File .\scripts\demo-s9-saga.ps1</code> desde PowerShell.
+5. El script <strong>falla con mensaje claro</strong> si no se obtuvieron los estados o logs esperados; no interpreta un mensaje impreso como éxito.
+6. Comprobar Kafka UI en <code>http://localhost:18085</code> y Eureka en <code>http://localhost:18761</code>.</p>
+<h2 id="evidencia-requerida-por-s09">Evidencia requerida por S09</h2>
+<table>
+<thead>
+<tr>
+<th>Caso</th>
+<th>Evidencia real que se debe capturar</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Duplicado normal</td>
+<td>Mismo <code>ordenId</code>, <code>status=ignored</code>, <strong>una sola inscripción</strong></td>
+</tr>
+<tr>
+<td>Fallo definitivo</td>
+<td><code>inscripcion.fallida</code>, <code>status=compensated</code>, orden <code>REEMBOLSADA</code>, saldo revertido</td>
+</tr>
+<tr>
+<td>Duplicado de compensación</td>
+<td><code>inscripcion.fallida</code> repetido, <code>status=ignored</code>, sin otro reembolso</td>
+</tr>
+<tr>
+<td>Diagrama</td>
+<td>Transiciones anteriores, acordes con el código</td>
+</tr>
+<tr>
+<td>Autoría</td>
+<td>Commit con autor y aporte identificables (firma criptográfica no exigida por el manual) (revisar <code>git log -1 --format=fuller</code>)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Importante:</strong> la rúbrica docente también requiere una captura de la <strong>excepción original anterior al arreglo</strong>. La versión corregida ya no debe generar ese error; para esa evidencia hay que usar un punto de partida S08 en un entorno de prueba aislado y capturar el fallo antes de implementar el fix. No recrear fallos reales de pagos en bases que contengan datos de usuarios. Cada captura del informe debe mostrar el reloj del sistema y el perfil del estudiante sin recortarlos.</p>
+<h2 id="tabla-de-eventos">Tabla de eventos</h2>
+<table>
+<thead>
+<tr>
+<th>Evento</th>
+<th>Productor</th>
+<th>Consumidor</th>
+<th>Topic</th>
+<th>Efecto</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>pago.aprobado</code></td>
+<td>Pago</td>
+<td>Inscripción y Notificación</td>
+<td><code>kido-pago-eventos</code></td>
+<td>Crear acceso y comunicar compra</td>
+</tr>
+<tr>
+<td><code>inscripcion.activada</code></td>
+<td>Inscripción</td>
+<td>Pago</td>
+<td><code>kido-academico-eventos</code></td>
+<td>Confirmar sincronización</td>
+</tr>
+<tr>
+<td><code>inscripcion.fallida</code></td>
+<td>Inscripción</td>
+<td>Pago</td>
+<td><code>kido-academico-eventos</code></td>
+<td>Compensar venta</td>
+</tr>
+<tr>
+<td><code>curso.completado</code></td>
+<td>Inscripción</td>
+<td>Notificación</td>
+<td><code>kido-academico-eventos</code></td>
+<td>Comunicar finalización</td>
+</tr>
+<tr>
+<td><code>certificado.disponible</code></td>
+<td>Inscripción</td>
+<td>Notificación</td>
+<td><code>kido-academico-eventos</code></td>
+<td>Comunicar disponibilidad</td>
+</tr>
+</tbody>
+</table>
+<h2 id="limitaciones-pendientes-para-lanzamiento-publico">Limitaciones pendientes para lanzamiento público</h2>
+<ul>
+<li><strong>No está implementado Transactional Outbox</strong>. Aunque el productor publique después del commit, un cierre brusco entre el guardado y el envío todavía puede dejar el evento sin publicar. No se debe afirmar que esta versión tiene entrega garantizada extremo a extremo.</li>
+<li>La autorización por <strong>propiedad</strong> del recurso debe vincular IDs de estudiante/docente al <code>sub</code>/identidad del token JWT. Hoy varias APIs admiten IDs enviados por el cliente; no exponer a usuarios desconocidos ni ejecutar pagos reales sin corregirlo.</li>
+<li>Un rechazo de negocio se compensa automáticamente; un fallo transitorio se reintenta de forma indefinida y requiere monitoreo/alertas. Para explotación comercial: DLQ y conciliación operativa, trazabilidad por correlación, métricas y alertas.</li>
+<li>Las llamadas a Mercado Pago deben endurecerse con webhooks autenticados/validados, reconciliación de reembolsos y pruebas de fallos parciales. En el flujo Saga sí se usa una clave de idempotencia del reembolso.</li>
+<li>El realm de Keycloak importado contiene cuentas <strong>demostrativas</strong> y contraseñas conocidas. Reemplazar usuarios/credenciales, HTTPS, secretos, respaldos, hosting, auditoría, políticas de archivo y pruebas de seguridad antes de internet.</li>
+<li>No se incorporan pagos de certificados a la Saga de compra; siguen como flujo propio. Se corrigió la aprobación simulada repetida para evitar nuevos movimientos en ese caso.</li>
+</ul>
+<h2 id="comandos-git-seguros-no-ejecutados-automaticamente">Comandos Git seguros (no ejecutados automáticamente)</h2>
+<p>Antes de <code>commit</code> y <code>push</code>: <code>git config user.name</code> y <code>git config user.email</code>; configurar <strong>en el clon local</strong> la cuenta autorizada que realizó el aporte. No copiar <code>.git</code> desde otro equipo. Revisar <code>git status</code> y <code>git diff --cached --stat</code>. El ZIP no incluye historial Git ni credenciales privadas.</p>
+<h2 id="actualizacion-de-revision-s09">Actualización de revisión S09</h2>
+<p>Ver <code>s09-guia-capturas.md</code>, <code>s09-matriz-rubrica.md</code> y <code>s09-informe-base.md</code>. El consumidor de Pago filtra los tipos de evento antes de exigir ordenId; los eventos académicos que no pertenecen a la Saga no se consideran mensajes inválidos. Pruebas locales pendientes: Maven, PostgreSQL y Docker.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.973d3a69.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.f55a23d4.min.js"></script>
+      
+    
+  </body>
+</html>

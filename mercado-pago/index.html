@@ -1,0 +1,1007 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.20">
+    
+    
+      
+        <title>KIDO · Pagos reales de prueba con Mercado Pago (Checkout Pro) - Kido - Desarrollo de aplicaciones distribuidas</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.e53b48f4.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="blue-grey" data-md-color-accent="blue">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#kido-pagos-reales-de-prueba-con-mercado-pago-checkout-pro" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Kido - Desarrollo de aplicaciones distribuidas" class="md-header__button md-logo" aria-label="Kido - Desarrollo de aplicaciones distribuidas" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Kido - Desarrollo de aplicaciones distribuidas
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              KIDO · Pagos reales de prueba con Mercado Pago (Checkout Pro)
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Kido - Desarrollo de aplicaciones distribuidas" class="md-nav__button md-logo" aria-label="Kido - Desarrollo de aplicaciones distribuidas" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Kido - Desarrollo de aplicaciones distribuidas
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Inicio
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../brief-tecnico/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Brief técnico
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../u1-producto/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Producto Unidad 1
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guia-s5/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Guía S5
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../github/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Preparación de GitHub
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../continuacion-midwar/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Aporte Midwar
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../avance-midwar/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Avance técnico Midwar
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api-midwar/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    API Midwar
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../seguridad-keycloak/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Seguridad Keycloak
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../s08-mensajeria-asincrona/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    S08 Mensajería asíncrona
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../s09-saga-kido/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    S09 Saga en KIDO
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../s09-implementacion-validacion/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    S09 Validación y evidencias
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../backend-funcional-completo/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Backend funcional
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../roadmap-produccion/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Roadmap de producción
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guias/GUIA_LEVANTAR_KIDO/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Guía para levantar KIDO
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guias/lista-deseados/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Lista de deseados
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guias/GUIA_PRUEBAS_Y_REDISENO/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Guía de pruebas y rediseño
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../informes/LISTA_MICROSERVICIOS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Lista de microservicios
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../informes/VALIDACION_S09/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Validación S09
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cambios/CAMBIOS_BACKEND_COMPLETO/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Cambios del backend
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#como-funciona" class="md-nav__link">
+    <span class="md-ellipsis">
+      Cómo funciona
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#paso-1-crea-la-aplicacion-en-mercado-pago" class="md-nav__link">
+    <span class="md-ellipsis">
+      Paso 1. Crea la aplicación en Mercado Pago
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#paso-2-crea-las-cuentas-de-prueba" class="md-nav__link">
+    <span class="md-ellipsis">
+      Paso 2. Crea las cuentas de prueba
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#paso-3-copia-el-access-token" class="md-nav__link">
+    <span class="md-ellipsis">
+      Paso 3. Copia el Access Token
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#paso-4-configura-env" class="md-nav__link">
+    <span class="md-ellipsis">
+      Paso 4. Configura .env
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#paso-5-expon-el-webhook-con-un-tunel-opcional-recomendado" class="md-nav__link">
+    <span class="md-ellipsis">
+      Paso 5. Expón el webhook con un túnel (opcional, recomendado)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#paso-6-reinicia-lo-necesario" class="md-nav__link">
+    <span class="md-ellipsis">
+      Paso 6. Reinicia lo necesario
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#paso-7-prueba-una-compra" class="md-nav__link">
+    <span class="md-ellipsis">
+      Paso 7. Prueba una compra
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#paso-8-comprueba-el-webhook" class="md-nav__link">
+    <span class="md-ellipsis">
+      Paso 8. Comprueba el webhook
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#problemas-frecuentes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Problemas frecuentes
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#que-se-cambio-en-el-codigo" class="md-nav__link">
+    <span class="md-ellipsis">
+      Qué se cambió en el código
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="kido-pagos-reales-de-prueba-con-mercado-pago-checkout-pro">KIDO · Pagos reales de prueba con Mercado Pago (Checkout Pro)</h1>
+<blockquote>
+<p>Actualización: el checkout ahora exige publicar la información comercial y aceptar sus condiciones. Antes de activar cobros, revisa <a href="../cambios/COMERCIO_Y_PAGOS_PARA_EXPOSICION/">Comercio y pagos para la exposición</a>. Configurar solo un Access Token no completa la activación.</p>
+</blockquote>
+<p>Esta guía conecta KIDO con Mercado Pago para que la compra de un curso o de un certificado se apruebe <strong>por Mercado Pago</strong>, no por el botón de simulación.</p>
+<h2 id="como-funciona">Cómo funciona</h2>
+<pre><code>Estudiante ──&quot;Comprar curso&quot;──▶ kido-pago-ms crea la orden y una PREFERENCIA en Mercado Pago
+                                 (external_reference = id de la orden, o CERT-id para certificados)
+     │
+     ▼
+Checkout de Mercado Pago (misma pestaña) ── paga con tarjeta de prueba
+     │
+     ├──▶ vuelve a KIDO: /pago/resultado?payment_id=…&amp;status=approved&amp;external_reference=…
+     │        └─ el frontend llama POST /pagos/ordenes/{id}/confirmar-mercado-pago?paymentId=…
+     │
+     └──▶ Mercado Pago avisa al WEBHOOK: POST /api/v1/pagos/webhooks/mercado-pago
+              └─ kido-pago-ms consulta GET /v1/payments/{id} en Mercado Pago
+
+En ambos caminos el backend comprueba en la API de Mercado Pago: estado &quot;approved&quot;,
+external_reference igual a la orden y monto idéntico. Solo entonces aprueba la orden,
+registra el saldo del docente y publica el evento que crea la inscripción (SAGA).
+</code></pre>
+<p>El retorno al navegador funciona en local sin nada más. El webhook es el respaldo: confirma el pago aunque el estudiante cierre la pestaña. Para recibirlo en tu PC necesitas un túnel público (paso 5).</p>
+<hr />
+<h2 id="paso-1-crea-la-aplicacion-en-mercado-pago">Paso 1. Crea la aplicación en Mercado Pago</h2>
+<ol>
+<li>Entra a <a href="https://www.mercadopago.com.pe/developers/panel/app">https://www.mercadopago.com.pe/developers/panel/app</a> con tu cuenta de Mercado Pago (Perú).</li>
+<li><strong>Crear aplicación</strong> → nombre <code>KIDO</code> → tipo de pago <strong>Pagos online</strong> → producto <strong>Checkout Pro</strong>. Acepta los términos.</li>
+</ol>
+<h2 id="paso-2-crea-las-cuentas-de-prueba">Paso 2. Crea las cuentas de prueba</h2>
+<p>Dentro de la aplicación, ve a <strong>Cuentas de prueba</strong> → <strong>Crear cuenta de prueba</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Cuenta</th>
+<th>País</th>
+<th>Para qué</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Vendedor</td>
+<td>Perú</td>
+<td>Es «la tienda» KIDO que recibe el dinero ficticio.</td>
+</tr>
+<tr>
+<td>Comprador</td>
+<td>Perú</td>
+<td>Con esta cuenta paga el estudiante en el checkout.</td>
+</tr>
+</tbody>
+</table>
+<p>Anota el usuario y la contraseña de cada una. Si Mercado Pago pide un código por correo al iniciar sesión, está en esa misma pantalla de <strong>Cuentas de prueba</strong>.</p>
+<blockquote>
+<p>No pagues con tu cuenta real contra una tienda de prueba (ni al revés): Mercado Pago lo bloquea con «Una de las partes con la que intentas hacer el pago es de prueba».</p>
+</blockquote>
+<h2 id="paso-3-copia-el-access-token">Paso 3. Copia el Access Token</h2>
+<p>Tienes dos opciones. Empieza por la A; si el checkout no te deja pagar, usa la B.</p>
+<p><strong>A. Credenciales de prueba de tu aplicación.</strong> En la app → <strong>Credenciales de prueba</strong> → copia el <strong>Access Token</strong> (empieza con <code>TEST-</code>). KIDO detecta el prefijo y usa el enlace <code>sandbox_init_point</code>.</p>
+<p><strong>B. Credenciales de la cuenta vendedora de prueba.</strong> Abre una ventana de incógnito, inicia sesión en <a href="https://www.mercadopago.com.pe/developers">https://www.mercadopago.com.pe/developers</a> con la <strong>cuenta vendedora de prueba</strong>, crea ahí una aplicación (igual que en el paso 1) y copia su <strong>Access Token de producción</strong> (empieza con <code>APP_USR-</code>). Como la cuenta es de prueba, no mueve dinero real. KIDO usa entonces <code>init_point</code>.</p>
+<blockquote>
+<p>El Access Token es secreto: solo va en <code>.env</code>, nunca en el frontend ni en GitHub.</p>
+</blockquote>
+<h2 id="paso-4-configura-env">Paso 4. Configura <code>.env</code></h2>
+<p>En la raíz de <code>kido-platform</code>, edita <code>.env</code> (sin borrar lo que ya tienes):</p>
+<pre><code class="language-env">MERCADO_PAGO_ACCESS_TOKEN=TEST-xxxxxxxxxxxxxxxx-xxxxxx-xxxxxxxxxxxxxxxx-xxxxxxxxx
+MERCADO_PAGO_RETURN_URL=http://localhost:4200/pago/resultado
+MERCADO_PAGO_AUTO_RETURN=false
+# Se completan en el paso 5:
+MERCADO_PAGO_NOTIFICATION_URL=
+MERCADO_PAGO_WEBHOOK_SECRET=
+# Para que el pago solo lo apruebe Mercado Pago, desactiva el botón de simulación:
+KIDO_PAGOS_PERMITIR_SIMULACION=false
+</code></pre>
+<p><code>MERCADO_PAGO_AUTO_RETURN=false</code> hace que, tras pagar, Mercado Pago muestre un botón «Volver al sitio». Ponlo en <code>true</code> solo si <code>MERCADO_PAGO_RETURN_URL</code> es una URL pública <code>https</code>; con <code>localhost</code> Mercado Pago puede rechazar la preferencia.</p>
+<h2 id="paso-5-expon-el-webhook-con-un-tunel-opcional-recomendado">Paso 5. Expón el webhook con un túnel (opcional, recomendado)</h2>
+<p>Mercado Pago no puede llamar a <code>localhost</code>. Abre un túnel hacia el <strong>Gateway (18080)</strong>:</p>
+<pre><code class="language-powershell"># Opción ngrok (https://ngrok.com, cuenta gratuita)
+ngrok http 18080
+
+# Opción Cloudflare (sin cuenta)
+cloudflared tunnel --url http://localhost:18080
+</code></pre>
+<p>Copia la URL <code>https://…</code> que te muestra y arma:</p>
+<pre><code>https://TU-TUNEL/api/v1/pagos/webhooks/mercado-pago?source_news=webhooks
+</code></pre>
+<p><code>?source_news=webhooks</code> evita que Mercado Pago envíe además el formato antiguo (IPN).</p>
+<ol>
+<li>Ponla en <code>.env</code> como <code>MERCADO_PAGO_NOTIFICATION_URL</code>.</li>
+<li>En el panel de tu app → <strong>Webhooks → Configurar notificaciones</strong> → <strong>Modo de prueba</strong>: pega la misma URL, marca el evento <strong>Pagos</strong> y <strong>Guardar</strong>.</li>
+<li>En esa pantalla, revela la <strong>Clave secreta</strong> y cópiala en <code>MERCADO_PAGO_WEBHOOK_SECRET</code>. Desde ese momento KIDO rechaza (401) cualquier webhook sin una firma <code>x-signature</code> válida.</li>
+</ol>
+<blockquote>
+<p>La URL de ngrok gratuita cambia cada vez que lo reinicias: actualiza <code>.env</code> y el panel cuando ocurra.</p>
+</blockquote>
+<h2 id="paso-6-reinicia-lo-necesario">Paso 6. Reinicia lo necesario</h2>
+<p>El Config Server lee <code>infra/kido-config/config-repo</code> desde un volumen, así que basta con reiniciarlo. Hay que reconstruir <code>kido-pago-ms</code> porque su código cambió:</p>
+<pre><code class="language-powershell">docker compose restart kido-config
+docker compose up -d --build kido-pago-ms
+docker compose logs -f kido-pago-ms
+</code></pre>
+<p>Y en otra terminal, el frontend:</p>
+<pre><code class="language-powershell">cd frontend
+npm.cmd start
+</code></pre>
+<h2 id="paso-7-prueba-una-compra">Paso 7. Prueba una compra</h2>
+<ol>
+<li>En <strong>otra ventana de incógnito</strong>, abre <code>http://localhost:4200</code>, ingresa como <strong>estudiante</strong> (tu número de estudiante se resuelve solo con <code>GET /api/v1/usuarios/me</code>).</li>
+<li>Abre un curso <strong>de pago</strong> → <strong>Comprar curso</strong>. KIDO te lleva al checkout de Mercado Pago en la misma pestaña.</li>
+<li>Inicia sesión con la <strong>cuenta compradora de prueba</strong>.</li>
+<li>Paga con una tarjeta de prueba. Las tarjetas de Perú están en tu panel: <strong>Tus integraciones → Tarjetas de prueba</strong>. Usa:</li>
+<li><strong>Titular:</strong> <code>APRO</code> → aprobado · <code>OTHE</code> → rechazado · <code>CONT</code> → pendiente.</li>
+<li><strong>CVV:</strong> <code>123</code> (Amex: <code>1234</code>). <strong>Vencimiento:</strong> <code>11/30</code>. <strong>Documento:</strong> DNI, cualquier número de 8 dígitos.</li>
+<li>Pulsa <strong>Volver al sitio</strong>. Llegas a <code>/pago/resultado</code>: KIDO verifica el pago con Mercado Pago y muestra «¡Pago aprobado!».</li>
+<li>En <strong>Mi aprendizaje</strong> aparece el curso (la inscripción la crea la SAGA en unos segundos). En el panel del docente sube el saldo pendiente y en Administración → Finanzas la orden aparece <strong>Aprobada</strong>.</li>
+</ol>
+<p>Repite con titular <code>OTHE</code> para ver el rechazo: no se cobra nada y la orden no se aprueba.</p>
+<p><strong>Certificados:</strong> con un certificado de pago pendiente, en Mi aprendizaje → <strong>Pagar certificado</strong>. El flujo es el mismo (<code>external_reference = CERT-&lt;id&gt;</code>).</p>
+<h2 id="paso-8-comprueba-el-webhook">Paso 8. Comprueba el webhook</h2>
+<ul>
+<li>En la consola de ngrok o cloudflared deberías ver <code>POST /api/v1/pagos/webhooks/mercado-pago 200</code>.</li>
+<li>En el panel de Mercado Pago, <strong>Webhooks</strong> muestra el historial de envíos y permite <strong>Simular notificación</strong>.</li>
+<li>En los logs de <code>kido-pago-ms</code> no debe aparecer «firma x-signature inválida». Si aparece, revisa que la clave secreta sea la de esa misma aplicación.</li>
+</ul>
+<hr />
+<h2 id="problemas-frecuentes">Problemas frecuentes</h2>
+<table>
+<thead>
+<tr>
+<th>Síntoma</th>
+<th>Causa probable</th>
+<th>Solución</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>«Configura MERCADO_PAGO_ACCESS_TOKEN…»</td>
+<td><code>.env</code> sin token o el servicio no se reinició.</td>
+<td>Paso 4 y paso 6.</td>
+</tr>
+<tr>
+<td>El checkout dice «Una de las partes… es de prueba».</td>
+<td>Mezclaste una cuenta real con una de prueba.</td>
+<td>Paga con la cuenta compradora de prueba, en incógnito. Si persiste, usa la opción B del paso 3.</td>
+</tr>
+<tr>
+<td>Volviste a KIDO pero dice «aún no reporta approved».</td>
+<td>Mercado Pago tarda unos segundos.</td>
+<td>La página reintenta sola; si no, pulsa <strong>Volver a verificar</strong>. El webhook también lo aprobará.</td>
+</tr>
+<tr>
+<td>La orden queda en «Pago iniciado».</td>
+<td>No volviste al sitio y el webhook no llega.</td>
+<td>Activa el túnel (paso 5) o vuelve a abrir el enlace de retorno.</td>
+</tr>
+<tr>
+<td>Webhook responde 401.</td>
+<td>Clave secreta incorrecta o de otra aplicación.</td>
+<td>Copia de nuevo la clave del panel de esa aplicación.</td>
+</tr>
+<tr>
+<td>«El monto aprobado… no coincide».</td>
+<td>Se cambió el precio del curso después de crear la orden.</td>
+<td>Crea una orden nueva.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="que-se-cambio-en-el-codigo">Qué se cambió en el código</h2>
+<ul>
+<li><code>kido-pago-ms/client/MercadoPagoClient.java</code>: <code>back_urls</code> hacia <code>/pago/resultado</code>, <code>auto_return</code> opcional, <code>statement_descriptor</code> y elección automática del enlace (<code>sandbox_init_point</code> con <code>TEST-</code>, <code>init_point</code> en otro caso) en el nuevo campo <code>checkoutUrl</code>.</li>
+<li><code>kido-pago-ms/webhook/FirmaWebhook.java</code> y <code>ValidadorWebhookMercadoPago.java</code>: verificación HMAC-SHA256 del header <code>x-signature</code> (manifest <code>id:[data.id];request-id:[x-request-id];ts:[ts];</code>), con prueba unitaria <code>FirmaWebhookTest</code>.</li>
+<li><code>PagoController.webhook</code>: solo procesa el tópico <code>payment</code>, responde 200 a los demás para evitar reintentos y no reintenta errores de negocio.</li>
+<li>Config (<code>kido-pago-ms-dev.yml</code>, <code>kido-pago-ms-prod.yml</code>), <code>compose.yml</code> y <code>.env.example</code>: variables <code>MERCADO_PAGO_RETURN_URL</code>, <code>MERCADO_PAGO_AUTO_RETURN</code>, <code>MERCADO_PAGO_WEBHOOK_SECRET</code> y <code>MERCADO_PAGO_STATEMENT_DESCRIPTOR</code>.</li>
+<li>Frontend: redirección en la misma pestaña (<code>core/utils/checkout.ts</code>, solo a dominios <code>mercadopago.com</code>) y nueva página <code>pages/pago-resultado</code> (ruta <code>/pago/resultado</code>, rol ESTUDIANTE) que confirma la orden o el certificado.</li>
+</ul>
+<p>Referencias: <a href="https://www.mercadopago.com.ar/developers/es/docs/checkout-pro/additional-content/notifications/webhooks">Webhooks de Checkout Pro</a> · <a href="https://www.mercadopago.com.mx/developers/es/docs/checkout-pro/additional-content/your-integrations/test/cards">Tarjetas de prueba</a> · <a href="https://www.mercadopago.com.mx/developers/es/docs/checkout-pro/integration-test/test-purchases">Compras de prueba</a>.</p>
+<p>El reparto vigente y las liquidaciones quincenales se describen en <a href="../liquidaciones-docentes/">Liquidaciones docentes</a>.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.973d3a69.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.f55a23d4.min.js"></script>
+      
+    
+  </body>
+</html>
