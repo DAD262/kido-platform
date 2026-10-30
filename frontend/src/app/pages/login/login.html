@@ -98,42 +98,6 @@
             <app-icon name="arrow" [size]="16" />
           </a>
         </div>
-
-        <details class="demo">
-          <summary>
-            <app-icon name="command" [size]="15" />Cuentas de demostración
-            <span class="pill plain gray">sustentación</span>
-          </summary>
-          <p class="note">Toca «Usar» para abrir el acceso con el usuario ya escrito.</p>
-          <ul>
-            @for (c of demo; track c.usuario) {
-              <li>
-                <div class="demo-copy">
-                  <strong>{{ c.rol }}</strong>
-                  <small>{{ c.detalle }}</small>
-                  <code>
-                    {{ c.usuario }} ·
-                    <button
-                      type="button"
-                      class="copy"
-                      (click)="copiar(c.clave)"
-                      [title]="'Copiar ' + c.clave"
-                    >
-                      {{ copiado() === c.clave ? 'copiada ✓' : c.clave }}
-                    </button>
-                  </code>
-                </div>
-                <button
-                  class="btn btn-outline btn-small"
-                  type="button"
-                  (click)="iniciarSesion(c.usuario)"
-                >
-                  Usar
-                </button>
-              </li>
-            }
-          </ul>
-        </details>
       }
     }
   }

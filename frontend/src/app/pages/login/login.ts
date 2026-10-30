@@ -15,27 +15,7 @@ const ROL_LEGIBLE: Record<string, string> = {
   ESTUDIANTE: 'estudiantes',
 };
 
-/** Cuentas sembradas en infra/keycloak/kido-realm.json para la demostración. */
-export const CUENTAS_DEMO = [
-  {
-    usuario: 'estudiante',
-    clave: 'Estudiante123!',
-    rol: 'Estudiante',
-    detalle: 'Cursos, avance y certificados',
-  },
-  {
-    usuario: 'docente',
-    clave: 'Docente123!',
-    rol: 'Docente',
-    detalle: 'Docente verificado con cursos',
-  },
-  {
-    usuario: 'admin',
-    clave: 'Admin123!',
-    rol: 'Administración',
-    detalle: 'Aprueba cursos, pagos y docentes',
-  },
-] as const;
+// Las credenciales se administran en Keycloak; no se incluyen cuentas demo en el frontend.
 
 @Component({
   selector: 'app-login',
@@ -50,7 +30,6 @@ export class Login implements OnInit {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
 
-  readonly demo = CUENTAS_DEMO;
   readonly aviso = signal('');
   readonly registrado = signal('');
   readonly redirigiendo = signal(false);

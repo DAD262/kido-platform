@@ -117,15 +117,9 @@
       "email": "admin@kido.local",
       "firstName": "Equipo",
       "lastName": "KIDO",
-      "enabled": true,
+      "enabled": false,
       "emailVerified": true,
-      "credentials": [
-        {
-          "type": "password",
-          "value": "Admin123!",
-          "temporary": false
-        }
-      ],
+      "credentials": [],
       "realmRoles": [
         "ADMIN",
         "default-roles-kido"
@@ -135,22 +129,19 @@
           "manage-account",
           "view-profile"
         ]
-      }
+      },
+      "requiredActions": [
+        "UPDATE_PASSWORD"
+      ]
     },
     {
       "username": "docente",
       "email": "docente@kido.local",
       "firstName": "Daniela",
       "lastName": "Rojas",
-      "enabled": true,
+      "enabled": false,
       "emailVerified": true,
-      "credentials": [
-        {
-          "type": "password",
-          "value": "Docente123!",
-          "temporary": false
-        }
-      ],
+      "credentials": [],
       "realmRoles": [
         "DOCENTE",
         "default-roles-kido"
@@ -160,22 +151,19 @@
           "manage-account",
           "view-profile"
         ]
-      }
+      },
+      "requiredActions": [
+        "UPDATE_PASSWORD"
+      ]
     },
     {
       "username": "estudiante",
       "email": "estudiante@kido.local",
       "firstName": "Mateo",
       "lastName": "Quispe",
-      "enabled": true,
+      "enabled": false,
       "emailVerified": true,
-      "credentials": [
-        {
-          "type": "password",
-          "value": "Estudiante123!",
-          "temporary": false
-        }
-      ],
+      "credentials": [],
       "realmRoles": [
         "ESTUDIANTE",
         "default-roles-kido"
@@ -185,7 +173,10 @@
           "manage-account",
           "view-profile"
         ]
-      }
+      },
+      "requiredActions": [
+        "UPDATE_PASSWORD"
+      ]
     },
     {
       "username": "service-account-kido-usuario-admin",
