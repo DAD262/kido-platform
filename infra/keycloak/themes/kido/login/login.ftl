@@ -3,7 +3,7 @@
   vive en la app Angular (/registro), porque el docente entrega datos adicionales para verificar.
 -->
 <#import "template.ftl" as layout>
-<#assign kidoApp = (properties.kidoAppUrl)!"http://localhost:4200">
+<#assign kidoApp = (properties.kidoAppUrl)!"http://localhost:4300">
 <#assign hayError = messagesPerField.existsError('username','password')>
 <@layout.registrationLayout displayMessage=!hayError displayInfo=false; section>
     <#if section = "header">

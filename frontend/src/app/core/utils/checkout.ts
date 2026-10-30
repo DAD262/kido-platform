@@ -2,11 +2,13 @@ import { Preferencia } from '../models/api.models';
 
 /** Dominios de Mercado Pago a los que se permite redirigir (evita abrir URLs inesperadas). */
 const DOMINIO_MP = /^https:\/\/([a-z0-9-]+\.)*mercadopago\.com(\.[a-z]{2})?\//i;
+export function esCheckoutMercadoPago(url:string){return DOMINIO_MP.test(url);}
 
 export interface PagoPendiente {
-  tipo: 'curso' | 'certificado';
+  tipo: 'curso' | 'certificado' | 'carrito';
   ordenId: number;
   cursoId: number;
+  checkoutUrl?: string;
 }
 
 const CLAVE = 'kido-pago-pendiente';
@@ -18,12 +20,16 @@ const CLAVE = 'kido-pago-pendiente';
 export function irACheckout(p: Preferencia, pendiente: PagoPendiente): boolean {
   const url = p.checkoutUrl || p.sandboxInitPoint || p.initPoint;
   if (!url || !DOMINIO_MP.test(url)) return false;
+  let guardado=true;
   try {
-    sessionStorage.setItem(CLAVE, JSON.stringify(pendiente));
+    sessionStorage.setItem(CLAVE, JSON.stringify({...pendiente,checkoutUrl:p.retornoConfigurado===false?url:undefined}));
   } catch {
+    guardado=false;
     /* sin almacenamiento: la página de resultado usa external_reference */
   }
-  window.location.assign(url);
+  if(p.retornoConfigurado===false&&guardado){
+    window.location.assign('/pago/resultado?external_reference='+encodeURIComponent((pendiente.tipo==='certificado'?'CERT-':pendiente.tipo==='carrito'?'CARRITO-':'')+pendiente.ordenId));
+  }else window.location.assign(url);
   return true;
 }
 

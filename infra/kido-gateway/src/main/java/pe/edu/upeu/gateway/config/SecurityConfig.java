@@ -40,6 +40,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/v1/cursos/**").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/v1/pagos/webhooks/mercado-pago").permitAll()
                 // Registro de cuentas (estudiante o docente): público, con límite por IP en kido-usuario-ms.
+                .requestMatchers(HttpMethod.GET, "/api/v1/usuarios/docentes-publicos").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/v1/usuarios/registro").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/v1/usuarios/recuperacion/solicitar", "/api/v1/usuarios/recuperacion/confirmar").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/usuarios/registro/disponibilidad", "/api/v1/usuarios/recuperacion/configuracion").permitAll()

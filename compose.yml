@@ -1,4 +1,4 @@
-﻿name: kido-platform
+name: kido-platform
 
 services:
   kido-mailpit:
@@ -83,7 +83,7 @@ services:
       KC_BOOTSTRAP_ADMIN_USERNAME: ${KEYCLOAK_ADMIN:-admin}
       KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:?Define KEYCLOAK_ADMIN_PASSWORD en .env}
       # kido-realm.json usa esta variable como secreto del cliente kido-usuario-admin al importar el realm.
-      KIDO_USUARIO_ADMIN_SECRET: ${KIDO_USUARIO_ADMIN_SECRET:-CAMBIAR_SECRETO_CLIENTE_USUARIOS}
+      KIDO_USUARIO_ADMIN_SECRET: ${KIDO_USUARIO_ADMIN_SECRET:?Define KIDO_USUARIO_ADMIN_SECRET en .env}
     volumes:
       - ./infra/keycloak:/opt/keycloak/data/import:ro
       - ./infra/keycloak/themes:/opt/keycloak/themes:ro
@@ -260,7 +260,7 @@ services:
       KEYCLOAK_SERVER_URL: http://kido-keycloak:8080
       KEYCLOAK_ISSUER_URI: ${KEYCLOAK_ISSUER_URI:-http://localhost:19090/realms/kido}
       KIDO_CATALOGO_BASE_URL: http://kido-curso-1:8080
-      KIDO_USUARIO_ADMIN_SECRET: ${KIDO_USUARIO_ADMIN_SECRET:-CAMBIAR_SECRETO_CLIENTE_USUARIOS}
+      KIDO_USUARIO_ADMIN_SECRET: ${KIDO_USUARIO_ADMIN_SECRET:?Define KIDO_USUARIO_ADMIN_SECRET en .env}
       SPRING_MAIL_HOST: ${RECUPERACION_SMTP_HOST:-kido-mailpit}
       SPRING_MAIL_PORT: ${RECUPERACION_SMTP_PORT:-1025}
       SPRING_MAIL_USERNAME: ${RECUPERACION_SMTP_USER:-}
@@ -272,7 +272,7 @@ services:
       SPRING_MAIL_PROPERTIES_MAIL_SMTP_WRITETIMEOUT: 5000
       KIDO_RECUPERACION_SECRET: ${KIDO_RECUPERACION_SECRET:?Define KIDO_RECUPERACION_SECRET en .env}
       KIDO_RECUPERACION_FROM: ${RECUPERACION_SMTP_FROM:-no-reply@kido.local}
-      KIDO_RECUPERACION_APP_URL: ${KIDO_APP_URL:-http://localhost:4200}
+      KIDO_RECUPERACION_APP_URL: ${KIDO_APP_URL:-http://localhost:4300}
     depends_on:
       kido-mailpit: {condition: service_started}
       postgres-usuario: {condition: service_healthy}
@@ -340,7 +340,7 @@ services:
       MERCADO_PAGO_ACCESS_TOKEN: ${MERCADO_PAGO_ACCESS_TOKEN:-}
       KEYCLOAK_ISSUER_URI: ${KEYCLOAK_ISSUER_URI:-http://localhost:19090/realms/kido}
       MERCADO_PAGO_NOTIFICATION_URL: ${MERCADO_PAGO_NOTIFICATION_URL:-}
-      MERCADO_PAGO_RETURN_URL: ${MERCADO_PAGO_RETURN_URL:-http://localhost:4200/pago/resultado}
+      MERCADO_PAGO_RETURN_URL: ${MERCADO_PAGO_RETURN_URL:-http://localhost:4300/pago/resultado}
       MERCADO_PAGO_AUTO_RETURN: ${MERCADO_PAGO_AUTO_RETURN:-false}
       MERCADO_PAGO_WEBHOOK_SECRET: ${MERCADO_PAGO_WEBHOOK_SECRET:-}
       KIDO_PAGOS_PERMITIR_SIMULACION: ${KIDO_PAGOS_PERMITIR_SIMULACION:-false}
@@ -414,3 +414,5 @@ volumes:
 networks:
   kido-net:
     name: kido-net
+
+

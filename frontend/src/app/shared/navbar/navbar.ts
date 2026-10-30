@@ -1,6 +1,7 @@
 import { Component, ElementRef, HostListener, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { Auth } from '../../core/services/auth';
+import { Carrito } from '../../core/services/carrito';
 import { VisualPreferences } from '../../core/services/visual-preferences';
 import { CommandPaletteService } from '../command-palette/command-palette';
 import { Icon } from '../icon/icon';
@@ -15,6 +16,7 @@ import { Logo } from '../logo/logo';
   styleUrl: './navbar.scss',
 })
 export class Navbar {
+  readonly carrito=inject(Carrito);
   readonly auth = inject(Auth);
   readonly visual = inject(VisualPreferences);
   readonly palette = inject(CommandPaletteService);

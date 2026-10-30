@@ -45,8 +45,9 @@ public class PagoEventosConsumer {
             "NUEVA_VENTA",
             "IN_APP",
             "Nueva venta",
-            "Tienes una nueva venta. Tu saldo neto es S/ " + evento.getMontoDocente()
-                + " y se libera en " + evento.getDiasRetencion() + " días.",
+            "PRODUCCION".equals(evento.getAmbiente())
+                ? "Tienes una nueva venta. Tu saldo neto es S/ " + evento.getMontoDocente() + " y se libera en " + evento.getDiasRetencion() + " días."
+                : "Se registró una operación de ambiente " + evento.getAmbiente() + "; no genera saldo real.",
             null
         ));
 

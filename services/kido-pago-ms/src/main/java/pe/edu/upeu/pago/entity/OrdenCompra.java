@@ -9,6 +9,9 @@ import java.time.LocalDateTime;
 @Getter @Setter @NoArgsConstructor
 public class OrdenCompra {
  @Id @GeneratedValue(strategy=GenerationType.IDENTITY) private Long id;
+ @Enumerated(EnumType.STRING) @Column(nullable=false,length=20) private AmbientePago ambiente = AmbientePago.DESCONOCIDO;
+ @Column(name="receptor_mp",length=40) private String receptorMp;
+ private int pagosAprobadosDetectados;
  @Column(name="estudiante_id",nullable=false) private Long estudianteId;
  @Column(name="curso_id",nullable=false) private Long cursoId;
  @Column(name="docente_id",nullable=false) private Long docenteId;
@@ -19,7 +22,8 @@ public class OrdenCompra {
  @Column(name="monto_docente",nullable=false,precision=10,scale=2) private BigDecimal montoDocente;
  @Enumerated(EnumType.STRING) @Column(nullable=false,length=24) private EstadoOrden estado;
  @Column(name="mp_preference_id",length=120) private String mercadoPagoPreferenceId;
- @Column(name="mp_payment_id",unique=true,length=120) private String mercadoPagoPaymentId;
+ @Column(name="mp_payment_id",length=120) private String mercadoPagoPaymentId;
+ @Column(name="compra_carrito_id") private Long compraCarritoId;
  @Column(name="inscripcion_sincronizada",nullable=false) private boolean inscripcionSincronizada;
  // Immutable course snapshot captured BEFORE payment. Avoid depending on Course while confirming money.
  @Column(name="lecciones_snapshot",nullable=false,length=8000) private String leccionesSnapshot = "";

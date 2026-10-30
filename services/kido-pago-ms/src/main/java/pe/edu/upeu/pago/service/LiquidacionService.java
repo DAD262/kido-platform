@@ -35,11 +35,11 @@ public class LiquidacionService {
      var libro=movimientos.findByDocenteId(docente);
      var elegibles=libro.stream().filter(m->elegible(m,fin)).toList();
      BigDecimal base=elegibles.stream().map(MovimientoSaldo::getMonto).reduce(BigDecimal.ZERO,BigDecimal::add);
-     var comprometidos=libro.stream().filter(m->m.isConciliado()&&m.getMonto().signum()<0&&(m.getEstado()==MovimientoSaldo.EstadoMovimiento.RESERVADO||m.getEstado()==MovimientoSaldo.EstadoMovimiento.PAGADO)).toList();
+     var comprometidos=libro.stream().filter(m->m.getAmbiente()==AmbientePago.PRODUCCION&&m.isConciliado()&&m.getMonto().signum()<0&&(m.getEstado()==MovimientoSaldo.EstadoMovimiento.RESERVADO||m.getEstado()==MovimientoSaldo.EstadoMovimiento.PAGADO)).toList();
      BigDecimal compromisos=comprometidos.stream().map(MovimientoSaldo::getMonto).reduce(BigDecimal.ZERO,BigDecimal::add).abs();
      BigDecimal monto=base.subtract(compromisos).setScale(2);
      if(monto.signum()<=0)continue;
-     MovimientoSaldo reserva=new MovimientoSaldo();reserva.setDocenteId(docente);reserva.setMonto(monto.negate());reserva.setConciliado(true);reserva.setTipo(MovimientoSaldo.TipoMovimiento.LIQUIDACION);reserva.setEstado(MovimientoSaldo.EstadoMovimiento.RESERVADO);reserva.setFechaCreacion(LocalDateTime.now(clock));reserva.setDescripcion("Reserva de liquidación al "+corte);reserva=movimientos.save(reserva);
+     MovimientoSaldo reserva=new MovimientoSaldo();reserva.setAmbiente(AmbientePago.PRODUCCION);reserva.setDocenteId(docente);reserva.setMonto(monto.negate());reserva.setConciliado(true);reserva.setTipo(MovimientoSaldo.TipoMovimiento.LIQUIDACION);reserva.setEstado(MovimientoSaldo.EstadoMovimiento.RESERVADO);reserva.setFechaCreacion(LocalDateTime.now(clock));reserva.setDescripcion("Reserva de liquidación al "+corte);reserva=movimientos.save(reserva);
      var l=new LiquidacionDocente();l.setDocenteId(docente);l.setDesde(CalendarioLiquidaciones.inicio(corte));l.setCorte(corte);l.setEstado(LiquidacionDocente.Estado.PENDIENTE);l.setMonto(monto);l.setBaseAcumulada(base);l.setCompromisosAnteriores(compromisos);l.setMovimientoId(reserva.getId());l.setFechaCreacion(clock.instant());l=repo.saveAndFlush(l);
      reserva.setLiquidacionId(l.getId());movimientos.save(reserva);
      for(var m:java.util.stream.Stream.concat(elegibles.stream(),comprometidos.stream()).toList()){
@@ -50,7 +50,7 @@ public class LiquidacionService {
    return new Generacion(resultado.size(),resultado);
  }
  private LocalDateTime corteFinal(LocalDate corte){return corte.plusDays(1).atStartOfDay();}
- public static boolean elegible(MovimientoSaldo m,LocalDateTime fin){return m.isConciliado()&&m.getMonto().signum()>0&&m.getEstado()==MovimientoSaldo.EstadoMovimiento.DISPONIBLE&&m.getFechaCreacion()!=null&&m.getFechaCreacion().isBefore(fin)&&m.getFechaDisponible()!=null&&m.getFechaDisponible().isBefore(fin);}
+ public static boolean elegible(MovimientoSaldo m,LocalDateTime fin){return m.getAmbiente()==AmbientePago.PRODUCCION&&m.isConciliado()&&m.getMonto().signum()>0&&m.getEstado()==MovimientoSaldo.EstadoMovimiento.DISPONIBLE&&m.getFechaCreacion()!=null&&m.getFechaCreacion().isBefore(fin)&&m.getFechaDisponible()!=null&&m.getFechaDisponible().isBefore(fin);}
  @Transactional public LiquidacionResponse pagar(Long id,PagoLiquidacionRequest r,byte[] archivo,String tipo,String verificador){
    var l=bloqueada(id);
    if(!r.verificada()||r.monto().compareTo(l.getMonto())!=0)throw new IllegalArgumentException("Verifica la transferencia y su importe exacto antes de registrar el pago");
@@ -60,7 +60,13 @@ public class LiquidacionService {
    if(l.getEstado()!=LiquidacionDocente.Estado.PENDIENTE)throw new IllegalStateException("Solo una liquidación pendiente puede pagarse");
    if(repo.existsByConstanciaSha256AndEstado(hash,LiquidacionDocente.Estado.PAGADA))throw new IllegalArgumentException("Esta constancia ya se utilizó para otra liquidación");
    if(repo.existsByBancoAndFechaOperacionAndCodigoOperacionAndEstado(banco,r.fechaOperacion(),codigo,LiquidacionDocente.Estado.PAGADA))throw new IllegalArgumentException("Esta operación bancaria ya fue registrada");
-   BigDecimal saldo=movimientos.findByDocenteId(l.getDocenteId()).stream().filter(m->m.isConciliado()&&(m.getEstado()==MovimientoSaldo.EstadoMovimiento.DISPONIBLE||m.getEstado()==MovimientoSaldo.EstadoMovimiento.RESERVADO||m.getEstado()==MovimientoSaldo.EstadoMovimiento.PAGADO)).map(MovimientoSaldo::getMonto).reduce(BigDecimal.ZERO,BigDecimal::add);
+   var componentes=detalles.findByLiquidacionIdOrderById(id);
+   if(componentes.stream().noneMatch(d->d.getImporte().signum()>0))throw new IllegalStateException("La liquidación no tiene operaciones verificables");
+   for(var detalle:componentes){
+     if(detalle.getImporte().signum()>0 && movimientos.findById(detalle.getMovimientoId()).map(m->m.getAmbiente()!=AmbientePago.PRODUCCION).orElse(true))
+       throw new IllegalStateException("La liquidación contiene operaciones sin ambiente de producción verificado");
+   }
+   BigDecimal saldo=movimientos.findByDocenteId(l.getDocenteId()).stream().filter(m->m.getAmbiente()==AmbientePago.PRODUCCION&&m.isConciliado()&&(m.getEstado()==MovimientoSaldo.EstadoMovimiento.DISPONIBLE||m.getEstado()==MovimientoSaldo.EstadoMovimiento.RESERVADO||m.getEstado()==MovimientoSaldo.EstadoMovimiento.PAGADO)).map(MovimientoSaldo::getMonto).reduce(BigDecimal.ZERO,BigDecimal::add);
    if(saldo.signum()<0)throw new IllegalStateException("El saldo cambió por una devolución o bloqueo. Revisa la liquidación antes de pagar");
    var reserva=movimientos.findById(l.getMovimientoId()).orElseThrow();if(reserva.getEstado()!=MovimientoSaldo.EstadoMovimiento.RESERVADO)throw new IllegalStateException("La reserva ya no está vigente");
    reserva.setEstado(MovimientoSaldo.EstadoMovimiento.PAGADO);movimientos.save(reserva);
@@ -70,8 +76,9 @@ public class LiquidacionService {
  @Transactional public void bloquearPendientes(Long docente,String motivo){bloqueo.bloquear(docente);for(var l:repo.findByDocenteIdAndEstado(docente,LiquidacionDocente.Estado.PENDIENTE))anularInterna(l,motivo);}
  private void anularInterna(LiquidacionDocente l,String motivo){if(l.getEstado()==LiquidacionDocente.Estado.PAGADA)throw new IllegalStateException("Una liquidación pagada no se puede anular");if(l.getEstado()==LiquidacionDocente.Estado.ANULADA)return;if(motivo==null||motivo.isBlank())throw new IllegalArgumentException("Indica el motivo de anulación");l.setEstado(LiquidacionDocente.Estado.ANULADA);l.setMotivoAnulacion(motivo.substring(0,Math.min(motivo.length(),300)));movimientos.findById(l.getMovimientoId()).ifPresent(m->{m.setEstado(MovimientoSaldo.EstadoMovimiento.REVERTIDO);movimientos.save(m);});repo.save(l);}
  private LiquidacionDocente bloqueada(Long id){Long docente=repo.docenteDe(id).orElseThrow(()->new ResourceNotFoundException("Liquidación no encontrada"));bloqueo.bloquear(docente);return repo.bloquear(id).orElseThrow();}
- @Transactional(readOnly=true) public List<LiquidacionResponse> listar(){return repo.findAllByOrderByIdDesc().stream().map(this::map).toList();}
- @Transactional(readOnly=true) public List<LiquidacionResponse> docente(Long id){return repo.findByDocenteIdOrderByIdDesc(id).stream().map(this::map).toList();}
+ private boolean verificada(LiquidacionDocente l){var ds=detalles.findByLiquidacionIdOrderById(l.getId());return ds.stream().anyMatch(d->d.getImporte().signum()>0)&&ds.stream().filter(d->d.getImporte().signum()>0).allMatch(d->movimientos.findById(d.getMovimientoId()).map(m->m.getAmbiente()==AmbientePago.PRODUCCION).orElse(false));}
+ @Transactional(readOnly=true) public List<LiquidacionResponse> listar(){return repo.findAllByOrderByIdDesc().stream().filter(this::verificada).map(this::map).toList();}
+ @Transactional(readOnly=true) public List<LiquidacionResponse> docente(Long id){return repo.findByDocenteIdOrderByIdDesc(id).stream().filter(this::verificada).map(this::map).toList();}
  @Transactional(readOnly=true) public LiquidacionResponse obtener(Long id){return map(buscar(id));}
  @Transactional(readOnly=true) public List<LiquidacionDetalle> detalle(Long id){buscar(id);return detalles.findByLiquidacionIdOrderById(id);}
  public record Constancia(byte[] bytes,String tipo){}

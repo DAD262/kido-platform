@@ -6,6 +6,8 @@ import { forkJoin, map, switchMap } from 'rxjs';
 import { Api, mensajeError } from '../../core/services/api';
 import { Auth } from '../../core/services/auth';
 import { Deseados } from '../../core/services/deseados';
+import { Carrito } from '../../core/services/carrito';
+import { Docentes } from '../../core/services/docentes';
 import { AccountContext } from '../../core/services/account-context';
 import { ContenidoCurso, Curso } from '../../core/models/api.models';
 import { SolesPipe } from '../../core/pipes/estado.pipe';
@@ -21,6 +23,8 @@ import { Icon } from '../../shared/icon/icon';
   styleUrl: './curso-detalle.scss',
 })
 export class CursoDetalle implements OnInit {
+  readonly docentes=inject(Docentes);
+  readonly carrito=inject(Carrito);
   private readonly api = inject(Api);
   private readonly route = inject(ActivatedRoute);
   readonly auth = inject(Auth);
@@ -46,6 +50,7 @@ export class CursoDetalle implements OnInit {
   readonly portada = computed(() => portadaCurso(this.curso()?.titulo));
   readonly tono = computed(() => Math.abs(this.curso()?.id ?? 0) % 4);
   ngOnInit() {
+    this.docentes.cargar();this.carrito.cargar();
     this.deseados.cargar();
     // Resuelve el número de estudiante en segundo plano para poder inscribirse sin esperas.
     if (this.auth.tieneRol('ESTUDIANTE')) void this.account.asegurar();

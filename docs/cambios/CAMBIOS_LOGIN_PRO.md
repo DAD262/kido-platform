@@ -30,6 +30,6 @@ npm install
 npx ng serve --proxy-config proxy.conf.json
 ```
 
-Abrir `http://localhost:4200/login`.
+Abrir `http://localhost:4300/login`.
 
 > Si Keycloak ya conserva el realm en un entorno persistente, seleccionar manualmente el tema `kido` en Realm settings > Themes > Login theme, y habilitar User registration en Realm settings > Login.

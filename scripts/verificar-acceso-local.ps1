@@ -1,5 +1,5 @@
-﻿$ErrorActionPreference='Stop'
-$base='http://localhost:4200'
+$ErrorActionPreference='Stop'
+$base='http://localhost:4300'
 function Check([string]$Path,$Headers=@{},[int]$Expected=200) {
     try { $r=Invoke-WebRequest -UseBasicParsing ($base+$Path) -Headers $Headers -TimeoutSec 15; $status=[int]$r.StatusCode }
     catch { if ($_.Exception.Response) { $status=[int]$_.Exception.Response.StatusCode } else { throw } }

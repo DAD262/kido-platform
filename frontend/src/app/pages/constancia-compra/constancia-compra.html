@@ -1,0 +1,18 @@
+<div class="receipt-page container">
+ <nav class="toolbar"><a class="btn btn-outline" routerLink="/">Volver a Kido</a><a class="btn btn-quiet" routerLink="/estudiante">Mis compras</a>@if(datos()){<button class="btn btn-outline" [disabled]="descargando()" (click)="pdf(true)">Ver PDF e imprimir</button><button class="btn btn-primary" [disabled]="descargando()" (click)="pdf()">Descargar PDF</button>}</nav>
+ @if(cargando()){<p role="status">Preparando tu constancia…</p>}@if(error()){<p class="alert error" role="alert">{{error()}}</p>}
+ @if(operaciones().length>1){<div class="alert"><strong>Esta orden tiene {{operaciones().length}} operaciones acreditadas.</strong><p>Cada operación tiene su propia constancia. La compra habilita un solo acceso; los cobros repetidos requieren revisión.</p>@for(op of operaciones();track op.id){<button class="btn btn-small btn-outline" [disabled]="cargando()" (click)="cargar(op.id)">Operación {{op.id}}</button>}</div>}
+ @if(datos();as c){
+ <article class="receipt">
+  <header><div class="brand"><span class="brand-k">K<i>·</i></span><strong>kido</strong></div><span class="document-type">CONSTANCIA DE COMPRA</span><h1>Tu próxima etapa empieza aquí.</h1><p>El detalle de tu compra, en un solo lugar.</p></header>
+  <div class="receipt-body">
+   <div class="test-banner">{{c.ambiente==='PRUEBAS'?'OPERACIÓN DE PRUEBA — SIN VALIDEZ TRIBUTARIA':'CONSTANCIA INFORMATIVA — SIN VALIDEZ TRIBUTARIA'}}</div>
+   <div class="order-meta"><div><span>{{c.compraCarritoId?'Compra conjunta':'Orden de compra'}}</span><strong>{{c.compraCarritoId?'CARRITO #'+c.compraCarritoId:'KIDO #'+c.ordenId}}</strong></div><div><span>Fecha del pago · America/Lima</span><strong>{{fecha(c.fechaPago)}}</strong></div></div>
+   <section><h2><b>01</b> Datos del comprador</h2><div class="buyer"><strong>{{c.alumnoNombre}}</strong><div class="data-grid"><div><span>Correo</span><p>{{c.alumnoEmail||'No registrado'}}</p></div><div><span>DNI</span><p>{{c.alumnoDocumento||'No registrado'}}</p></div></div><small>Datos de la cuenta registrados al emitir esta constancia.</small></div></section>
+   <section><h2><b>02</b> Accesos adquiridos</h2><div class="course"><h3>{{c.cursoTitulo}}</h3>@if(c.detalles?.length){@for(linea of c.detalles;track linea.ordenId){<div class="amount-row"><div><strong>{{linea.titulo}}</strong><p>Docente n.º {{linea.docenteId}} · orden #{{linea.ordenId}}</p></div><strong>{{linea.importe|soles}}</strong></div>}}@else{<div class="data-grid"><div><span>Docente registrado</span><p>n.º {{c.docenteId}}</p></div><div><span>Modalidad</span><p>No registrada en la orden</p></div></div>}<p>Acceso a los cursos adquiridos. La activación de cada curso se consulta en Mi aprendizaje.</p></div></section>
+   <section><h2><b>03</b> Detalle de la compra</h2><div class="amount-row"><span>Precio del acceso</span><strong>{{c.total|soles}}</strong></div><div class="tax-note">Descuentos: no registrados.<br>IGV: no determinado; configuración tributaria pendiente.</div><div class="total"><div><span>Moneda: PEN · Soles</span><strong>Total pagado</strong></div><b>{{c.total|soles}}</b></div></section>
+   <section><h2><b>04</b> Operación verificada</h2><div class="data-grid"><div><span>Medio de pago</span><p>{{medio(c.medioPago)}}</p></div><div><span>Estado en Mercado Pago</span><p>Aprobado · {{c.detalleEstado}}</p></div></div><div class="operation"><span>Identificador de operación</span><strong>{{c.operacion}}</strong></div><p class="support">Soporte: {{c.soporte||'Correo no registrado'}}</p></section>
+   <footer><strong>{{c.numero}}</strong><p>Esta constancia registra la compra en KIDO. No es una boleta ni factura electrónica de SUNAT.</p></footer>
+  </div>
+ </article>}
+</div>

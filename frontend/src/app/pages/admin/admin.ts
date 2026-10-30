@@ -5,6 +5,7 @@ import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from '@ang
 
 import { forkJoin, catchError, of, Observable } from 'rxjs';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { Auth } from '../../core/services/auth';
 import { Api, mensajeError } from '../../core/services/api';
 import {
@@ -22,7 +23,7 @@ import { SolicitudesDocentes } from './solicitudes-docentes/solicitudes-docentes
 @Component({
   selector: 'app-admin',
   standalone: true,
-  imports: [LiquidacionesPanel, ComercioAdmin, CuentasAdmin, FormsModule, Icon, KIDO_PIPES, SolicitudesDocentes],
+  imports: [RouterLink, LiquidacionesPanel, ComercioAdmin, CuentasAdmin, FormsModule, Icon, KIDO_PIPES, SolicitudesDocentes],
   templateUrl: './admin.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './admin.scss',
@@ -45,6 +46,7 @@ export class Admin implements OnInit {
   readonly tab = signal<'cursos' | 'finanzas' | 'usuarios'>('cursos');
   readonly busqueda = signal('');
   readonly filtroFinanzas = signal('TODAS');
+  readonly filtroAmbiente = signal('TODOS');
   readonly vistaPrevia = signal<Curso | null>(null);
   readonly contenidoVista = signal<ContenidoCurso | null>(null);
   readonly cargandoVista = signal(false);
@@ -180,20 +182,21 @@ export class Admin implements OnInit {
   }
   ordenesFiltradas() {
     return this.ordenes().filter(
-      (o) => this.filtroFinanzas() === 'TODAS' || o.estado === this.filtroFinanzas(),
+      (o) => (this.filtroFinanzas() === 'TODAS' || o.estado === this.filtroFinanzas()) && (this.filtroAmbiente()==='TODOS'||o.ambiente===this.filtroAmbiente()),
     );
   }
+  verificarCompra(o:Orden){if(this.procesando())return;this.procesando.set(true);this.error.set('');this.api.verificarOrden(o.id).subscribe({next:n=>{this.ordenes.update(xs=>xs.map(x=>x.id===n.id?n:x));this.procesando.set(false);this.mensaje.set(n.estado==='APROBADA'?'Pago verificado con Mercado Pago.':'Mercado Pago todavía no registra un pago aprobado.');},error:e=>{this.procesando.set(false);this.error.set(mensajeError(e));}});}
   estadosOrden() {
     return [...new Set(this.ordenes().map((o) => o.estado))].sort();
   }
   totalAprobado() {
     return this.ordenes()
-      .filter((o) => o.estado === 'APROBADA' && !o.simulada)
+      .filter((o) => o.estado === 'APROBADA' && o.ambiente === 'PRODUCCION' && !o.simulada)
       .reduce((s, o) => s + (Number(o.montoTotal) || 0), 0);
   }
   comisionKido() {
     return this.ordenes()
-      .filter((o) => o.estado === 'APROBADA' && !o.simulada)
+      .filter((o) => o.estado === 'APROBADA' && o.ambiente === 'PRODUCCION' && !o.simulada)
       .reduce((s, o) => s + (Number(o.comisionKido) || 0), 0);
   }
   tieneLeccionesRevisables() {

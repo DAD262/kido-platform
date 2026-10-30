@@ -18,6 +18,8 @@ class AccesoCuentaPagoTest {
   @AfterEach void clear(){SecurityContextHolder.clearContext();}
   void perfil(){server.expect(requestTo("http://kido-usuario-ms/api/v1/usuarios/me")).andExpect(header("Authorization","Bearer token-prueba")).andRespond(withSuccess("{\"id\":1001}",MediaType.APPLICATION_JSON));}
   @Test void aceptaPerfilPropio(){perfil();acceso.verificar(1001L);server.verify();}
+  @Test void carritoResuelvePerfilDesdeSesion(){perfil();assertEquals(1001L,acceso.estudianteActual());server.verify();}
+  @Test void carritoRechazaAdministradoresSinRolEstudiante(){var jwt=Jwt.withTokenValue("admin").header("alg","RS256").subject("admin").build();SecurityContextHolder.getContext().setAuthentication(new JwtAuthenticationToken(jwt,List.of(new SimpleGrantedAuthority("ROLE_ADMIN"))));assertThrows(AccessDeniedException.class,()->acceso.estudianteActual());server.verify();}
   @Test void rechazaPerfilAjeno(){perfil();assertThrows(AccessDeniedException.class,()->acceso.verificar(2001L));server.verify();}
   @Test void rechazaAnonimo(){SecurityContextHolder.clearContext();assertThrows(AccessDeniedException.class,()->acceso.verificar(1001L));}
   @Test void administradorPuedeGestionarCompras(){var jwt=Jwt.withTokenValue("admin").header("alg","RS256").subject("admin").build();SecurityContextHolder.getContext().setAuthentication(new JwtAuthenticationToken(jwt,List.of(new SimpleGrantedAuthority("ROLE_ADMIN"))));acceso.verificar(1001L);server.verify();}

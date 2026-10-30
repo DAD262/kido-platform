@@ -16,7 +16,7 @@ docker compose ps -a
 Write-Host ''
 
 Write-Host 'Puertos del servidor:'
-foreach ($puerto in @(4200, 18080, 19090, 18889)) {
+foreach ($puerto in @(4300, 18080, 19090, 18889)) {
   $listener = Get-NetTCPConnection -LocalPort $puerto -State Listen -ErrorAction SilentlyContinue
   if ($listener) {
     Write-Host "$puerto : ESCUCHANDO"

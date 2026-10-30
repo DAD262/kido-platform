@@ -1,4 +1,4 @@
-﻿# Guía para levantar KIDO completo
+# Guía para levantar KIDO completo
 
 Esta guía deja funcionando todo el proyecto en tu PC: backend (microservicios, Keycloak, Kafka, bases de datos), frontend Angular y, sobre todo, el **acceso**: ingreso, registro de estudiantes, postulación y verificación de docentes.
 
@@ -9,14 +9,14 @@ Los comandos están pensados para **Windows + PowerShell** (los mismos sirven en
 ## 1. Qué vas a levantar
 
 ```
-Navegador ──▶ Angular :4200 ──proxy /api──▶ Gateway :18080 ──▶ microservicios (vía Eureka)
+Navegador ──▶ Angular :4300 ──proxy /api──▶ Gateway :18080 ──▶ microservicios (vía Eureka)
    │                                            │
    └──── login (tema «kido») ──▶ Keycloak :19090 ◀── kido-usuario-ms (cuenta de servicio)
 ```
 
 | Pieza | Puerto en tu PC | Para qué |
 |---|---|---|
-| Frontend Angular | `4200` | La aplicación |
+| Frontend Angular | `4300` | La aplicación |
 | API Gateway | `18080` | Única puerta del API; valida el JWT y el rol |
 | Keycloak | `19090` | Contraseñas, sesiones y roles (realm `kido`) |
 | Eureka | `18761` | Registro de servicios (debes ver todos en UP) |
@@ -48,10 +48,10 @@ Revisa al menos:
 |---|---|
 | `DB_PASS` | una contraseña cualquiera para las bases locales |
 | `KEYCLOAK_ADMIN_PASSWORD` | la clave de la consola de Keycloak (usuario `admin`) |
-| `KIDO_USUARIO_ADMIN_SECRET` | `CAMBIAR_SECRETO_CLIENTE_USUARIOS` (o tu propio secreto; ver 9.3) |
+| `KIDO_USUARIO_ADMIN_SECRET` | Un secreto propio, igual en Keycloak y el servicio (ver 9.3) |
 | `MERCADO_PAGO_*` | solo si vas a probar pagos reales de prueba (`docs/mercado-pago.md`) |
 
-> Si ya tenías un `.env`, **agrega** `KIDO_USUARIO_ADMIN_SECRET`. Si no lo pones, se usa `CAMBIAR_SECRETO_CLIENTE_USUARIOS` en Keycloak y en el servicio, que coinciden.
+> Si ya tenías un `.env`, **agrega** `KIDO_USUARIO_ADMIN_SECRET`. Es obligatorio y no tiene valor predeterminado. Si el realm ya existe, utiliza el secreto vigente del cliente o actual?zalo de forma coordinada en Keycloak y el servicio.
 
 ## 4. Levanta el backend
 
@@ -90,7 +90,7 @@ npm.cmd install
 npm.cmd start
 ```
 
-Abre <http://localhost:4200>. El proxy de Angular manda `/api` al Gateway, así no hay problemas de CORS.
+Abre <http://localhost:4300>. El proxy de Angular manda `/api` al Gateway, así no hay problemas de CORS.
 
 ---
 
@@ -231,8 +231,8 @@ Pruebas automáticas: `services/kido-usuario-ms` → `.\mvnw.cmd test`; `fronten
 | Aprobé al docente pero sigue viendo el panel de estudiante | Su token aún no trae el rol | En `/postular-docente` pulsa **Activar mi panel docente**, o cierra sesión y vuelve a entrar. |
 | «No pudimos cargar tu perfil» en Mi aprendizaje | `/me` no responde | Reintentar; mientras tanto el aviso permite un número manual (solo demo). |
 | El PDF se rechaza | Pesa más de 5 MB o no es un PDF real | Exporta el documento a PDF; una imagen renombrada a `.pdf` no pasa. |
-| Pantalla en blanco en `localhost:4200` | Keycloak no responde al iniciar | La app entra en modo público; levanta Keycloak y recarga. |
-| Desde otra PC de la red no inicia sesión | `redirectUris` solo incluye localhost | Agrega `http://TU-IP:4200/*` al cliente `kido-frontend` en Keycloak. |
+| Pantalla en blanco en `localhost:4300` | Keycloak no responde al iniciar | La app entra en modo público; levanta Keycloak y recarga. |
+| Desde otra PC de la red no inicia sesión | `redirectUris` solo incluye localhost | Agrega `http://TU-IP:4300/*` al cliente `kido-frontend` en Keycloak. |
 
 ## 10. Qué cambió en esta versión
 
@@ -257,3 +257,5 @@ Pruebas automáticas: `services/kido-usuario-ms` → `.\mvnw.cmd test`; `fronten
 - No hay verificación de correo por email (no hay SMTP configurado): las cuentas nacen con el correo marcado como verificado.
 - El límite de registros por IP vive en memoria; con varias réplicas conviene moverlo al Gateway o a Redis.
 - El PDF se guarda en PostgreSQL (suficiente para la demo; en producción iría a un almacenamiento de objetos).
+
+

@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { roleGuard, sesionGuard } from './core/guards/role.guard';
 
 export const routes: Routes = [
+ {path:'carrito',loadComponent:()=>import('./pages/carrito/carrito').then(m=>m.CarritoPagina),canActivate:[roleGuard('ESTUDIANTE')],title:'Mi carrito · KIDO'},
  {path:'condiciones-compra',loadComponent:()=>import('./pages/condiciones-compra/condiciones-compra').then(m=>m.CondicionesCompra),title:'Información de compra · KIDO'},
   {
     path: '',
@@ -81,6 +82,12 @@ export const routes: Routes = [
       import('./pages/pago-resultado/pago-resultado').then((m) => m.PagoResultado),
     canActivate: [roleGuard('ESTUDIANTE')],
     title: 'Resultado del pago · KIDO',
+  },
+  {
+    path: 'compras/:id/constancia',
+    loadComponent: () => import('./pages/constancia-compra/constancia-compra').then(m => m.ConstanciaCompraPagina),
+    canActivate: [sesionGuard],
+    title: 'Constancia de compra · KIDO',
   },
   { path: '**', redirectTo: '' },
 ];

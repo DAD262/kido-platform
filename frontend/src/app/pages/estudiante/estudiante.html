@@ -74,7 +74,7 @@
         [class.active]="tab() === 'pagos'"
         (click)="tab.set('pagos')"
       >
-        Compras
+        Mis compras ({{comprasAprobadas().length}})
       </button>
       <button
         type="button"
@@ -223,10 +223,12 @@
                       @if (!leccion.urlContenido && !leccion.materiales.length) {
                         <p class="note">Esta lección todavía no tiene contenido adjunto.</p>
                       }
-                      @if (!completada(leccion.id)) {
+                      @if (!incluida(leccion.id)) {
+                        <p class="note">Contenido complementario añadido después de tu inscripción. Puedes estudiarlo sin cambiar tu avance ni los requisitos de tu certificado.</p>
+                      } @else if (!completada(leccion.id)) {
                         <button
                           class="btn btn-primary btn-small"
-                          [disabled]="procesando() || ins.estado === 'CANCELADA'"
+                          [disabled]="procesando() || ins.estado !== 'ACTIVA'"
                           (click)="completar(leccion.id)"
                         >
                           <app-icon name="check" [size]="15" />Marcar como completada
@@ -277,6 +279,23 @@
         }
       </div>
     } @else if (tab() === 'pagos') {
+      <h2>Mis cursos comprados</h2>
+      <p class="muted">Aquí aparecen únicamente pagos aprobados de tu cuenta. Las órdenes pendientes y los reembolsos se muestran en el historial.</p>
+      <div class="purchased-grid">
+        @for(o of comprasAprobadas();track o.id){
+          <article class="purchased-card">
+            <span class="pill green">✓ Comprado</span>
+            <h3>{{o.cursoTitulo}}</h3>
+            @if(o.compraCarritoId){<p>Incluido en la compra conjunta #{{o.compraCarritoId}} · un solo pago</p>}
+            <p>Docente: {{docentes.nombre(o.docenteId)}}</p>
+            <strong>{{o.montoTotal | soles}}</strong><span> · Orden #{{o.id}} · {{(o.fechaAprobacion || o.fechaCreacion) | fecha}}</span>
+            @if(o.ambiente==='PRUEBAS'){<p class="note">Operación de prueba · sin validez tributaria</p>}
+            <p>{{o.inscripcionSincronizada ? 'Acceso habilitado en tu aprendizaje' : 'Pago aprobado · inscripción en proceso'}}</p>
+            <div class="dashboard-actions"><button class="btn btn-primary btn-small" type="button" [disabled]="!o.inscripcionSincronizada" (click)="irAlCurso(o)">Ir a mi curso</button>@if(o.ambiente!=='DESCONOCIDO'){<a class="btn btn-outline btn-small" [routerLink]="['/compras',o.id,'constancia']">Ver constancia</a>}</div>
+          </article>
+        } @empty {<p>No tienes pagos aprobados todavía. Los cursos gratuitos inscritos están en «Mis cursos».</p>}
+      </div>
+      <h2>Historial de órdenes</h2>
       @if (!ordenes().length) {
         <div class="empty">
           <strong>No tienes compras</strong>
@@ -300,14 +319,17 @@
                   <td>
                     <strong>{{ o.cursoTitulo }}</strong>
                     <span class="cell-caption">Orden n.º {{ o.id }}</span>
+                      @if(o.compraCarritoId){<span class="cell-caption">Compra conjunta #{{o.compraCarritoId}} · incluido en un solo pago</span>}
                   </td>
                   <td>{{ o.fechaCreacion | fecha }}</td>
-                  <td class="num">{{ o.montoTotal | soles }}</td>
+                  <td class="num">{{ o.montoTotal | soles }} @if(o.ambiente === 'PRUEBAS'){<small> · Prueba</small>} @else if(o.ambiente === 'DESCONOCIDO'){<small> · Ambiente sin verificar</small>}</td>
                   <td>
                     <span class="pill" [class]="o.estado | tono">{{ o.estado | estado }}</span>
                   </td>
                   <td class="num">
+                    @if(o.ambiente!=='DESCONOCIDO' && o.estado==='PAGO_INICIADO'){<button class="btn btn-outline btn-small" [disabled]="procesando()" (click)="verificarCompra(o)">Verificar mi pago</button>}
                     @if (o.estado === 'APROBADA') {
+                      @if(o.ambiente!=='DESCONOCIDO'){<a class="btn btn-outline btn-small" [routerLink]="['/compras',o.id,'constancia']">Ver constancia</a>}
                       <button class="btn btn-quiet btn-small" (click)="solicitarReembolso(o)">
                         Pedir reembolso
                       </button>

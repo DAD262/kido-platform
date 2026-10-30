@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 @Getter @Setter @NoArgsConstructor
 public class MovimientoSaldo {
  @Id @GeneratedValue(strategy=GenerationType.IDENTITY) private Long id;
+ @Enumerated(EnumType.STRING) @Column(nullable=false,length=20) private AmbientePago ambiente = AmbientePago.DESCONOCIDO;
  @Column(name="docente_id",nullable=false) private Long docenteId;
  @Column(name="orden_id") private Long ordenId;
  @Column(name="retiro_id") private Long retiroId;

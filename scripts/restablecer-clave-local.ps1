@@ -1,4 +1,4 @@
-﻿param([string]$Email='persona1@example.com')
+param([string]$Email='adanyana@gmail.com')
 $ErrorActionPreference='Stop'
 $resultPath=Join-Path $PSScriptRoot '../.design-review/resultado-restablecimiento.json'
 $changed=$false
@@ -81,10 +81,10 @@ try {
     $changed=$true
     $login=Invoke-RestMethod -Method Post "$base/realms/kido/protocol/openid-connect/token" -TimeoutSec 15 -ContentType 'application/x-www-form-urlencoded; charset=utf-8' -Body @{client_id='kido-cli';grant_type='password';username=$user.username;password=$plain}
     if (-not $login.access_token) { throw 'La clave cambio, pero falta comprobar el acceso.' }
-    $profile=Invoke-RestMethod 'http://localhost:4200/api/v1/usuarios/me' -Headers @{Authorization="Bearer $($login.access_token)"} -TimeoutSec 15
+    $profile=Invoke-RestMethod 'http://localhost:4300/api/v1/usuarios/me' -Headers @{Authorization="Bearer $($login.access_token)"} -TimeoutSec 15
     @{ok=$true;changed=$true;profileId=$profile.id;timestamp=(Get-Date -Format o)} | ConvertTo-Json | Set-Content $resultPath -Encoding utf8
-    [System.Windows.Forms.MessageBox]::Show('Contrasena actualizada. Ingreso y perfil comprobados correctamente. Vuelve a http://localhost:4200/login', 'KIDO - Acceso recuperado') | Out-Null
-    Write-Host 'Abre http://localhost:4200/login e ingresa con tu correo y la nueva contrasena.'
+    [System.Windows.Forms.MessageBox]::Show('Contrasena actualizada. Ingreso y perfil comprobados correctamente. Vuelve a http://localhost:4300/login', 'KIDO - Acceso recuperado') | Out-Null
+    Write-Host 'Abre http://localhost:4300/login e ingresa con tu correo y la nueva contrasena.'
 } catch {
     $reason='No se pudo completar la operacion.'
     if ($_.Exception.Response) { $reason='El servidor respondio HTTP '+[int]$_.Exception.Response.StatusCode }
@@ -95,3 +95,5 @@ try {
     $plain=$null; $confirmation=$null; $body=$null; $login=$null; $service=$null; $first=$null; $second=$null
 
 }
+
+

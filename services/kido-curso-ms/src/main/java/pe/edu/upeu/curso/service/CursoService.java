@@ -23,11 +23,11 @@ public class CursoService {
 
     @Transactional(readOnly = true)
     public List<CursoResponse> listar() {
-        return cursoRepository.findAllConCategoria().stream().map(mapper::toResponse).toList();
+        return cursoRepository.findAllConCategoria().stream().filter(c->!c.isRetiradoCatalogo()).map(mapper::toResponse).toList();
     }
 
-    @Transactional(readOnly = true) public List<CursoResponse> porDocente(Long docenteId){ return cursoRepository.findByDocenteIdOrderByIdDesc(docenteId).stream().map(mapper::toResponse).toList(); }
-    @Transactional(readOnly = true) public List<CursoResponse> publicados(){ return cursoRepository.findByEstadoOrderByIdDesc(Curso.EstadoCurso.PUBLICADO).stream().map(mapper::toResponse).toList(); }
+    @Transactional(readOnly = true) public List<CursoResponse> porDocente(Long docenteId){ return cursoRepository.findByDocenteIdOrderByIdDesc(docenteId).stream().filter(c->!c.isRetiradoCatalogo()).map(mapper::toResponse).toList(); }
+    @Transactional(readOnly = true) public List<CursoResponse> publicados(){ return cursoRepository.findByEstadoOrderByIdDesc(Curso.EstadoCurso.PUBLICADO).stream().filter(c->!c.isRetiradoCatalogo()).map(mapper::toResponse).toList(); }
 
     @Transactional(readOnly = true)
     public CursoResponse obtener(Long id) { return mapper.toResponse(buscar(id)); }
@@ -106,7 +106,10 @@ public class CursoService {
         if (curso.getEstado() == Curso.EstadoCurso.PUBLICADO) {
             throw new IllegalArgumentException("Un curso publicado debe archivarse antes de eliminarse");
         }
-        cursoRepository.delete(curso);
+        // Las referencias a compras e inscripciones viven en otros microservicios.
+        // Retirar del catálogo conserva el curso y sus lecciones para esos accesos.
+        curso.setRetiradoCatalogo(true);
+        cursoRepository.save(curso);
     }
 
     private void aplicar(CursoRequest r, Curso c) {

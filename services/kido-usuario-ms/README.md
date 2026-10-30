@@ -45,7 +45,7 @@ de Keycloak para no dejar cuentas huérfanas.
 ```powershell
 docker compose up -d postgres-usuario kido-config kido-eureka kido-keycloak
 cd services/kido-usuario-ms
-$env:DB_USER="kido"; $env:DB_PASS="tu_password"; $env:KIDO_USUARIO_ADMIN_SECRET="CAMBIAR_SECRETO_CLIENTE_USUARIOS"
+$env:DB_USER="kido"; $env:DB_PASS="tu_password"; $env:KIDO_USUARIO_ADMIN_SECRET="<secreto-configurado-en-Keycloak>"
 .\mvnw.cmd spring-boot:run      # puerto 8085, Swagger en /swagger-ui.html
 ```
 

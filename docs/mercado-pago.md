@@ -63,7 +63,7 @@ En la raíz de `kido-platform`, edita `.env` (sin borrar lo que ya tienes):
 
 ```env
 MERCADO_PAGO_ACCESS_TOKEN=TEST-xxxxxxxxxxxxxxxx-xxxxxx-xxxxxxxxxxxxxxxx-xxxxxxxxx
-MERCADO_PAGO_RETURN_URL=http://localhost:4200/pago/resultado
+MERCADO_PAGO_RETURN_URL=http://localhost:4300/pago/resultado
 MERCADO_PAGO_AUTO_RETURN=false
 # Se completan en el paso 5:
 MERCADO_PAGO_NOTIFICATION_URL=
@@ -119,7 +119,7 @@ npm.cmd start
 
 ## Paso 7. Prueba una compra
 
-1. En **otra ventana de incógnito**, abre `http://localhost:4200`, ingresa como **estudiante** (tu número de estudiante se resuelve solo con `GET /api/v1/usuarios/me`).
+1. En **otra ventana de incógnito**, abre `http://localhost:4300`, ingresa como **estudiante** (tu número de estudiante se resuelve solo con `GET /api/v1/usuarios/me`).
 2. Abre un curso **de pago** → **Comprar curso**. KIDO te lleva al checkout de Mercado Pago en la misma pestaña.
 3. Inicia sesión con la **cuenta compradora de prueba**.
 4. Paga con una tarjeta de prueba. Las tarjetas de Perú están en tu panel: **Tus integraciones → Tarjetas de prueba**. Usa:

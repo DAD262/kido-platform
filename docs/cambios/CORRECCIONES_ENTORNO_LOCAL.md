@@ -1,8 +1,8 @@
-﻿# Correcciones del entorno local — 27 de octubre de 2026
+# Correcciones del entorno local — 27 de octubre de 2026
 
 Se corrigió la mezcla de la copia anterior D:\KIDO 2 con esta carpeta:
 
-- Frontend actual en http://localhost:4200, compatible con las redirecciones de Keycloak.
+- Frontend actual en http://localhost:4300, compatible con las redirecciones de Keycloak.
 - Config Server y servicios reconstruidos con el código de esta carpeta; Gateway incluye /api/v1/usuarios/**.
 - Enlaces de los tres perfiles demo actualizados al realm vigente, manteniendo los ids 1001, 1 y 900. El respaldo de los enlaces anteriores se guarda en el directorio temporal de Windows.
 - Credenciales de las bases de negocio sincronizadas con .env sin borrar tablas.

@@ -11,9 +11,11 @@ import {
   Inscripcion,
   Notificacion,
   Orden,
+  ConstanciaCompra,
   OrdenCertificado,
   Perfil,
   Preferencia,
+  CompraCarrito,
   MetodoPago,
   Liquidacion, DetalleLiquidacion, PoliticaLiquidacion, TransferenciaLiquidacion,
   DatosComerciales, EstadoComercial, AceptacionCompra, ActivacionPagos,
@@ -278,6 +280,14 @@ export class Api {
   ordenCompra(id: number) {
     return this.get<Orden>(`/pagos/ordenes/${id}`);
   }
+  verificarOrden(id:number){return this.post<Orden>(`/pagos/ordenes/${id}/verificar`);}
+  checkoutCarrito(solicitud:{cursos:number[];totalAceptado:number;aceptacion:{acepta:boolean;version:number}}){return this.post<CompraCarrito>('/pagos/carrito/checkout',solicitud);}
+  compraCarrito(id:number){return this.get<CompraCarrito>(`/pagos/carrito/compras/${id}`);}
+  verificarCompraCarrito(id:number){return this.post<CompraCarrito>(`/pagos/carrito/compras/${id}/verificar`);}
+  confirmarCompraCarrito(id:number,paymentId:string){return this.post<CompraCarrito>(`/pagos/carrito/compras/${id}/confirmar?paymentId=${encodeURIComponent(paymentId)}`);}
+  operacionesCompra(id:number){return this.get<{id:string;fecha:string;medio:string;estado:string;detalle:string;total:number}[]>(`/pagos/ordenes/${id}/operaciones`);}
+  constanciaCompra(id:number,operacion?:string){return this.get<ConstanciaCompra>(`/pagos/ordenes/${id}/constancia${operacion?'?operacion='+encodeURIComponent(operacion):''}`);}
+  constanciaPdf(id:number,operacion?:string){return this.http.get(`${this.root}/pagos/ordenes/${id}/constancia.pdf${operacion?'?operacion='+encodeURIComponent(operacion):''}`,{responseType:'blob'});}
   politicaLiquidaciones(){return this.get<PoliticaLiquidacion>('/pagos/liquidaciones/politica');}
   liquidaciones(docenteId?:number){return this.get<Liquidacion[]>(docenteId?'/pagos/liquidaciones/docente/'+docenteId:'/pagos/liquidaciones');}
   generarLiquidaciones(fechaCorte:string){return this.post<{creadas:number;liquidaciones:Liquidacion[]}>('/pagos/liquidaciones/generar',{fechaCorte});}

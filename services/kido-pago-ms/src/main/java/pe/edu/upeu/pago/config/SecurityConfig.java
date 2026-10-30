@@ -31,6 +31,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/pagos/metodos", "/api/v1/pagos/informacion-comercial").permitAll()
                 .requestMatchers("/api/v1/pagos/admin/**").hasRole("ADMIN")
+                .requestMatchers("/api/v1/pagos/carrito", "/api/v1/pagos/carrito/**").hasRole("ESTUDIANTE")
                 .requestMatchers(HttpMethod.POST,"/api/v1/pagos/liquidaciones/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.GET,"/api/v1/pagos/liquidaciones").hasRole("ADMIN")
                 .requestMatchers("/api/v1/pagos/liquidaciones/**").hasAnyRole("ADMIN","DOCENTE")

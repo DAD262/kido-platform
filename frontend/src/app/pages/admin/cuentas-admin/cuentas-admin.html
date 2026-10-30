@@ -46,3 +46,4 @@
     <div class="dialog-actions"><button type="button" class="btn btn-outline" (click)="cerrar()" [disabled]="guardando()">Cancelar</button><button type="submit" class="btn btn-primary" [disabled]="guardando() || (modo()==='supervision' && !supervisionLista())">{{guardando()?'Guardando…':modo()==='password'?'Restablecer contraseña':'Guardar cambios'}}</button></div>
   </form>}
 </dialog>
+

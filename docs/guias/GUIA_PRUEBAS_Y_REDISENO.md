@@ -36,17 +36,17 @@ npm.cmd install
 npx.cmd ng serve --proxy-config proxy.conf.json
 ```
 
-En esa misma PC entra a `http://localhost:4200`. Keycloak suele publicarse en `http://localhost:19090` y Gateway en `http://localhost:18080`, según `compose.yml`.
+En esa misma PC entra a `http://localhost:4300`. Keycloak suele publicarse en `http://localhost:19090` y Gateway en `http://localhost:18080`, según `compose.yml`.
 
 ## Prueba con dos PC del mismo laboratorio
 
 Las dos PC deben estar en la misma red y tener autorización para comunicarse. Solo la **PC A** necesita ejecutar Docker y Angular; la PC B accede mediante navegador.
 
 1. En PC A identifica la IP LAN con `ipconfig` (por ejemplo `192.168.1.50`; úsala únicamente como ejemplo, no como dirección real).
-2. Ejecuta en la PC A `frontend\iniciar-red-local.cmd`. Eso sirve Angular en `0.0.0.0:4200` **solo para desarrollo**. No lo expongas a Internet.
-3. Desde la PC B comprueba `Test-NetConnection -ComputerName IP_DE_PC_A -Port 4200` y lo mismo con `-Port 19090`. Si falla, revisa Firewall de Windows y la red del laboratorio; pide autorización al administrador.
-4. En Keycloak Admin de la PC A, dentro del realm `kido` y cliente `kido-frontend`, agrega el origen exacto `http://IP_DE_PC_A:4200` a **Web origins** y la ruta `http://IP_DE_PC_A:4200/*` a **Valid redirect URIs**. Conserva los valores de localhost para PC A. No uses `*` como acceso universal.
-5. Desde PC B abre `http://IP_DE_PC_A:4200`. Angular usa su propio proxy de desarrollo para enviar `/api` al Gateway `localhost:18080` **desde la PC A**. Keycloak se resuelve con el hostname de la página (no `localhost` del cliente).
+2. Ejecuta en la PC A `frontend\iniciar-red-local.cmd`. Eso sirve Angular en `0.0.0.0:4300` **solo para desarrollo**. No lo expongas a Internet.
+3. Desde la PC B comprueba `Test-NetConnection -ComputerName IP_DE_PC_A -Port 4300` y lo mismo con `-Port 19090`. Si falla, revisa Firewall de Windows y la red del laboratorio; pide autorización al administrador.
+4. En Keycloak Admin de la PC A, dentro del realm `kido` y cliente `kido-frontend`, agrega el origen exacto `http://IP_DE_PC_A:4300` a **Web origins** y la ruta `http://IP_DE_PC_A:4300/*` a **Valid redirect URIs**. Conserva los valores de localhost para PC A. No uses `*` como acceso universal.
+5. Desde PC B abre `http://IP_DE_PC_A:4300`. Angular usa su propio proxy de desarrollo para enviar `/api` al Gateway `localhost:18080` **desde la PC A**. Keycloak se resuelve con el hostname de la página (no `localhost` del cliente).
 6. Inicia sesión en PC A como DOCENTE y en PC B como ADMIN; crea un curso y sube un PDF o imagen, envía a revisión y revisa desde la bandeja de moderación en PC B. Prueba la aprobación y vuelve a consultar el catálogo.
 7. Si falla la autenticación entre equipos, verifica también el `issuer` de JWT y la configuración de los Resource Servers. Las configuraciones de tokens/servidores deben ser consistentes. No desactives la validación del JWT para “hacerlo funcionar”.
 

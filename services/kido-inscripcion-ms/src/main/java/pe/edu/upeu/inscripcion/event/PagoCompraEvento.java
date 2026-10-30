@@ -18,6 +18,8 @@ public class PagoCompraEvento {
     /** V2 distinguishes the Saga workflow from S08 historical events. */
     private Integer schemaVersion;
     private Long ordenId;
+    private Long compraCarritoId;
+    private String operacionPago;
     private Long estudianteId;
     private Long docenteId;
     private Long cursoId;
@@ -26,6 +28,9 @@ public class PagoCompraEvento {
     private BigDecimal montoDocente;
     private Long diasRetencion;
     private String estado;
+    private String ambiente;
+    private String receptorMp;
+    public String getAmbiente() { return ambiente == null ? "DESCONOCIDO" : ambiente; }
     private String origen;
     private Long timestamp;
     private List<Long> leccionIds;

@@ -5,8 +5,9 @@ package pe.edu.upeu.pago.dto;
  *     credenciales TEST-..., {@code init_point} en cualquier otro caso (incluidas las credenciales de
  *     una cuenta vendedora de prueba).
  */
-public record PreferenciaResponse(String preferenceId, String initPoint, String sandboxInitPoint, String checkoutUrl) {
+public record PreferenciaResponse(String preferenceId, String initPoint, String sandboxInitPoint, String checkoutUrl,boolean retornoConfigurado) {
+  public PreferenciaResponse(String preferenceId,String initPoint,String sandboxInitPoint,String checkoutUrl){this(preferenceId,initPoint,sandboxInitPoint,checkoutUrl,false);}
   public PreferenciaResponse(String preferenceId, String initPoint, String sandboxInitPoint) {
-    this(preferenceId, initPoint, sandboxInitPoint, null);
+    this(preferenceId, initPoint, sandboxInitPoint, null,false);
   }
 }

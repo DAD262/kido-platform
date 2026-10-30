@@ -8,7 +8,7 @@ La guía completa para levantar todo el proyecto está en [`../docs/guias/GUIA_L
 ```powershell
 cd frontend
 npm.cmd install
-npm.cmd start        # http://localhost:4200 (proxy /api → http://localhost:18080)
+npm.cmd start        # http://localhost:4300 (proxy /api → http://localhost:18080)
 ```
 
 `npm.cmd run build` genera `dist/`. `npm.cmd test` ejecuta las pruebas unitarias.

@@ -7,6 +7,6 @@ public interface MovimientoSaldoRepository extends JpaRepository<MovimientoSaldo
  Optional<MovimientoSaldo> findByOrdenIdAndTipo(Long ordenId, MovimientoSaldo.TipoMovimiento tipo);
  List<MovimientoSaldo> findByDocenteId(Long docenteId);
  List<MovimientoSaldo> findByEstadoAndFechaDisponibleLessThanEqual(MovimientoSaldo.EstadoMovimiento estado, LocalDateTime fecha);
- @org.springframework.data.jpa.repository.Query("select distinct m.docenteId from MovimientoSaldo m where m.conciliado=true") List<Long> docentesConciliados();
+ @org.springframework.data.jpa.repository.Query("select distinct m.docenteId from MovimientoSaldo m where m.ambiente=pe.edu.upeu.pago.entity.AmbientePago.PRODUCCION and m.conciliado=true") List<Long> docentesConciliados();
  Optional<MovimientoSaldo> findByOrdenCertificadoId(Long id);
 }

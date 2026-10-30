@@ -1,10 +1,10 @@
-﻿# DNI, recuperacion y limpieza de cuentas
+# DNI, recuperacion y limpieza de cuentas
 
 Entrega local del 27 de octubre de 2026.
 
 ## Cuentas conservadas
 
-Se conservaron las dos cuentas personales (usuarios persona1@example.com y persona2@example.com), admin, docente y estudiante. Se eliminaron estudiante-fallo y los perfiles historicos 2001 y 1002, junto con la solicitud docente de demostracion asociada al perfil 1002. No se eliminaron cursos, inscripciones ni transacciones.
+Se conservaron las dos cuentas personales (usuarios adanyana@gmail.com y adanyanar@gmail.com), admin, docente y estudiante. Se eliminaron estudiante-fallo y los perfiles historicos 2001 y 1002, junto con la solicitud docente de demostracion asociada al perfil 1002. No se eliminaron cursos, inscripciones ni transacciones.
 
 El respaldo previo esta en .backups/cuentas-eliminadas-1793125984125.json. Se retiro la cuenta postulante de la importacion inicial de Keycloak y de las opciones de demo del ingreso.
 
@@ -18,7 +18,7 @@ El respaldo previo esta en .backups/cuentas-eliminadas-1793125984125.json. Se re
 
 ## Recuperacion
 
-Pantalla: http://localhost:4200/recuperar. Accesible desde el ingreso de KIDO y desde Olvidaste tu contrasena en Keycloak. Administracion tambien puede solicitar el codigo desde Restablecer clave > Enviar codigo al correo.
+Pantalla: http://localhost:4300/recuperar. Accesible desde el ingreso de KIDO y desde Olvidaste tu contrasena en Keycloak. Administracion tambien puede solicitar el codigo desde Restablecer clave > Enviar codigo al correo.
 
 Todos los flujos publicos verifican primero la posesion del correo. Conocer el correo y el DNI por si solos no autoriza a solicitar una sesion:
 

@@ -42,6 +42,12 @@ class PagoCompraEventosConsumerTest {
         verify(producer).publicarConfirmado(argThat((AcademicoEvento e) ->
             "inscripcion.activada".equals(e.getTipoEvento()) && e.getOrdenId().equals(15L)));
     }
+    @Test void ackConservaCompraConjuntaOperacionYAmbienteEnDuplicados() {
+        var pago=evento();pago.setCompraCarritoId(8L);pago.setOperacionPago("555");pago.setAmbiente("PRUEBAS");pago.setReceptorMp("123");
+        when(service.crearPorCompraIdempotente(eq(15L),any(CompraInscripcionRequest.class))).thenReturn(false);
+        consumer.alRecibirPago(pago);
+        verify(producer).publicarConfirmado(argThat((AcademicoEvento e)->e.getCompraCarritoId().equals(8L)&&"555".equals(e.getOperacionPago())&&"PRUEBAS".equals(e.getAmbiente())&&"123".equals(e.getReceptorMp())));
+    }
 
     @Test void rechazoDeNegocioPideCompensacion() {
         when(service.crearPorCompraIdempotente(eq(15L), any(CompraInscripcionRequest.class)))

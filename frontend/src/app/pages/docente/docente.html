@@ -283,6 +283,7 @@
             }
 
             @if (editorPaso() === 2) {
+              @if(cargandoContenido()){<p class="note" role="status"><span class="spinner"></span>Actualizando módulos y lecciones…</p>}
               <div class="stage-head">
                 <h3>Agrega una lección</h3>
                 <p class="note">
@@ -300,8 +301,8 @@
               <div class="form-grid">
                 <label class="field full">
                   Módulo
-                  <select [(ngModel)]="moduloId" (ngModelChange)="seleccionarModulo($event)">
-                    <option [ngValue]="null">Selecciona un módulo</option>
+                  <select [ngModel]="moduloId" (ngModelChange)="seleccionarModulo($event)" [disabled]="cargandoContenido()||guardandoLeccion()" aria-label="Módulo de la lección">
+                    <option [ngValue]="null" disabled>Selecciona un módulo</option>
                     @for (m of contenido()?.modulos ?? []; track m.id) {
                       <option [ngValue]="m.id">{{ m.titulo }}</option>
                     }
@@ -326,13 +327,15 @@
                 <div class="field full">
                   <button
                     class="btn btn-primary"
+                    type="button"
                     (click)="crearLeccion()"
-                    [disabled]="procesando() || !moduloId || !leccionTitulo.trim()"
+                    [disabled]="procesando() || cargandoContenido() || !moduloSeleccionado() || !leccionTitulo.trim()"
                   >
-                    <app-icon name="plus" [size]="16" />Agregar lección
+                    @if(guardandoLeccion()){<span class="spinner"></span>Guardando lección…}@else{<app-icon name="plus" [size]="16" />Agregar lección}
                   </button>
                 </div>
               </div>
+              @if(!cargandoContenido()&&seleccionado();as curso){<button class="btn btn-quiet btn-small" type="button" [disabled]="guardandoLeccion()" (click)="verContenido(curso.id)">Actualizar estructura</button>}
             }
 
             @if (editorPaso() === 3) {

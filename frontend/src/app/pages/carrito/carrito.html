@@ -1,0 +1,33 @@
+<main class="container cart-page">
+ <a routerLink="/cursos" class="back"><app-icon name="back" [size]="16" /> Seguir explorando</a>
+ <header class="cart-heading"><div><span class="eyebrow">TU SIGUIENTE PASO</span><h1>Tu carrito<span>.</span></h1><p>Todos tus cursos. Un solo pago.</p></div><span class="step"><app-icon name="cart" [size]="18" /> Revisa y confirma</span></header>
+ @if(carrito.error()){<div class="notice" role="alert">{{carrito.error()}} <button type="button" (click)="carrito.cargar()">Actualizar carrito</button></div>}
+ @if(carrito.ocupado()){<p role="status">Actualizando tu selección…</p>}
+ @if(carrito.cantidad()){
+ <div class="layout">
+  <section class="selection" aria-label="Cursos de tu compra">
+   <div class="list-heading"><h2>{{carrito.cantidad()}} {{carrito.cantidad()===1?'curso seleccionado':'cursos seleccionados'}}</h2><button type="button" (click)="confirmarVaciado.set(true)" [disabled]="pagando()||carrito.ocupado()">Vaciar carrito</button></div>
+   @if(confirmarVaciado()){<div class="notice">¿Quitar todos los cursos? <button type="button" (click)="carrito.vaciar();confirmarVaciado.set(false)" [disabled]="carrito.ocupado()">Sí, vaciar</button> <button type="button" (click)="confirmarVaciado.set(false)">Cancelar</button></div>}
+   <div class="courses">
+    @for(item of carrito.datos().items;track item.cursoId){<article class="item"><a class="image" [routerLink]="['/cursos',item.cursoId]"><img [src]="portada(item.titulo)||'/favicon.ico'" alt="" /></a><div class="description"><span class="tag">CURSO ONLINE · UN ACCESO PARA TI</span><h3><a [routerLink]="['/cursos',item.cursoId]">{{item.titulo}}</a></h3><p [class.unavailable]="!item.disponible">{{item.disponible?'Se habilita al verificar tu compra':item.motivo}}</p><button class="remove" type="button" (click)="carrito.quitar(item.cursoId)" [disabled]="pagando()||carrito.ocupado()"><app-icon name="close" [size]="13" /> Quitar</button></div><strong class="price">{{item.precio|soles}}</strong></article>}
+   </div>
+   <div class="assurance"><app-icon name="shield" [size]="20" /><p><strong>Tu aprendizaje, en un solo checkout</strong><br>Una operación de Mercado Pago para todos los cursos. Puedes consultar cada acceso y tu constancia en Mis compras.</p></div>
+  </section>
+  <aside class="summary">
+   <div class="summary-heading"><span class="eyebrow">RESUMEN DE COMPRA</span><app-icon name="shield" [size]="20" /></div>
+   <h2>Todo listo para aprender</h2>
+   <div class="amount-row"><span>{{carrito.cantidad()}} {{carrito.cantidad()===1?'curso':'cursos'}}</span><strong>{{carrito.datos().total|soles}}</strong></div>
+   <div class="grand-total"><div><span>Total a pagar</span><small>PEN · Soles</small></div><strong>{{carrito.datos().total|soles}}</strong></div>
+   <p class="single-payment"><app-icon name="check" [size]="14" /> Un único pago por toda tu selección</p>
+   <app-checkout-compra [compact]="true" (cambio)="checkout.set($event)" />
+   @if(!valido()){<p class="notice" role="status">Hay cursos no disponibles. Quítalos antes de continuar.</p>}
+   @if(error()){<p class="notice" role="alert">{{error()}}</p>}
+   <button class="btn btn-primary pay-all" type="button" (click)="pagar()" [disabled]="!valido()||pagando()||carrito.ocupado()||!checkout().disponible||!checkout().acepta">@if(pagando()){<span class="spinner"></span> Preparando tu compra…}@else{Pagar {{carrito.datos().total|soles}} <app-icon name="arrow" [size]="18" />}</button>
+   <p class="payment-note">Continuarás en Mercado Pago para elegir tu medio de pago. @if(!checkout().acepta){Acepta las condiciones para continuar.}</p>
+   <a class="my-purchases" routerLink="/estudiante" [queryParams]="{seccion:'compras'}">Ver mis compras <app-icon name="arrow" [size]="14" /></a>
+  </aside>
+ </div>
+ }@else if(!carrito.ocupado()&&!carrito.error()){
+ <section class="empty"><span class="empty-icon"><app-icon name="cart" [size]="34" /></span><h2>Tu próximo aprendizaje te espera</h2><p>Agrega cursos de pago desde el catálogo. Los cursos gratuitos permiten inscripción directa.</p><a class="btn btn-primary" routerLink="/cursos">Explorar cursos</a><a routerLink="/deseados">Ver mis deseados</a></section>
+ }
+</main>

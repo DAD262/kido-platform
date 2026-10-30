@@ -21,3 +21,4 @@ export class Supervisor implements OnInit {
  promedio(d:Seguimiento){return d.estudiantes.length?Math.round(d.estudiantes.reduce((s,e)=>s+e.progreso,0)/d.estudiantes.length):0;}
  enlace(url:string){return /^https?:\/\//i.test(url)?url:null;}
 }
+

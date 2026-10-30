@@ -239,6 +239,7 @@
     <section class="section-block">
       <div class="section-heading">
         <h2>Órdenes de compra</h2>
+        <label class="field filter-field"><span class="sr-only">Filtrar por ambiente</span><select [ngModel]="filtroAmbiente()" (ngModelChange)="filtroAmbiente.set($event)"><option value="TODOS">Todos los ambientes</option><option value="PRODUCCION">Producción</option><option value="PRUEBAS">Pruebas</option><option value="DESCONOCIDO">Histórico sin verificar</option></select></label>
         <label class="field filter-field">
           <span class="sr-only">Filtrar por estado</span>
           <select [ngModel]="filtroFinanzas()" (ngModelChange)="filtroFinanzas.set($event)">
@@ -268,13 +269,18 @@
                 <tr>
                   <td>
                     <strong>{{ o.cursoTitulo }}</strong>
-                    <span class="cell-caption">Orden n.º {{ o.id }} @if(o.simulada){ · Histórico simulado }</span>
+                    <span class="cell-caption">Orden n.º {{ o.id }} · {{o.ambiente==='PRUEBAS'?'Prueba':o.ambiente==='PRODUCCION'?'Producción':'Ambiente sin verificar'}} @if(o.simulada){ · Simulada }</span>
+                    @if((o.pagosAprobadosDetectados??0)>1){<span class="cell-caption">{{o.pagosAprobadosDetectados}} operaciones aprobadas: revisar cobros repetidos</span>}
                   </td>
                   <td>n.º {{ o.estudianteId }}</td>
                   <td>{{ o.fechaCreacion | fecha }}</td>
-                  <td class="num">{{ o.montoTotal | soles }}</td><td><strong>{{o.comisionKido | soles}} KIDO</strong><span class="cell-caption">{{o.porcentajeComision}} % · {{o.montoDocente | soles}} docente</span></td><td>@if(o.costoProcesamiento != null){ {{o.costoProcesamiento | soles}} }@else{ Por conciliar }</td><td>@if(o.netoRecibido != null){ {{o.netoRecibido | soles}} }@else{ Por conciliar }</td><td>@if(o.utilidadKido != null){ {{o.utilidadKido | soles}} }@else if(o.estado==='REEMBOLSADA' || o.estado==='CONTRACARGO'){ Revertido; revisar costos }@else{ Por conciliar }</td>
+                  <td class="num">{{ o.montoTotal | soles }} @if(o.ambiente!=='PRODUCCION'){<span class="cell-caption">Fuera de ingresos reales</span>}</td>
+                  @if(o.ambiente==='PRODUCCION') {<td><strong>{{o.comisionKido | soles}} KIDO</strong><span class="cell-caption">{{o.porcentajeComision}} % · {{o.montoDocente | soles}} docente</span></td><td>@if(o.costoProcesamiento != null){ {{o.costoProcesamiento | soles}} }@else{ Por conciliar }</td><td>@if(o.netoRecibido != null){ {{o.netoRecibido | soles}} }@else{ Por conciliar }</td><td>@if(o.utilidadKido != null){ {{o.utilidadKido | soles}} }@else{ Por conciliar }</td>}
+                  @else {<td colspan="4">Operación {{o.ambiente==='PRUEBAS'?'de prueba':'sin ambiente verificado'}}. No genera saldo ni liquidación real.</td>}
                   <td>
                     <span class="pill" [class]="o.estado | tono">{{ o.estado | estado }}</span>
+                    @if(o.ambiente!=='DESCONOCIDO' && (o.estado==='PAGO_INICIADO'||o.estado==='APROBADA')){<button class="btn btn-small btn-outline" [disabled]="procesando()" (click)="verificarCompra(o)">Verificar pago</button>}
+                    @if(o.estado==='APROBADA' && o.ambiente!=='DESCONOCIDO'){<a class="btn btn-small btn-outline" [routerLink]="['/compras',o.id,'constancia']">Constancia</a>}
                   </td>
                 </tr>
               }

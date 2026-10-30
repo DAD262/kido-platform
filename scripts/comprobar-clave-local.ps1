@@ -1,4 +1,4 @@
-﻿param([string]$Email='persona1@example.com')
+﻿param([string]$Email='adanyana@gmail.com')
 $ErrorActionPreference='Stop'
 $resultPath=Join-Path $PSScriptRoot '../.design-review/resultado-acceso.json'
 try {

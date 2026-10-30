@@ -26,4 +26,31 @@ public class AccesoCuentaPago {
     if (perfil == null || !(perfil.get("id") instanceof Number id) || !Objects.equals(perfilId, id.longValue()))
       throw new AccessDeniedException("No tienes acceso a las compras de esta cuenta");
   }
+
+  public record Persona(String nombre,String email,String documento) {}
+  public Long estudianteActual() {
+    var auth=SecurityContextHolder.getContext().getAuthentication();
+    if(!(auth instanceof JwtAuthenticationToken jwt)||!auth.isAuthenticated()||auth.getAuthorities().stream().noneMatch(a->a.getAuthority().equals("ROLE_ESTUDIANTE")))
+      throw new AccessDeniedException("El carrito requiere una cuenta de estudiante");
+    Map<?,?> perfil=usuarios.get().uri("http://kido-usuario-ms/api/v1/usuarios/me")
+      .header("Authorization","Bearer "+jwt.getToken().getTokenValue()).retrieve().body(Map.class);
+    if(perfil==null||!(perfil.get("id") instanceof Number id)||id.longValue()<=0)throw new AccessDeniedException("Perfil de estudiante no disponible");
+    return ((Number)perfil.get("id")).longValue();
+  }
+  public Persona datosComprador(Long perfilId) {
+    verificar(perfilId);
+    var auth=SecurityContextHolder.getContext().getAuthentication();
+    if(!(auth instanceof JwtAuthenticationToken jwt))throw new AccessDeniedException("Sesión inválida");
+    String bearer="Bearer "+jwt.getToken().getTokenValue();
+    Map<?,?> perfil;
+    if(auth.getAuthorities().stream().anyMatch(a->a.getAuthority().equals("ROLE_ADMIN"))){
+      java.util.List<?> cuentas=usuarios.get().uri("http://kido-usuario-ms/api/v1/usuarios/admin/cuentas").header("Authorization",bearer).retrieve().body(java.util.List.class);
+      perfil=cuentas==null?null:cuentas.stream().filter(Map.class::isInstance).map(Map.class::cast)
+        .filter(p->p.get("perfilId") instanceof Number n&&n.longValue()==perfilId).findFirst().orElse(null);
+    }else perfil=usuarios.get().uri("http://kido-usuario-ms/api/v1/usuarios/me").header("Authorization",bearer).retrieve().body(Map.class);
+    if(perfil==null)throw new IllegalStateException("No se encontraron los datos registrados del comprador");
+    String nombre=(Objects.toString(perfil.get("nombres"),"")+" "+Objects.toString(perfil.get("apellidos"),"")).strip();
+    if(nombre.isBlank())throw new IllegalStateException("Completa los nombres y apellidos del comprador para emitir la constancia");
+    return new Persona(nombre,Objects.toString(perfil.get("email"),""),Objects.toString(perfil.get("dni"),""));
+  }
 }

@@ -1,5 +1,11 @@
 # Kido Platform
 
+## Actualización del 30 de octubre de 2026
+
+Esta versión agrega carrito con pago conjunto, constancias de compra web y PDF, separación de operaciones de prueba y producción, 72 guías de programación, retirada segura del catálogo y mejoras en los paneles. El frontend utiliza **http://localhost:4300** y el backend conserva puertos separados por servicio.
+
+Consulta el [informe completo de novedades, migraciones y validación](docs/cambios/ACTUALIZACION_2026_10_30.md). Para instalar o actualizar, sigue la [guía para levantar KIDO](docs/guias/GUIA_LEVANTAR_KIDO.md). El catálogo de la base local se reproduce con un generador y requiere aplicación explícita del SQL; sus datos no se transfieren al clonar.
+
 > **¿Primera vez?** Sigue la [guía para levantar KIDO](docs/guias/GUIA_LEVANTAR_KIDO.md): levanta todo el proyecto y explica el acceso (ingreso, registro de estudiantes y verificación de docentes).
 
 Kido es una plataforma distribuida para cursos digitales gratuitos y pagados. Este repositorio conserva el avance de **Yana Rojas Adan** y continúa con el aporte de **Coila Mamani Jhoel Midwar** sobre la misma arquitectura.

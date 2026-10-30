@@ -1,5 +1,6 @@
 import { CertificadoAcciones } from '../../shared/certificado-acciones/certificado-acciones';
 import { portadaCurso } from '../../core/utils/curso-portada';
+import { enlaceClase } from '../../core/utils/enlace-clase';
 import { Component, computed, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -7,6 +8,10 @@ import { forkJoin, catchError, of, Observable } from 'rxjs';
 import { Api, mensajeError } from '../../core/services/api';
 import { Auth } from '../../core/services/auth';
 import { AccountContext } from '../../core/services/account-context';
+import { Docentes } from '../../core/services/docentes';
+import { ActivatedRoute } from '@angular/router';
+import { DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   Certificado,
   ContenidoCurso,
@@ -31,6 +36,11 @@ import { PerfilEstado } from '../../shared/perfil-estado/perfil-estado';
   styleUrl: './estudiante.scss',
 })
 export class Estudiante implements OnInit {
+  readonly docentes=inject(Docentes);
+  private readonly route=inject(ActivatedRoute,{optional:true});
+  private readonly destroy=inject(DestroyRef);
+  readonly comprasAprobadas=computed(()=>this.ordenes().filter(o=>o.estado==='APROBADA'));
+  irAlCurso(o:Orden){const ins=this.inscripciones().find(i=>i.cursoId===o.cursoId&&i.estado!=='CANCELADA'&&i.estado!=='REVOCADA');if(ins){this.tab.set('cursos');this.abrir(ins);}else this.mensaje.set('Tu pago está aprobado; estamos completando la inscripción. Actualiza en unos segundos.');}
   readonly auth = inject(Auth);
   readonly account = inject(AccountContext);
   private readonly api = inject(Api);
@@ -84,7 +94,7 @@ export class Estudiante implements OnInit {
   continuar() {
     const l = this.contenido()
       ?.modulos.flatMap((m) => m.lecciones)
-      .find((l) => !this.completada(l.id));
+      .find((l) => this.incluida(l.id) && !this.completada(l.id));
     if (l) this.leccionActiva.set(l.id);
     else this.mensaje.set('Ya completaste todas las lecciones disponibles.');
   }
@@ -92,7 +102,8 @@ export class Estudiante implements OnInit {
     this.leccionActiva.set(id);
   }
   abrirEnlace(url: string) {
-    if (/^https?:\/\//i.test(url)) window.open(url, '_blank', 'noopener,noreferrer');
+    const destino=enlaceClase(url,window.location.origin);
+    if (destino) window.open(destino, '_blank', 'noopener,noreferrer');
     else this.error.set('El enlace de la lección debe usar http:// o https://.');
   }
   enviarReembolso() {
@@ -113,6 +124,8 @@ export class Estudiante implements OnInit {
     });
   }
   ngOnInit() {
+    this.docentes.cargar();
+    this.route?.queryParamMap.pipe(takeUntilDestroyed(this.destroy)).subscribe(p=>this.tab.set(p.get('seccion')==='compras'?'pagos':'cursos'));
     // El número de estudiante llega de GET /usuarios/me (sin vincular nada a mano).
     void this.account.asegurar().then(() => {
       if (this.account.id()) this.cargar();
@@ -152,6 +165,7 @@ export class Estudiante implements OnInit {
       },
     });
   }
+  verificarCompra(o:Orden){if(this.procesando())return;this.procesando.set(true);this.error.set('');this.api.verificarOrden(o.id).subscribe({next:()=>{this.procesando.set(false);this.mensaje.set('Estado consultado directamente con Mercado Pago.');this.cargar();},error:e=>{this.procesando.set(false);this.error.set(mensajeError(e));}});}
   portada(cursoId:number){return portadaCurso(this.cursos().find(c=>c.id===cursoId)?.titulo);}
   titulo(cursoId: number) {
     return this.cursos().find((c) => c.id === cursoId)?.titulo || `Curso #${cursoId}`;
@@ -197,7 +211,7 @@ export class Estudiante implements OnInit {
   }
   completar(leccionId: number) {
     const ins = this.seleccionada();
-    if (!ins || this.procesando()) return;
+    if (!ins || this.procesando() || !this.incluida(leccionId) || ins.estado !== 'ACTIVA') return;
     this.procesando.set(true);
     this.error.set('');
     this.api.completarLeccion(ins.id, leccionId).subscribe({
@@ -216,6 +230,9 @@ export class Estudiante implements OnInit {
   }
   completada(leccionId: number) {
     return !!this.seleccionada()?.progresos?.some((p) => p.leccionId === leccionId && p.completada);
+  }
+  incluida(leccionId:number) {
+    return !!this.seleccionada()?.progresos?.some(p=>p.leccionId===leccionId);
   }
   solicitarCertificado() {
     const ins = this.seleccionada();

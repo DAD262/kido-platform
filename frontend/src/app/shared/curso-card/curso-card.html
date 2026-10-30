@@ -10,6 +10,7 @@
   </div>
   <div class="body">
     <h3>{{ curso().titulo }}</h3>
+    <small>Docente: {{docentes.nombre(curso().docenteId)}}</small>
     <p>{{ curso().descripcion }}</p>
     <div class="foot">
       @if (curso().tipo === 'GRATUITO') {
@@ -21,6 +22,14 @@
     </div>
   </div>
   </a>
+  @if(curso().tipo === 'PAGO' && carrito.auth.tieneRol('ESTUDIANTE')) {
+    <div style="padding:0 16px 16px">
+    @if(carrito.comprado(curso().id)){<a routerLink="/estudiante" [queryParams]="{seccion:'compras'}" class="btn btn-quiet btn-small" style="width:100%;color:var(--success,#087f5b)">✓ Comprado · Ver en Mis compras</a>}
+    @else if(carrito.contiene(curso().id)){<a routerLink="/carrito" class="btn btn-quiet btn-small" style="width:100%">Ver en mi carrito →</a>}
+    @else {<button type="button" class="btn btn-quiet btn-small" style="width:100%" [disabled]="carrito.ocupado()" (click)="carrito.agregar(curso().id)">＋ Agregar al carrito</button>}
+    </div>
+  }
+  @if(carrito.error() && carrito.errorCurso() === curso().id){<p role="alert" style="padding:0 16px;font-size:12px">{{carrito.error()}} <a routerLink="/carrito">Revisar carrito</a></p>}
   @if (deseados.permitido) {
     <button class="wish-btn" type="button"
       [disabled]="deseados.cargando() || deseados.pendiente().has(curso().id)"

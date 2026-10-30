@@ -76,3 +76,7 @@ $roles = @('manage-users', 'view-users', 'query-users', 'view-realm') | ForEach-
 }
 Admin 'Post' "users/$($account.id)/role-mappings/clients/$($management.id)" @($roles) | Out-Null
 Write-Host 'Permisos de registro y verificacion sincronizados. Se conservaron las cuentas existentes.'
+
+
+
+

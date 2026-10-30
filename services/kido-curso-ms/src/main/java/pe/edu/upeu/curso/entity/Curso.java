@@ -33,6 +33,9 @@ public class Curso {
     @Column(nullable = false, length = 25)
     private EstadoCurso estado;
 
+    @Column(name="retirado_catalogo",nullable=false)
+    private boolean retiradoCatalogo;
+
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "categoria_id", nullable = false)
     private Categoria categoria;

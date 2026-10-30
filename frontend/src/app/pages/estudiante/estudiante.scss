@@ -178,3 +178,4 @@
 .enrollment-cover{width:78px;height:78px;object-fit:cover;border-radius:10px;flex-shrink:0}.learning-cover{width:100%;height:180px;object-fit:cover;border-radius:14px;margin-bottom:22px}@media(max-width:560px){.enrollment-cover{width:58px;height:68px}.learning-cover{height:145px}}
 
 .certificate>div{flex:1;min-width:0;width:100%}
+.purchased-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,290px),1fr));gap:18px;margin:24px 0 36px}.purchased-card{padding:24px;background:var(--surface);border:1px solid var(--line);border-radius:18px}.purchased-card h3{margin:16px 0 8px}.purchased-card p,.purchased-card>span{font-size:13px;color:var(--muted)}

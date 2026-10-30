@@ -1,9 +1,19 @@
 <div class="container page">
   <section class="card" [attr.data-estado]="estado()" aria-live="polite">
+    <div class="brand" aria-label="Kido"><span>K<i>·</i></span> Kido</div>
     @switch (estado()) {
+      @case ('listo') {
+        <span class="badge"><app-icon name="wallet" [size]="28" /></span>
+        <h1>Tu checkout está listo</h1>
+        <p class="muted">Continúa en Mercado Pago para elegir tu medio y realizar el pago. Todavía no se ha confirmado ningún cobro.</p>
+        @if(orden();as compra){<p><strong>{{compra.cursoTitulo}}</strong></p>}
+        <div class="actions"><a class="btn btn-primary" [href]="checkoutUrl()" target="_blank" rel="noopener noreferrer">Ir a pagar en Mercado Pago</a></div>
+        <p class="note">Se abrirá otra pestaña para conservar Kido aquí. Utiliza únicamente cuentas y tarjetas de prueba en este entorno.</p>
+        @if(tipo()==='curso'||tipo()==='carrito'){<div class="actions"><button class="btn btn-outline" type="button" (click)="revisar()">Ya pagué: verificar mi compra</button></div>}
+      }
       @case ('verificando') {
         <span class="badge"><span class="spinner"></span></span>
-        <h1>Confirmando tu pago…</h1>
+        <h1>Estamos verificando tu pago</h1>
         <p class="muted">
           Estamos verificando el pago directamente con Mercado Pago. No cierres esta página.
         </p>
@@ -14,12 +24,19 @@
         <p class="muted">
           @if (tipo() === 'certificado') {
             Tu certificado quedará disponible para descargar en unos segundos.
+          } @else if(tipo()==='carrito'){
+            Tu pago único incluye todos los cursos de esta compra. Revisa el estado de cada acceso a continuación.
+          } @else if (inscripcionLista()) {
+            Tu inscripción está activa y ya puedes acceder al curso.
           } @else {
             Tu inscripción se está activando; el curso aparecerá en «Mi aprendizaje» en unos segundos.
           }
         </p>
         <div class="actions">
-          <a class="btn btn-primary" routerLink="/estudiante">Ir a mi aprendizaje</a>
+          @if(tipo()==='carrito'){<a class="btn btn-primary" routerLink="/estudiante">Ir a mis cursos</a>@if(compraConjunta()?.ordenes?.[0];as primera){<a class="btn btn-outline" [routerLink]="['/compras',primera.id,'constancia']">Constancia de toda la compra</a>}}
+          @if (tipo() === 'curso' && inscripcionLista()) { <a class="btn btn-primary" routerLink="/estudiante">Ir a mi curso</a> }
+          @if(tipo()==='curso' && orden()?.estado==='APROBADA'){<a class="btn btn-outline" [routerLink]="['/compras',numeroOrden,'constancia']">Ver o descargar constancia</a>}
+          <a class="btn btn-outline" routerLink="/">Volver a Kido</a>
         </div>
         <p class="note">Operación de Mercado Pago n.º {{ pagoId() }}</p>
       }
@@ -31,13 +48,15 @@
           el curso en tu panel.
         </p>
         <div class="actions">
+          @if(checkoutUrl()){<a class="btn btn-primary" [href]="checkoutUrl()" target="_blank" rel="noopener noreferrer">Abrir Mercado Pago en otra pestaña</a><p class="note">Después de pagar, vuelve a esta pestaña de KIDO para consultar tu compra y descargar la constancia.</p>}
+          @if(tipo()==='curso'||tipo()==='carrito'){<button class="btn btn-outline" (click)="revisar()">Ya pagué: verificar mi compra</button>}
           <a class="btn btn-primary" routerLink="/estudiante">Ir a mi aprendizaje</a>
         </div>
       }
       @case ('rechazado') {
         <span class="badge bad"><app-icon name="close" [size]="26" /></span>
         <h1>No se completó el pago</h1>
-        <p class="muted">No se realizó ningún cobro. Puedes intentarlo de nuevo con otro medio de pago.</p>
+        <p class="muted">Consulta el estado de la operación en Mis compras antes de intentar otro pago.</p>
         <div class="actions">
           @if (cursoId(); as c) {
             <a class="btn btn-primary" [routerLink]="['/cursos', c]">Volver al curso</a>
@@ -60,5 +79,7 @@
         </p>
       }
     }
+    @if(compraConjunta();as compra){<div class="group-items"><h2>{{compra.ordenes.length}} cursos · {{compra.total|soles}} · un solo pago</h2>@for(linea of compra.ordenes;track linea.id){<div class="group-line"><strong>{{linea.cursoTitulo}}</strong><span>{{linea.estado==='APROBADA'?(linea.inscripcionSincronizada?'Acceso habilitado':'Activando acceso'):linea.estado}}</span></div>}</div>}
+    <div class="actions"><a class="btn btn-outline" routerLink="/carrito">Volver a mi carrito</a><a class="btn btn-outline" routerLink="/">Ir a mi Kido app</a></div>
   </section>
 </div>

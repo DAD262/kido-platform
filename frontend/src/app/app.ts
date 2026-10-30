@@ -33,3 +33,4 @@ export class App {
     this.chromeless.set(/^\/(login|registro|recuperar)(\?|$)/.test(url));
   }
 }
+

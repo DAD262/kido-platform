@@ -18,7 +18,8 @@ class MercadoPagoClientTest {
     server=MockRestServiceServer.bindTo(builder).build(); client=new MercadoPagoClient(builder.build());
     ReflectionTestUtils.setField(client,"token","TEST-solo-para-pruebas");
     ReflectionTestUtils.setField(client,"notificationUrl","https://kido.example/webhook");
-    ReflectionTestUtils.setField(client,"returnUrl","http://localhost:4200/pago/resultado");
+    ReflectionTestUtils.setField(client,"returnUrl","https://kido.example/pago/resultado");
+    ReflectionTestUtils.setField(client,"autoReturn",true);
     ReflectionTestUtils.setField(client,"statementDescriptor","KIDO");
   }
   @Test void preferenciaEnSolesConReferenciaYRetornoUsaSandbox() {
@@ -27,7 +28,10 @@ class MercadoPagoClientTest {
       .andExpect(jsonPath("$.items[0].currency_id").value("PEN"))
       .andExpect(jsonPath("$.items[0].unit_price").value(79.90))
       .andExpect(jsonPath("$.external_reference").value("42"))
-      .andExpect(jsonPath("$.back_urls.success").value("http://localhost:4200/pago/resultado"))
+      .andExpect(jsonPath("$.back_urls.success").value("https://kido.example/pago/resultado"))
+      .andExpect(jsonPath("$.back_urls.pending").value("https://kido.example/pago/resultado"))
+      .andExpect(jsonPath("$.back_urls.failure").value("https://kido.example/pago/resultado"))
+      .andExpect(jsonPath("$.auto_return").value("approved"))
       .andExpect(jsonPath("$.notification_url").value("https://kido.example/webhook"))
       .andRespond(withSuccess("{\"id\":\"pref-42\",\"init_point\":\"https://www.mercadopago.com.pe/checkout\",\"sandbox_init_point\":\"https://sandbox.mercadopago.com.pe/checkout\"}",MediaType.APPLICATION_JSON));
     var result=client.crearPreferencia("Curso Spring",new BigDecimal("79.90"),"42");

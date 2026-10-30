@@ -68,7 +68,7 @@ kido:
     ambiente: ${MERCADO_PAGO_AMBIENTE:pruebas}
     access-token: ${MERCADO_PAGO_ACCESS_TOKEN:}
     notification-url: ${MERCADO_PAGO_NOTIFICATION_URL:}
-    return-url: ${MERCADO_PAGO_RETURN_URL:http://localhost:4200/pago/resultado}
+    return-url: ${MERCADO_PAGO_RETURN_URL:}
     auto-return: ${MERCADO_PAGO_AUTO_RETURN:false}
     statement-descriptor: ${MERCADO_PAGO_STATEMENT_DESCRIPTOR:KIDO}
     webhook-secret: ${MERCADO_PAGO_WEBHOOK_SECRET:}

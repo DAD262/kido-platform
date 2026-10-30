@@ -31,6 +31,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/actuator/health", "/actuator/info", "/actuator/prometheus", "/error").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/usuarios/docentes-publicos").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/usuarios/registro").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/v1/usuarios/recuperacion/solicitar", "/api/v1/usuarios/recuperacion/confirmar").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/usuarios/registro/disponibilidad", "/api/v1/usuarios/recuperacion/configuracion").permitAll()

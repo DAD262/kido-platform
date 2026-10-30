@@ -71,7 +71,7 @@ kido:
     # URL pública https del webhook, p. ej. https://xxxx.ngrok-free.app/api/v1/pagos/webhooks/mercado-pago?source_news=webhooks
     notification-url: ${MERCADO_PAGO_NOTIFICATION_URL:}
     # Página del frontend a la que vuelve el estudiante tras pagar.
-    return-url: ${MERCADO_PAGO_RETURN_URL:http://localhost:4200/pago/resultado}
+    return-url: ${MERCADO_PAGO_RETURN_URL:http://localhost:4300/pago/resultado}
     # true solo si return-url es pública (https); con localhost se deja en false.
     auto-return: ${MERCADO_PAGO_AUTO_RETURN:false}
     statement-descriptor: ${MERCADO_PAGO_STATEMENT_DESCRIPTOR:KIDO}

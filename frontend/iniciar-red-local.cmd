@@ -5,4 +5,5 @@ if not exist "node_modules\.bin\ng.cmd" (
   pause
   exit /b 1
 )
-call npx.cmd ng serve --host 0.0.0.0 --port 4200 --proxy-config proxy.conf.json
+set CI=true
+call npx.cmd ng serve --host 0.0.0.0 --port 4300 --proxy-config proxy.conf.json

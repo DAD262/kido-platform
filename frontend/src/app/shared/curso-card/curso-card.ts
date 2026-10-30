@@ -4,6 +4,8 @@ import { RouterLink } from '@angular/router';
 import { Curso } from '../../core/models/api.models';
 import { SolesPipe } from '../../core/pipes/estado.pipe';
 import { Deseados } from '../../core/services/deseados';
+import { Carrito } from '../../core/services/carrito';
+import { Docentes } from '../../core/services/docentes';
 
 @Component({
   selector: 'app-curso-card',
@@ -14,8 +16,10 @@ import { Deseados } from '../../core/services/deseados';
   styleUrl: './curso-card.scss',
 })
 export class CursoCard implements OnInit {
+  readonly docentes=inject(Docentes);
+  readonly carrito=inject(Carrito);
   readonly deseados = inject(Deseados);
-  ngOnInit(): void { this.deseados.cargar(); }
+  ngOnInit(): void { this.deseados.cargar();this.docentes.cargar();this.carrito.cargar(); }
   readonly curso = input.required<Curso>();
   readonly portada = computed(() => portadaCurso(this.curso().titulo));
   /** Respaldo para cursos que todavía no tienen una portada temática. */

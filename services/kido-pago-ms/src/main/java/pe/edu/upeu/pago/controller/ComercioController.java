@@ -8,5 +8,5 @@ public class ComercioController {
  @GetMapping("/admin/activacion") public pe.edu.upeu.pago.service.CheckoutService.Activacion activacion(){return checkout.activacion();}
  @GetMapping("/informacion-comercial") public EstadoComercial publico(){return comercio.obtener(false);}
  @GetMapping("/admin/informacion-comercial") public EstadoComercial admin(){return comercio.obtener(true);}
- @PutMapping("/admin/informacion-comercial") public EstadoComercial guardar(@Valid @RequestBody DatosComerciales datos){return comercio.guardar(datos);}
+ @PutMapping("/admin/informacion-comercial") public EstadoComercial guardar(@Valid @RequestBody GuardarComercioRequest datos){return comercio.guardar(datos.aDatos());}
 }

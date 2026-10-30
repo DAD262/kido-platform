@@ -230,7 +230,7 @@
                     name="password"
                     [type]="verPassword() ? 'text' : 'password'"
                     autocomplete="new-password"
-
+                    
                     [(ngModel)]="cuenta.password"
                     (ngModelChange)="cambioPassword($event)"
                     [attr.aria-invalid]="!!errores()['password']"
@@ -273,7 +273,7 @@
               <label class="field full" [class.invalid]="errores()['confirmacionPassword']">
                 Confirmar contraseña
                 <input name="confirmacionPassword" [type]="verPassword() ? 'text' : 'password'"
-                  autocomplete="new-password" autocapitalize="none" spellcheck="false"
+                  autocomplete="new-password" autocapitalize="none" spellcheck="false" 
                   [(ngModel)]="confirmacionPassword" (ngModelChange)="limpiarError('confirmacionPassword')"
                   (keydown)="revisarMayusculas($event)" (keyup)="revisarMayusculas($event)"
                   [attr.aria-invalid]="!!errores()['confirmacionPassword']" aria-describedby="error-confirmacion" />
@@ -383,3 +383,4 @@
     }
   }
 </app-auth-shell>
+

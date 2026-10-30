@@ -84,7 +84,7 @@ public class PagoCompraEventosConsumer {
     private void publicarResultado(PagoCompraEvento e, String tipo, String estado, String motivo) {
         productor.publicarConfirmado(AcademicoEvento.builder().tipoEvento(tipo)
             .ordenId(e.getOrdenId()).estudianteId(e.getEstudianteId()).cursoId(e.getCursoId())
-            .estado(estado).origen("kido-inscripcion-ms").motivo(motivo)
+            .compraCarritoId(e.getCompraCarritoId()).operacionPago(e.getOperacionPago()).estado(estado).ambiente(e.getAmbiente()).receptorMp(e.getReceptorMp()).origen("kido-inscripcion-ms").motivo(motivo)
             .timestamp(Instant.now().toEpochMilli()).build());
     }
 }

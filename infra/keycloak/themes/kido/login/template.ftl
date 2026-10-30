@@ -5,7 +5,7 @@
   "others..." absorbe parámetros que futuras versiones de Keycloak puedan añadir.
 -->
 <#macro registrationLayout bodyClass="" displayInfo=false displayMessage=true displayRequiredFields=false showAnotherWayIfPresent=true others...>
-<#assign kidoApp = (properties.kidoAppUrl)!"http://localhost:4200">
+<#assign kidoApp = (properties.kidoAppUrl)!"http://localhost:4300">
 <!DOCTYPE html>
 <html lang="${(locale.currentLanguageTag)!'es'}">
 <head>

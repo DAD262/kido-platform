@@ -1,4 +1,4 @@
-﻿# Configura un vendedor de PRUEBA sin enviar sus credenciales al chat.
+# Configura un vendedor de PRUEBA sin enviar sus credenciales al chat.
 $ErrorActionPreference = 'Stop'
 $workspace = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
 $envPath = Join-Path $workspace '.env'
@@ -27,7 +27,7 @@ $valores = @{
     MERCADO_PAGO_ACCESS_TOKEN = $tokenLocal
     MERCADO_PAGO_NOTIFICATION_URL = $notificacion
     MERCADO_PAGO_WEBHOOK_SECRET = $secretoLocal
-    MERCADO_PAGO_RETURN_URL = 'http://localhost:4200/pago/resultado'
+    MERCADO_PAGO_RETURN_URL = 'http://localhost:4300/pago/resultado'
     MERCADO_PAGO_AUTO_RETURN = 'false'
     KIDO_PAGOS_PERMITIR_SIMULACION = 'false'
 }

@@ -99,6 +99,7 @@ export interface Certificado {
   fechaEmision: string;
 }
 export interface Orden {
+    compraCarritoId?:number|null;
   id: number;
   estudianteId: number;
   cursoId: number;
@@ -110,7 +111,15 @@ export interface Orden {
   estado: string;
   fechaCreacion: string;
   inscripcionSincronizada: boolean;
-  porcentajeComision?: number; costoProcesamiento?: number | null; netoRecibido?: number | null; utilidadKido?: number | null; fondosEstado?: string | null; fechaConciliacion?: string | null; simulada?: boolean;
+    fechaAprobacion?: string;
+  pagosAprobadosDetectados?: number;
+  porcentajeComision?: number; costoProcesamiento?: number | null; netoRecibido?: number | null; utilidadKido?: number | null; fondosEstado?: string | null; fechaConciliacion?: string | null; simulada?: boolean; ambiente?: string;
+}
+export interface ConstanciaCompra {
+   compraCarritoId?:number|null; detalles?:{ordenId:number;cursoId:number;docenteId:number;titulo:string;importe:number}[];
+ ordenId:number; numero:string; operacion:string; ambiente:string; alumnoNombre:string;
+ alumnoEmail:string; alumnoDocumento:string; cursoTitulo:string; docenteId:number;
+ fechaPago:string; medioPago:string; detalleEstado:string; total:number; soporte:string; generadaEn:string;
 }
 export interface OrdenCertificado {
   id: number;
@@ -121,12 +130,16 @@ export interface OrdenCertificado {
   estado: string;
 }
 export interface Preferencia {
+  retornoConfigurado?: boolean;
   preferenceId: string;
   initPoint: string;
   sandboxInitPoint: string;
   /** URL elegida por el backend según el tipo de credencial (sandbox o init_point). */
   checkoutUrl?: string | null;
 }
+  export interface CompraCarrito {
+    id:number;estado:string;total:number;ambiente:string;inscripcionesCompletadas:boolean;ordenes:Orden[];preferencia:Preferencia|null;pagosAprobadosDetectados:number;
+  }
 export interface Saldo {
   docenteId: number;
   pendiente: number;
@@ -240,7 +253,7 @@ export interface ResumenSolicitudes {
   rechazadas: number;
 }
 
-export interface MetodoPago { id: string; nombre: string; disponible: boolean; moneda: string; ambiente: string; medios: { id: string; nombre: string; tipo: string }[]; }
+export interface MetodoPago { id: string; nombre: string; disponible: boolean; moneda: string; ambiente: string; modoPruebaLocal?: boolean; medios: { id: string; nombre: string; tipo: string }[]; }
 export interface DatosComerciales { version: number; razonSocial: string; ruc: string; direccion: string; emailSoporte: string; terminos: string; privacidad: string; reembolsos: string; reclamacionesUrl: string; publicada: boolean; }
 export interface EstadoComercial { datos: DatosComerciales; lista: boolean; pendientes: string[]; }
 export interface AceptacionCompra { acepta: boolean; version: number; }

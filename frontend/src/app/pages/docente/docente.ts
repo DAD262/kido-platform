@@ -1,8 +1,9 @@
 import { LiquidacionesPanel } from '../../shared/liquidaciones-panel/liquidaciones-panel';
-import { Component, computed, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, computed, inject, OnInit, signal, ChangeDetectionStrategy,DestroyRef } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { forkJoin, catchError, of, Observable } from 'rxjs';
+import { forkJoin, catchError, of, Observable,finalize,timeout,TimeoutError,Subscription } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HttpEventType } from '@angular/common/http';
 import { Api, mensajeError } from '../../core/services/api';
 import { Auth } from '../../core/services/auth';
@@ -32,6 +33,10 @@ import { PerfilEstado } from '../../shared/perfil-estado/perfil-estado';
   styleUrl: './docente.scss',
 })
 export class Docente implements OnInit {
+  private readonly destroyRef=inject(DestroyRef);
+  private lecturaContenido?:Subscription;
+  readonly cargandoContenido=signal(false);
+  readonly guardandoLeccion=signal(false);
   readonly auth = inject(Auth);
   readonly account = inject(AccountContext);
   private readonly api = inject(Api);
@@ -131,8 +136,9 @@ export class Docente implements OnInit {
   }
   private parcial<T>(nombre: string, op: Observable<T>, vacio: T) {
     return op.pipe(
+      timeout(15000),
       catchError((e) => {
-        this.fallos.update((v) => [...v, `${nombre}: ${mensajeError(e)}`]);
+        this.fallos.update((v) => [...v, `${nombre}: ${e instanceof TimeoutError?'La solicitud tardó demasiado. Puedes reintentar.':mensajeError(e)}`]);
         return of(vacio);
       }),
     );
@@ -276,7 +282,7 @@ export class Docente implements OnInit {
       ordenes: this.parcial('Órdenes', this.api.ordenesDocente(id), []),
       saldo: this.parcial<Saldo | null>('Saldo', this.api.saldoDocente(id), null),
       retiros: this.parcial('Retiros', this.api.retirosDocente(id), []),
-    }).subscribe((v) => {
+    }).pipe(takeUntilDestroyed(this.destroyRef),finalize(()=>{if(version===this.carga)this.cargando.set(false);})).subscribe((v) => {
       if (version !== this.carga) return;
       this.cursos.set(v.cursos);
       this.ordenes.set(v.ordenes);
@@ -389,17 +395,17 @@ export class Docente implements OnInit {
   }
   verContenido(id: number) {
     const version = ++this.lectura;
-    this.api.contenido(id).subscribe({
+    this.lecturaContenido?.unsubscribe();
+    this.cargandoContenido.set(true);
+    this.lecturaContenido=this.api.contenido(id).pipe(timeout(15000),takeUntilDestroyed(this.destroyRef),finalize(()=>{if(version===this.lectura)this.cargandoContenido.set(false);})).subscribe({
       next: (c) => {
         if (version !== this.lectura || this.seleccionado()?.id !== id) return;
         this.contenido.set(c);
         this.moduloOrden = Math.max(0, ...c.modulos.map((m) => m.orden)) + 1;
-        if (this.moduloId && !c.modulos.some((m) => m.id === this.moduloId)) this.moduloId = null;
-        if (
-          this.archivoLeccionId &&
-          !c.modulos.some((m) => m.lecciones.some((l) => l.id === this.archivoLeccionId))
-        )
-          this.archivoLeccionId = null;
+        const elegido=c.modulos.find(m=>m.id===Number(this.moduloId))??c.modulos[0];
+        this.seleccionarModulo(elegido?.id??null);
+        const lecciones=c.modulos.flatMap(m=>m.lecciones);
+        if(!lecciones.some(l=>l.id===this.archivoLeccionId))this.archivoLeccionId=lecciones[0]?.id??null;
         this.config = {
           progresoMinimo: c.configuracion.progresoMinimo,
           asistenciaMinima: c.configuracion.asistenciaMinima,
@@ -407,14 +413,16 @@ export class Docente implements OnInit {
           certificadoCosto: c.configuracion.certificadoCosto,
         };
       },
-      error: (e) => this.error.set(mensajeError(e)),
+      error: (e) => {if(version===this.lectura&&this.seleccionado()?.id===id)this.error.set(e instanceof TimeoutError?'La estructura tardó demasiado en cargar. Reintenta sin borrar lo que escribiste.':mensajeError(e));},
     });
   }
-  seleccionarModulo(id: number | null) {
-    this.moduloId = id;
-    const m = this.contenido()?.modulos.find((m) => m.id === id);
+  seleccionarModulo(id: number | string | null) {
+    const numero=Number(id);
+    this.moduloId=Number.isSafeInteger(numero)&&numero>0?numero:null;
+    const m = this.contenido()?.modulos.find((m) => m.id === this.moduloId);
     this.leccionOrden = Math.max(0, ...(m?.lecciones.map((l) => l.orden) ?? [])) + 1;
   }
+  moduloSeleccionado(){return this.contenido()?.modulos.find(m=>m.id===this.moduloId);}
   crearModulo() {
     const id = this.seleccionado()?.id;
     if (this.procesando() || !id || !this.moduloTitulo.trim()) return;
@@ -435,8 +443,9 @@ export class Docente implements OnInit {
       return;
     }
     this.procesando.set(true);
-    this.api.crearModulo(id, this.moduloTitulo.trim(), this.moduloOrden).subscribe({
-      next: () => {
+    this.api.crearModulo(id, this.moduloTitulo.trim(), this.moduloOrden).pipe(timeout(20000),takeUntilDestroyed(this.destroyRef),finalize(()=>this.procesando.set(false))).subscribe({
+      next: (creado) => {
+        this.moduloId=creado.id;
         this.moduloTitulo = '';
         this.procesando.set(false);
         this.verContenido(id);
@@ -445,15 +454,16 @@ export class Docente implements OnInit {
       },
       error: (e) => {
         this.procesando.set(false);
-        this.error.set(mensajeError(e));
+        this.error.set(e instanceof TimeoutError?'No se confirmó el módulo a tiempo. Actualiza la estructura antes de reintentarlo.':mensajeError(e));
       },
     });
   }
   crearLeccion() {
     const id = this.seleccionado()?.id;
-    if (this.procesando() || !id || !this.moduloId || !this.leccionTitulo.trim()) return;
-    const m = this.contenido()?.modulos.find((m) => m.id === this.moduloId);
-    if (!m) return;
+    if (this.procesando() || this.guardandoLeccion() || this.cargandoContenido()) return;
+    const m=this.moduloSeleccionado();
+    if(!id||!m){this.error.set('Selecciona un módulo válido o vuelve a cargar la estructura.');return;}
+    if(!this.leccionTitulo.trim()){this.error.set('Escribe el título de la lección.');return;}
     if (!Number.isInteger(+this.leccionOrden) || +this.leccionOrden < 1) {
       this.error.set('La posición debe ser un número entero mayor que cero.');
       return;
@@ -468,15 +478,20 @@ export class Docente implements OnInit {
       this.error.set('Ya existe una lección con ese título o posición en el módulo.');
       return;
     }
+    this.leccionUrl=this.leccionUrl.trim();
     if (this.leccionUrl && !/^https?:\/\//i.test(this.leccionUrl)) {
       this.error.set('El enlace debe comenzar con https:// o http://.');
       return;
     }
     this.procesando.set(true);
+    this.guardandoLeccion.set(true);
+    this.error.set('');this.mensaje.set('');
     this.api
-      .crearLeccion(this.moduloId, this.leccionTitulo.trim(), this.leccionOrden, this.leccionUrl)
+      .crearLeccion(m.id, this.leccionTitulo.trim(), Number(this.leccionOrden), this.leccionUrl.trim())
+      .pipe(timeout(20000),takeUntilDestroyed(this.destroyRef),finalize(()=>{this.procesando.set(false);this.guardandoLeccion.set(false);}))
       .subscribe({
-        next: () => {
+        next: (creada) => {
+          this.archivoLeccionId=creada.id;
           this.leccionTitulo = '';
           this.leccionUrl = '';
           this.leccionOrden++;
@@ -487,7 +502,8 @@ export class Docente implements OnInit {
         },
         error: (e) => {
           this.procesando.set(false);
-          this.error.set(mensajeError(e));
+          this.error.set(e instanceof TimeoutError?'No se confirmó la lección a tiempo. Conservamos tus datos; revisa la estructura antes de reintentar.':mensajeError(e));
+          if(e instanceof TimeoutError)this.verContenido(id);
         },
       });
   }

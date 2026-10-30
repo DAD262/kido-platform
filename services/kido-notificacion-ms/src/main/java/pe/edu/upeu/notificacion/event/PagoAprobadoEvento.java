@@ -23,6 +23,9 @@ public class PagoAprobadoEvento {
     private BigDecimal montoDocente;
     private Long diasRetencion;
     private String estado;
+    private String ambiente;
+    private String receptorMp;
+    public String getAmbiente() { return ambiente == null ? "DESCONOCIDO" : ambiente; }
     private String origen;
     private Long timestamp;
 }
