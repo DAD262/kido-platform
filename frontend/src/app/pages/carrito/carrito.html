@@ -23,7 +23,7 @@
    @if(!valido()){<p class="notice" role="status">Hay cursos no disponibles. Quítalos antes de continuar.</p>}
    @if(error()){<p class="notice" role="alert">{{error()}}</p>}
    <button class="btn btn-primary pay-all" type="button" (click)="pagar()" [disabled]="!valido()||pagando()||carrito.ocupado()||!checkout().disponible||!checkout().acepta">@if(pagando()){<span class="spinner"></span> Preparando tu compra…}@else{Pagar {{carrito.datos().total|soles}} <app-icon name="arrow" [size]="18" />}</button>
-   <p class="payment-note">Continuarás en Mercado Pago para elegir tu medio de pago. @if(!checkout().acepta){Acepta las condiciones para continuar.}</p>
+   <p class="payment-note">Completarás el pago dentro de KIDO con el medio elegido. @if(!checkout().acepta){Acepta las condiciones para continuar.}</p>
    <a class="my-purchases" routerLink="/estudiante" [queryParams]="{seccion:'compras'}">Ver mis compras <app-icon name="arrow" [size]="14" /></a>
   </aside>
  </div>

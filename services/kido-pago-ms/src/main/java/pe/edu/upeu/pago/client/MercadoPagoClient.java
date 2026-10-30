@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -65,6 +66,19 @@ public class MercadoPagoClient {
     return medios.values().stream().limit(20).toList();
   }
   public boolean disponible() { return token != null && !token.isBlank(); }
+
+  /** Solo acepta campos preparados por el servidor. El navegador nunca recibe el Access Token. */
+  @SuppressWarnings("unchecked")
+  public Map<String,Object> crearPagoInterno(Map<String,Object> body,String idempotencia) {
+    requireToken();UUID.fromString(idempotencia);
+    return mercadoPagoRestClient.post().uri("/v1/payments").header("Authorization","Bearer "+token)
+      .header("X-Idempotency-Key",idempotencia).body(body).retrieve().body(Map.class);
+  }
+  @SuppressWarnings("unchecked")
+  public Map<String,Object> consultarPagoInterno(String id) {
+    requireToken();if(id==null||!id.matches("[0-9]{1,40}"))throw new IllegalArgumentException("Operación inválida");
+    return mercadoPagoRestClient.get().uri("/v1/payments/"+id).header("Authorization","Bearer "+token).retrieve().body(Map.class);
+  }
 
   public record CuentaVerificada(String receptor, AmbientePago ambiente) {}
 

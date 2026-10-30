@@ -9,27 +9,24 @@ export interface PagoPendiente {
   ordenId: number;
   cursoId: number;
   checkoutUrl?: string;
+  medioId?: string;
 }
 
 const CLAVE = 'kido-pago-pendiente';
 
 /**
- * Lleva al estudiante al checkout de Mercado Pago en la MISMA pestaña, para que al terminar vuelva
- * a KIDO por la back_url (/pago/resultado) y se confirme el pago. Devuelve false si la URL no es válida.
+ * Conserva la compra y abre el formulario de pago dentro de KIDO.
+ * La aprobación se comprueba en el servidor contra Mercado Pago.
  */
 export function irACheckout(p: Preferencia, pendiente: PagoPendiente): boolean {
   const url = p.checkoutUrl || p.sandboxInitPoint || p.initPoint;
   if (!url || !DOMINIO_MP.test(url)) return false;
-  let guardado=true;
   try {
     sessionStorage.setItem(CLAVE, JSON.stringify({...pendiente,checkoutUrl:p.retornoConfigurado===false?url:undefined}));
   } catch {
-    guardado=false;
     /* sin almacenamiento: la página de resultado usa external_reference */
   }
-  if(p.retornoConfigurado===false&&guardado){
-    window.location.assign('/pago/resultado?external_reference='+encodeURIComponent((pendiente.tipo==='certificado'?'CERT-':pendiente.tipo==='carrito'?'CARRITO-':'')+pendiente.ordenId));
-  }else window.location.assign(url);
+  window.location.assign('/pago/interno/'+pendiente.tipo+'/'+pendiente.ordenId+(pendiente.medioId?'?medio='+encodeURIComponent(pendiente.medioId):''));
   return true;
 }
 

@@ -5,16 +5,16 @@
     <div class="methods-heading"><div><span class="eyebrow">ELIGE CÓMO PAGAR</span><p class="methods-title">Medios disponibles</p></div><span class="methods-count">{{ metodo()!.medios.length }} opciones</span></div>
     <div class="methods" aria-label="Medios habilitados">
       @for(medio of metodo()!.medios; track medio.id) {
-        <div class="method" [attr.data-medio]="medio.id" [attr.aria-label]="medio.nombre" [title]="medio.nombre">
+        <button type="button" class="method" [class.selected]="medioElegido()===medio.id" [attr.aria-pressed]="medioElegido()===medio.id" (click)="elegirMedio(medio.id)" [attr.data-medio]="medio.id" [attr.aria-label]="medio.nombre" [title]="medio.nombre">
           <span class="method-brand" aria-hidden="true">
             @if(logoMedio(medio.id); as logo) { <img [src]="logo" alt=""> }
             @else { <span class="cash">•••</span> }
           </span>
           <span class="method-name">{{ medio.nombre }}</span>
-        </div>
+        </button>
       }
     </div>
-    <p class="note">Elige tu medio al continuar. Las opciones finales dependen de Mercado Pago.</p>
+    <p class="note">Selecciona un medio. Completarás el pago dentro de KIDO con el formulario seguro de Mercado Pago.</p>
     @if(metodo()?.ambiente === 'pruebas') { <p class="testing" role="status">Modo de prueba: utiliza únicamente cuentas y tarjetas de prueba</p> }
     @if(metodo()?.modoPruebaLocal) {
       <label class="accept"><input type="checkbox" [(ngModel)]="acepta" (ngModelChange)="emitir()"><span>Acepto realizar una operación de prueba con cuentas y tarjetas de prueba.</span></label>

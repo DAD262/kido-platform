@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { roleGuard, sesionGuard } from './core/guards/role.guard';
 
 export const routes: Routes = [
+ {path:'pago/interno/:tipo/:id',loadComponent:()=>import('./pages/pago-interno/pago-interno').then(m=>m.PagoInterno),canActivate:[sesionGuard],title:'Pago seguro ? KIDO'},
  {path:'carrito',loadComponent:()=>import('./pages/carrito/carrito').then(m=>m.CarritoPagina),canActivate:[roleGuard('ESTUDIANTE')],title:'Mi carrito · KIDO'},
  {path:'condiciones-compra',loadComponent:()=>import('./pages/condiciones-compra/condiciones-compra').then(m=>m.CondicionesCompra),title:'Información de compra · KIDO'},
   {

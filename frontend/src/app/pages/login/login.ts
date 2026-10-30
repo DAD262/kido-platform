@@ -6,7 +6,7 @@ import { Icon } from '../../shared/icon/icon';
 
 /** Solo se aceptan rutas internas conocidas como destino tras el login (evita open redirects). */
 const DESTINO_SEGURO =
-  /^\/(cursos(\/\d+)?|estudiante|docente|supervisor|admin|configuracion|postular-docente|pago\/resultado(\?[\w=&%.\-]*)?)?$/;
+  /^\/(cursos(\/\d+)?|carrito|pago\/interno\/(curso|carrito|certificado)\/\d+(\?medio=[a-z0-9_]+)?|estudiante|docente|supervisor|admin|configuracion|postular-docente|pago\/resultado(\?[\w=&%.\-]*)?)?$/;
 
 const ROL_LEGIBLE: Record<string, string> = {
   ADMIN: 'administración',

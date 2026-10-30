@@ -1,0 +1,41 @@
+<main class="container internal-payment">
+ <a routerLink="/estudiante" [queryParams]="{seccion:'compras'}">← Mis compras</a>
+ <header><span class="eyebrow">PAGO SEGURO EN KIDO</span><h1>Completa tu compra</h1><p>Elige tu medio y paga aquí. Mercado Pago procesa la operación.</p></header>
+ @if(cargando()){<p role="status">Preparando tu formulario seguro…</p>}
+ @if(config();as c){<div class="total"><span>Total de tu compra</span><strong>{{c.total|soles}}</strong></div>
+  @if(c.ambiente==='PRUEBAS'){<p class="testing">Operación de prueba. Usa únicamente cuentas y datos de prueba.</p>}
+  <div class="methods" role="group" aria-label="Selecciona el medio de pago">
+   @for(m of c.medios;track m.id){<button type="button" [class.selected]="medio()===m.id" [attr.aria-pressed]="medio()===m.id" [disabled]="procesando()||montando()||!!resultado()||!c.configurado" (click)="elegir(m.id)">@if(logo(m.id);as img){<img [src]="img" alt="">}<span>{{m.nombre}}</span></button>}
+  </div>
+ }
+ @if(error()){<p class="alert warn" role="alert">{{error()}}</p>}
+ @if(resultado();as r){<section class="result" aria-live="polite">
+  @if(r.confirmado){<h2>Pago confirmado</h2><p>Tu compra se ha acreditado. Puedes consultar tus accesos y constancia en Mis compras.</p>}
+  @else if(r.estado==='rejected'||r.estado==='cancelled'){<h2>Pago no aprobado</h2><p>El proveedor no aprobó esta operación. Revisa tus datos o utiliza otro medio.</p><button class="btn btn-outline" type="button" (click)="reintentar()">Elegir otro medio</button>}
+  @else{<h2>{{r.codigo?'Tu código de PagoEfectivo está listo':'Operación pendiente de confirmación'}}</h2>@if(r.codigo){<p>Utiliza este código para pagar el importe indicado:</p><strong class="code">{{r.codigo}}</strong><p>El acceso se habilita cuando Mercado Pago confirme el pago.</p>}@else{<p>Consulta el estado antes de iniciar otro pago.</p>}}
+  <p>Operación: {{r.id}}</p>@if(instrucciones();as url){<a class="btn btn-outline" [href]="url" target="_blank" rel="noopener noreferrer">Ver instrucciones del proveedor</a>}
+  <a class="btn btn-primary" routerLink="/estudiante" [queryParams]="{seccion:'compras'}">Ver mis compras</a>
+ </section>}
+ <section [hidden]="!config()?.configurado||!!resultado()">
+  <h2>{{nombre()}}</h2>
+  <label class="accept"><input type="checkbox" [(ngModel)]="acepta" [disabled]="procesando()"> <span>Acepto las <a routerLink="/condiciones-compra" target="_blank" rel="noopener">condiciones de compra</a> y la política de reembolsos. @if(config()?.ambiente==='PRUEBAS'){Realizaré una operación de prueba.}</span></label>
+  <div id="kido-card-payment" [hidden]="!esTarjeta()"></div>
+  @if(!esTarjeta()&&medio()){
+   <form (ngSubmit)="pagarAlternativo()">
+    <label>Correo del pago<input type="email" name="email" [(ngModel)]="email" autocomplete="email" required [disabled]="procesando()"></label>
+    @if(medio()==='yape'){
+     <p>Genera el código de aprobación de compra en tu aplicación Yape e introdúcelo aquí.</p>
+     <label>Celular Yape<input type="tel" name="celular" [(ngModel)]="celular" maxlength="9" inputmode="numeric" required [disabled]="procesando()"></label>
+     <label>Código de aprobación de 6 dígitos<input type="password" name="otp" [(ngModel)]="otp" maxlength="6" inputmode="numeric" autocomplete="off" required [disabled]="procesando()"></label>
+    }@else{
+     <label>Nombres<input name="nombres" [(ngModel)]="nombres" autocomplete="given-name" required [disabled]="procesando()"></label>
+     <label>Apellidos<input name="apellidos" [(ngModel)]="apellidos" autocomplete="family-name" required [disabled]="procesando()"></label>
+     <label>Tipo de documento<select name="tipoDocumento" [(ngModel)]="tipoDocumento" [disabled]="procesando()"><option>DNI</option><option>CE</option><option>RUC</option></select></label>
+     <label>Número de documento<input name="documento" [(ngModel)]="documento" maxlength="20" required [disabled]="procesando()"></label>
+    }
+    <button class="btn btn-primary" type="submit" [disabled]="procesando()||!acepta||!formularioListo()">{{procesando()?'Procesando…':medio()==='yape'?'Pagar con Yape':'Generar código PagoEfectivo'}}</button>
+   </form>
+  }
+  <p class="note">Los datos de tarjeta se introducen en el formulario seguro de Mercado Pago. KIDO no guarda números de tarjeta ni códigos de seguridad.</p>
+ </section>
+</main>

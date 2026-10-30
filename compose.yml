@@ -326,6 +326,8 @@ services:
   kido-pago-ms:
     build: ./services/kido-pago-ms
     environment:
+      EUREKA_INSTANCE_HOSTNAME: kido-pago-ms
+      EUREKA_INSTANCE_INSTANCE_ID: kido-pago-ms:8080
       SPRING_PROFILES_ACTIVE: prod
       CONFIG_SERVER_URL: http://kido-config:8888
       DB_HOST: postgres-pago
@@ -340,6 +342,7 @@ services:
       KIDO_CHECKOUT_PRUEBA_LOCAL: ${KIDO_CHECKOUT_PRUEBA_LOCAL:-false}
       KIDO_ENTORNO_DESARROLLO_LOCAL: ${KIDO_ENTORNO_DESARROLLO_LOCAL:-false}
       MERCADO_PAGO_ACCESS_TOKEN: ${MERCADO_PAGO_ACCESS_TOKEN:-}
+      MERCADO_PAGO_PUBLIC_KEY: ${MERCADO_PAGO_PUBLIC_KEY:-}
       KEYCLOAK_ISSUER_URI: ${KEYCLOAK_ISSUER_URI:-http://localhost:19090/realms/kido}
       MERCADO_PAGO_NOTIFICATION_URL: ${MERCADO_PAGO_NOTIFICATION_URL:-}
       MERCADO_PAGO_RETURN_URL: ${MERCADO_PAGO_RETURN_URL:-http://localhost:4300/pago/resultado}

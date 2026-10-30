@@ -22,7 +22,7 @@ export class CarritoPagina implements OnInit {
   this.pagando.set(true);this.error.set('');
   const datos=this.carrito.datos();
   this.api.checkoutCarrito({cursos:datos.items.map(i=>i.cursoId),totalAceptado:datos.total,aceptacion:{acepta:true,version:this.checkout().version}}).pipe(finalize(()=>this.pagando.set(false))).subscribe({
-   next:compra=>{if(!compra.preferencia||!irACheckout(compra.preferencia,{tipo:'carrito',ordenId:compra.id,cursoId:0}))this.error.set('No recibimos un enlace de pago válido. Tus cursos siguen en el carrito.');},
+   next:compra=>{if(!compra.preferencia||!irACheckout(compra.preferencia,{tipo:'carrito',ordenId:compra.id,cursoId:0,medioId:this.checkout().medioId}))this.error.set('No recibimos un enlace de pago válido. Tus cursos siguen en el carrito.');},
    error:e=>{this.error.set(mensajeError(e));this.carrito.cargar();}
   });
  }

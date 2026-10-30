@@ -6,6 +6,8 @@ Esta versión agrega carrito con pago conjunto, constancias de compra web y PDF,
 
 Consulta el [informe completo de novedades, migraciones y validación](docs/cambios/ACTUALIZACION_2026_10_30.md). Para instalar o actualizar, sigue la [guía para levantar KIDO](docs/guias/GUIA_LEVANTAR_KIDO.md). El catálogo de la base local se reproduce con un generador y requiere aplicación explícita del SQL; sus datos no se transfieren al clonar.
 
+La integración de [pagos dentro de KIDO](docs/guias/pago-dentro-kido.md) añade selección de medios, formulario seguro de tarjetas, Yape y código PagoEfectivo. Requiere configurar la Public Key en el entorno privado y completar la validación de sandbox antes de considerarla operativa.
+
 > **¿Primera vez?** Sigue la [guía para levantar KIDO](docs/guias/GUIA_LEVANTAR_KIDO.md): levanta todo el proyecto y explica el acceso (ingreso, registro de estudiantes y verificación de docentes).
 
 Kido es una plataforma distribuida para cursos digitales gratuitos y pagados. Este repositorio conserva el avance de **Yana Rojas Adan** y continúa con el aporte de **Coila Mamani Jhoel Midwar** sobre la misma arquitectura.

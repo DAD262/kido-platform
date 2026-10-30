@@ -124,7 +124,7 @@ export class CursoDetalle implements OnInit {
         )),
       ).subscribe({
         next: ({ orden, preferencia }) => {
-          if (irACheckout(preferencia, { tipo: 'curso', ordenId: orden.id, cursoId: curso.id })) {
+          if (irACheckout(preferencia, { tipo: 'curso', medioId:this.checkout().medioId, ordenId: orden.id, cursoId: curso.id })) {
             this.mensaje.set('Te llevamos a Mercado Pago para completar el pago…');
           } else {
             this.enviando.set(false);
