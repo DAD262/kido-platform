@@ -2,6 +2,8 @@
 
 ## Compras en desarrollo local
 
+Para habilitar el checkout local con una cuenta de prueba verificada, definir en el `.env` privado `KIDO_CHECKOUT_PRUEBA_LOCAL=true` y `KIDO_ENTORNO_DESARROLLO_LOCAL=true`, manteniendo `MERCADO_PAGO_AMBIENTE=pruebas`. El Compose principal transmite estas opciones al servicio; ambas quedan desactivadas por defecto. Ejecutar `docker compose up -d --no-deps kido-pago-ms` después de modificarlas. No publicar `.env` ni credenciales. Si el Gateway aún conserva una dirección de la instancia anterior, esperar la actualización del registro o reiniciar `kido-gateway`.
+
 Si no está configurado un retorno HTTPS público, KIDO conserva la pantalla de resultado y ofrece un enlace para abrir Mercado Pago en otra pestaña. Al terminar, vuelve a la pestaña de KIDO y usa «Ya pagué: verificar mi compra». La verificación consulta el proveedor: no usa los parámetros de URL como prueba de pago y no realiza otro cobro.
 
 El carrito ofrece un único botón «Pagar» por el total de todos sus cursos. La preferencia incluye el detalle y una sola operación, con referencia CARRITO. La aceptación sigue siendo obligatoria. Antes de abrir el proveedor, la pantalla local muestra «Tu checkout está listo» y «Ir a pagar en Mercado Pago». Consulta la orden autenticada, sin buscar un pago inexistente ni presentarlo como pendiente de acreditación. La comprobación contra Mercado Pago se realiza cuando el estudiante indica que ya pagó o regresa con un identificador de operación.
