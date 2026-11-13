@@ -11,7 +11,7 @@ function Get-KidoToken([string]$User, [string]$Password) {
 }
 
 Write-Host "=== S08 KIDO - PRUEBA DE DESACOPLE ===" -ForegroundColor Cyan
-$admin = Get-KidoToken "admin" "Admin123!"
+$admin = Get-KidoToken "admin" $env:KIDO_DEMO_ADMIN_PASSWORD
 $headers = @{ Authorization = "Bearer $admin" }
 $studentWarmup = Get-Random -Minimum 140001 -Maximum 180000
 $student = Get-Random -Minimum 90001 -Maximum 140000

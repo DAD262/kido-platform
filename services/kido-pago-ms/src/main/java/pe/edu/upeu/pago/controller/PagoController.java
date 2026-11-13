@@ -1,7 +1,6 @@
 package pe.edu.upeu.pago.controller;
 import jakarta.validation.Valid; import lombok.RequiredArgsConstructor; import org.springframework.http.*; import org.springframework.web.bind.annotation.*; import pe.edu.upeu.pago.dto.*; import pe.edu.upeu.pago.service.PagoService; import java.util.*;
 @RestController @RequestMapping("/api/v1/pagos") @RequiredArgsConstructor public class PagoController {private final PagoService service; private final pe.edu.upeu.pago.webhook.ValidadorWebhookMercadoPago validadorWebhook; private static final org.slf4j.Logger webhookLog = org.slf4j.LoggerFactory.getLogger(PagoController.class); private final pe.edu.upeu.pago.service.CertificadoPagoService certificadoService;
- private final pe.edu.upeu.pago.client.MercadoPagoClient mercadoPago;
  private final pe.edu.upeu.pago.service.AccesoCuentaPago acceso;
  private final pe.edu.upeu.pago.service.ComercioService comercio;
  private final pe.edu.upeu.pago.service.CheckoutService checkout;
@@ -12,6 +11,7 @@ import jakarta.validation.Valid; import lombok.RequiredArgsConstructor; import o
  @GetMapping("/ordenes/{id}") public OrdenResponse obtener(@PathVariable Long id){verificarOrden(id);return service.obtener(id);}
  @PostMapping("/ordenes/{id}/verificar") public OrdenResponse verificar(@PathVariable Long id){verificarOrden(id);return service.verificarProveedor(id);}
  @GetMapping("/ordenes/docente/{id}") public List<OrdenResponse> docente(@PathVariable Long id){acceso.verificar(id);return service.porDocente(id);}
+ @GetMapping("/docentes/{id}/historial") public List<OrdenResponse> historialDocente(@PathVariable Long id){acceso.verificar(id);return service.historialDocente(id);}
  @GetMapping("/ordenes/estudiante/{id}") public List<OrdenResponse> estudiante(@PathVariable Long id){acceso.verificar(id);return service.porEstudiante(id);}
  @PostMapping("/ordenes") public ResponseEntity<OrdenResponse> crear(@Valid @RequestBody CrearOrdenRequest r){acceso.verificar(r.estudianteId());return ResponseEntity.status(201).body(service.crear(r));}
  @PostMapping("/ordenes/{id}/mercado-pago") public PreferenciaResponse iniciar(@PathVariable Long id,@RequestBody(required=false) AceptacionRequest aceptacion,org.springframework.security.core.Authentication auth){verificarOrden(id);checkout.exigirActivacion();if(checkout.excepcionLocal()&&!comercio.obtener(true).lista())comercio.aceptarPrueba("CURSO",id,service.obtener(id).estudianteId(),auth.getName(),aceptacion);else comercio.aceptar("CURSO",id,service.obtener(id).estudianteId(),auth.getName(),aceptacion);return service.iniciarMercadoPago(id);}

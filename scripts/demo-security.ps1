@@ -29,9 +29,9 @@ function Get-Status([string]$Method, [string]$Uri, [string]$Token = "", [string]
 }
 
 Write-Host "=== KIDO - DEMO KEYCLOAK/JWT ===" -ForegroundColor Cyan
-$student = Get-KidoToken "estudiante" "Estudiante123!"
-$teacher = Get-KidoToken "docente" "Docente123!"
-$admin = Get-KidoToken "admin" "Admin123!"
+$student = Get-KidoToken "estudiante" $env:KIDO_DEMO_ESTUDIANTE_PASSWORD
+$teacher = Get-KidoToken "docente" $env:KIDO_DEMO_DOCENTE_PASSWORD
+$admin = Get-KidoToken "admin" $env:KIDO_DEMO_ADMIN_PASSWORD
 Write-Host "Tokens obtenidos: ESTUDIANTE, DOCENTE y ADMIN" -ForegroundColor Green
 
 $publicCourses = Get-Status "GET" "$Gateway/api/v1/cursos"

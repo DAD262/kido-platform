@@ -106,13 +106,19 @@ h1, h2 {
 .kc-brand-logo, .kc-logo-mobile {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: 27px;
-  letter-spacing: -0.05em;
+  letter-spacing: 0.015em;
 }
-.kc-brand-logo { color: #f3f4ff; align-self: flex-start; }
+.kc-brand-logo {
+  align-self: flex-start;
+  padding: 7px 10px;
+  border-radius: 13px;
+  background: rgba(255, 255, 255, 0.96);
+}
+.kc-brand-logo img { display: block; width: auto; height: 44px; }
+.kc-brand-logo span { color: #15171c; font-size: 40px; line-height: 1; letter-spacing: .035em; }
 .kc-pitch { max-width: 420px; }
 .kc-pitch h2 { color: #fff; font-size: clamp(30px, 2.6vw, 38px); margin-bottom: 14px; }
 .kc-pitch p { color: #b7bce0; font-size: 16px; margin: 0 0 26px; }
@@ -148,7 +154,9 @@ h1, h2 {
   padding: 20px clamp(20px, 4vw, 40px) 32px;
 }
 .kc-top { display: flex; align-items: center; gap: 16px; }
-.kc-logo-mobile { display: none; color: var(--ink); font-size: 23px; }
+.kc-logo-mobile { display: none; padding: 5px 8px; border-radius: 10px; background: rgba(255,255,255,.96); }
+.kc-logo-mobile img { display: block; width: auto; height: 34px; }
+.kc-logo-mobile span { color: #15171c; font-size: 31px; line-height: 1; letter-spacing: .035em; }
 .kc-back { font-size: 14px; color: var(--muted); }
 .kc-back:hover { color: var(--ink); }
 .kc-locales {

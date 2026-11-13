@@ -27,7 +27,7 @@ public class GlobalExceptionHandler {
     ResponseEntity<?> concurrentChange(RuntimeException e){return body(HttpStatus.CONFLICT,"La operación ya se registró o el saldo cambió. Recarga antes de continuar.");}
 
     @ExceptionHandler(org.springframework.web.multipart.MaxUploadSizeExceededException.class)
-    ResponseEntity<?> archivoGrande(org.springframework.web.multipart.MaxUploadSizeExceededException e){return body(HttpStatus.PAYLOAD_TOO_LARGE,"La constancia no debe superar 5 MB");}
+    ResponseEntity<?> archivoGrande(org.springframework.web.multipart.MaxUploadSizeExceededException e){return body(HttpStatus.CONTENT_TOO_LARGE,"La constancia no debe superar 5 MB");}
 
     @ExceptionHandler(IllegalArgumentException.class)
     ResponseEntity<?> badRequest(IllegalArgumentException e) { return body(HttpStatus.BAD_REQUEST, e.getMessage()); }

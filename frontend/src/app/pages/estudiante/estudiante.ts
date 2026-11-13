@@ -4,7 +4,7 @@ import { enlaceClase } from '../../core/utils/enlace-clase';
 import { Component, computed, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { forkJoin, catchError, of, Observable } from 'rxjs';
+import { forkJoin, catchError, of, Observable, Subscription, timer, switchMap, timeout } from 'rxjs';
 import { Api, mensajeError } from '../../core/services/api';
 import { Auth } from '../../core/services/auth';
 import { AccountContext } from '../../core/services/account-context';
@@ -40,7 +40,10 @@ export class Estudiante implements OnInit {
   private readonly route=inject(ActivatedRoute,{optional:true});
   private readonly destroy=inject(DestroyRef);
   readonly comprasAprobadas=computed(()=>this.ordenes().filter(o=>o.estado==='APROBADA'));
-  irAlCurso(o:Orden){const ins=this.inscripciones().find(i=>i.cursoId===o.cursoId&&i.estado!=='CANCELADA'&&i.estado!=='REVOCADA');if(ins){this.tab.set('cursos');this.abrir(ins);}else this.mensaje.set('Tu pago está aprobado; estamos completando la inscripción. Actualiza en unos segundos.');}
+  readonly actualizandoAccesos=signal(false);
+  private refrescoAccesos?:Subscription;
+  puedeAbrirCurso(o:Orden){return this.inscripciones().some(i=>i.cursoId===o.cursoId&&(i.estado==='ACTIVA'||i.estado==='COMPLETADA'));}
+  irAlCurso(o:Orden){const ins=this.inscripciones().find(i=>i.cursoId===o.cursoId&&(i.estado==='ACTIVA'||i.estado==='COMPLETADA'));if(ins){this.tab.set('cursos');this.abrir(ins);}else{this.mensaje.set('Tu pago está aprobado; estamos completando la inscripción. El panel se actualizará automáticamente.');this.actualizarAccesosPendientes();}}
   readonly auth = inject(Auth);
   readonly account = inject(AccountContext);
   private readonly api = inject(Api);
@@ -143,6 +146,7 @@ export class Estudiante implements OnInit {
   cargar() {
     const id = this.account.id();
     if (!id || this.cargando()) return;
+    this.refrescoAccesos?.unsubscribe();
     this.cargando.set(true);
     this.error.set('');
     this.fallos.set([]);
@@ -151,19 +155,31 @@ export class Estudiante implements OnInit {
       ordenes: this.parcial('Pagos', this.api.ordenesEstudiante(id), []),
       notificaciones: this.parcial('Notificaciones', this.api.notificacionesUsuario(id), []),
       cursos: this.parcial('Catálogo', this.api.publicados(), []),
-    }).subscribe({
+    }).pipe(takeUntilDestroyed(this.destroy)).subscribe({
       next: (r) => {
         this.inscripciones.set(r.inscripciones);
         this.ordenes.set(r.ordenes);
         this.notificaciones.set(r.notificaciones);
         this.cursos.set(r.cursos);
         this.cargando.set(false);
+        this.actualizarAccesosPendientes();
       },
       error: (e) => {
         this.cargando.set(false);
         this.error.set(mensajeError(e));
       },
     });
+  }
+  actualizarAccesosPendientes(intentos=10){
+    this.refrescoAccesos?.unsubscribe();
+    const id=this.account.id();
+    const pendiente=this.comprasAprobadas().some(o=>!this.puedeAbrirCurso(o)||!o.inscripcionSincronizada);
+    if(!id||!pendiente||intentos<=0){this.actualizandoAccesos.set(false);return;}
+    this.actualizandoAccesos.set(true);
+    this.refrescoAccesos=timer(3000).pipe(
+      switchMap(()=>forkJoin({inscripciones:this.api.inscripcionesEstudiante(id),ordenes:this.api.ordenesEstudiante(id)})),
+      timeout(20000),takeUntilDestroyed(this.destroy),
+    ).subscribe({next:r=>{this.inscripciones.set(r.inscripciones);this.ordenes.set(r.ordenes);this.actualizarAccesosPendientes(intentos-1);},error:()=>{this.actualizandoAccesos.set(false);this.mensaje.set('No se pudo actualizar el acceso automáticamente. Usa Actualizar para volver a consultar tus cursos; no vuelvas a pagar.');}});
   }
   verificarCompra(o:Orden){if(this.procesando())return;this.procesando.set(true);this.error.set('');this.api.verificarOrden(o.id).subscribe({next:()=>{this.procesando.set(false);this.mensaje.set('Estado consultado directamente con Mercado Pago.');this.cargar();},error:e=>{this.procesando.set(false);this.error.set(mensajeError(e));}});}
   portada(cursoId:number){return portadaCurso(this.cursos().find(c=>c.id===cursoId)?.titulo);}

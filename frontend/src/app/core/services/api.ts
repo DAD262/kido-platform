@@ -179,6 +179,9 @@ export class Api {
   inscripcionesCurso(id: number) {
     return this.get<Inscripcion[]>(`/inscripciones/curso/${id}`);
   }
+  seguimientoDocente() {
+    return this.get<{inscripciones: Inscripcion[]; compras: Orden[]; fallos: string[]}>('/usuarios/docente/seguimiento');
+  }
   crearInscripcion(
     estudianteId: number,
     cursoId: number,

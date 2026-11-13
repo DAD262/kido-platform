@@ -2,7 +2,6 @@ package pe.edu.upeu.pago.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pe.edu.upeu.pago.client.*;
@@ -35,6 +34,7 @@ public class PagoService {
  @Transactional(readOnly=true) public List<OrdenResponse> listar(){return ordenRepo.findAll().stream().sorted(Comparator.comparing(OrdenCompra::getId).reversed()).map(this::map).toList();}
  @Transactional(readOnly=true) public OrdenResponse obtener(Long id){return map(buscar(id));}
  @Transactional(readOnly=true) public List<OrdenResponse> porDocente(Long id){return ordenRepo.findByDocenteIdOrderByIdDesc(id).stream().filter(o->o.getAmbiente()==AmbientePago.PRODUCCION).map(this::map).toList();}
+ @Transactional(readOnly=true) public List<OrdenResponse> historialDocente(Long id){return ordenRepo.findByDocenteIdOrderByIdDesc(id).stream().map(this::map).toList();}
  @Transactional(readOnly=true) public List<OrdenResponse> porEstudiante(Long id){return ordenRepo.findByEstudianteIdOrderByIdDesc(id).stream().map(this::map).toList();}
 
  @Transactional

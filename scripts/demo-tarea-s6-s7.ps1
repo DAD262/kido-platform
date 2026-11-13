@@ -25,8 +25,8 @@ function Get-Status([string]$Uri, [string]$Token = "") {
 }
 
 Write-Host "=== TAREA S7 - RESOURCE SERVER KIDO PAGO ===" -ForegroundColor Cyan
-$student = Get-KidoToken "estudiante" "Estudiante123!"
-$teacher = Get-KidoToken "docente" "Docente123!"
+$student = Get-KidoToken "estudiante" $env:KIDO_DEMO_ESTUDIANTE_PASSWORD
+$teacher = Get-KidoToken "docente" $env:KIDO_DEMO_DOCENTE_PASSWORD
 $noToken = Get-Status "$Pago/api/v1/pagos/ordenes"
 $badToken = Get-Status "$Pago/api/v1/pagos/ordenes" "token-invalido"
 $studentDenied = Get-Status "$Pago/api/v1/pagos/docentes/1/saldo" $student

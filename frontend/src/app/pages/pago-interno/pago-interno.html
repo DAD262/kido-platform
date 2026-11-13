@@ -14,7 +14,8 @@
   @else if(r.estado==='rejected'||r.estado==='cancelled'){<h2>Pago no aprobado</h2><p>El proveedor no aprobó esta operación. Revisa tus datos o utiliza otro medio.</p><button class="btn btn-outline" type="button" (click)="reintentar()">Elegir otro medio</button>}
   @else{<h2>{{r.codigo?'Tu código de PagoEfectivo está listo':'Operación pendiente de confirmación'}}</h2>@if(r.codigo){<p>Utiliza este código para pagar el importe indicado:</p><strong class="code">{{r.codigo}}</strong><p>El acceso se habilita cuando Mercado Pago confirme el pago.</p>}@else{<p>Consulta el estado antes de iniciar otro pago.</p>}}
   <p>Operación: {{r.id}}</p>@if(instrucciones();as url){<a class="btn btn-outline" [href]="url" target="_blank" rel="noopener noreferrer">Ver instrucciones del proveedor</a>}
-  <a class="btn btn-primary" routerLink="/estudiante" [queryParams]="{seccion:'compras'}">Ver mis compras</a>
+  <a class="btn btn-primary" routerLink="/estudiante">Volver al portal del estudiante</a>
+  <a class="btn btn-outline" routerLink="/estudiante" [queryParams]="{seccion:'compras'}">Ver mis compras</a>
  </section>}
  <section [hidden]="!config()?.configurado||!!resultado()">
   <h2>{{nombre()}}</h2>

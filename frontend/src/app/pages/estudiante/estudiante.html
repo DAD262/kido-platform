@@ -290,8 +290,9 @@
             <p>Docente: {{docentes.nombre(o.docenteId)}}</p>
             <strong>{{o.montoTotal | soles}}</strong><span> · Orden #{{o.id}} · {{(o.fechaAprobacion || o.fechaCreacion) | fecha}}</span>
             @if(o.ambiente==='PRUEBAS'){<p class="note">Operación de prueba · sin validez tributaria</p>}
-            <p>{{o.inscripcionSincronizada ? 'Acceso habilitado en tu aprendizaje' : 'Pago aprobado · inscripción en proceso'}}</p>
-            <div class="dashboard-actions"><button class="btn btn-primary btn-small" type="button" [disabled]="!o.inscripcionSincronizada" (click)="irAlCurso(o)">Ir a mi curso</button>@if(o.ambiente!=='DESCONOCIDO'){<a class="btn btn-outline btn-small" [routerLink]="['/compras',o.id,'constancia']">Ver constancia</a>}</div>
+            <p>{{puedeAbrirCurso(o) ? 'Acceso habilitado en tu aprendizaje' : 'Pago aprobado · inscripción en proceso'}}</p>
+            @if(!puedeAbrirCurso(o)&&actualizandoAccesos()){<p class="note" role="status">Estamos activando el acceso. Esta página se actualiza automáticamente.</p>}
+            <div class="dashboard-actions"><button class="btn btn-primary btn-small" type="button" [disabled]="!puedeAbrirCurso(o)" (click)="irAlCurso(o)">Ir a mi curso</button>@if(o.ambiente!=='DESCONOCIDO'){<a class="btn btn-outline btn-small" [routerLink]="['/compras',o.id,'constancia']">Ver constancia</a>}</div>
           </article>
         } @empty {<p>No tienes pagos aprobados todavía. Los cursos gratuitos inscritos están en «Mis cursos».</p>}
       </div>

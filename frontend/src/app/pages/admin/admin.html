@@ -279,7 +279,8 @@
                   @else {<td colspan="4">Operación {{o.ambiente==='PRUEBAS'?'de prueba':'sin ambiente verificado'}}. No genera saldo ni liquidación real.</td>}
                   <td>
                     <span class="pill" [class]="o.estado | tono">{{ o.estado | estado }}</span>
-                    @if(o.ambiente!=='DESCONOCIDO' && (o.estado==='PAGO_INICIADO'||o.estado==='APROBADA')){<button class="btn btn-small btn-outline" [disabled]="procesando()" (click)="verificarCompra(o)">Verificar pago</button>}
+                    @if(o.ambiente!=='DESCONOCIDO' && (o.estado==='PAGO_INICIADO'||o.estado==='APROBADA')){<button class="btn btn-small btn-outline" [disabled]="procesando()" [attr.aria-busy]="verificandoOrden()===o.id" (click)="verificarCompra(o)">{{verificandoOrden()===o.id?'Verificando…':'Verificar pago'}}</button>}
+                    @if(resultadosPago()[o.id];as resultado){<p class="payment-result" [class.payment-error]="resultado.error" role="status" aria-live="polite">{{resultado.texto}}</p>}
                     @if(o.estado==='APROBADA' && o.ambiente!=='DESCONOCIDO'){<a class="btn btn-small btn-outline" [routerLink]="['/compras',o.id,'constancia']">Constancia</a>}
                   </td>
                 </tr>

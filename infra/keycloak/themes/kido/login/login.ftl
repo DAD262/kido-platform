@@ -4,6 +4,7 @@
 -->
 <#import "template.ftl" as layout>
 <#assign kidoApp = (properties.kidoAppUrl)!"http://localhost:4300">
+<#if (url.resourcesPath!"")?contains("/auth/resources/")><#assign kidoApp = ""></#if>
 <#assign hayError = messagesPerField.existsError('username','password')>
 <@layout.registrationLayout displayMessage=!hayError displayInfo=false; section>
     <#if section = "header">

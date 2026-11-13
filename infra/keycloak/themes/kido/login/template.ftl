@@ -6,6 +6,7 @@
 -->
 <#macro registrationLayout bodyClass="" displayInfo=false displayMessage=true displayRequiredFields=false showAnotherWayIfPresent=true others...>
 <#assign kidoApp = (properties.kidoAppUrl)!"http://localhost:4300">
+<#if (url.resourcesPath!"")?contains("/auth/resources/")><#assign kidoApp = ""></#if>
 <!DOCTYPE html>
 <html lang="${(locale.currentLanguageTag)!'es'}">
 <head>
@@ -15,7 +16,7 @@
     <meta name="robots" content="noindex, nofollow">
     <meta name="color-scheme" content="light dark">
     <title>${msg("loginTitle",(realm.displayName!'KIDO'))}</title>
-    <link rel="icon" type="image/svg+xml" href="${url.resourcesPath}/img/favicon.svg">
+    <link rel="icon" type="image/png" href="${url.resourcesPath}/img/kido-mark.png?v=1">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Instrument+Sans:wght@400;500;600&display=swap">
@@ -33,9 +34,9 @@
 <body class="kido ${bodyClass}">
 <div class="kc-shell">
     <aside class="kc-brand" aria-hidden="true">
-        <a class="kc-brand-logo" href="${kidoApp}" tabindex="-1">
-            <svg viewBox="0 0 40 40" width="34" height="34"><rect width="40" height="40" rx="12" fill="#5b6dff"/><g fill="none" stroke="#fff" stroke-width="4.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 10.5v19"/><path d="M14 21.6 23.4 13.4"/><path d="M18.6 18.4 25.6 29.5"/></g><circle cx="28" cy="10.6" r="3.3" fill="#ffc463"/></svg>
-            <span>kido</span>
+        <a class="kc-brand-logo" href="${kidoApp}/" tabindex="-1">
+            <img src="${url.resourcesPath}/img/kido-mark.png?v=1" alt="">
+            <span>KIDO</span>
         </a>
         <div class="kc-pitch">
             <h2>${msg("kidoBrandTitle")}</h2>
@@ -54,11 +55,11 @@
 
     <main class="kc-main">
         <div class="kc-top">
-            <a class="kc-logo-mobile" href="${kidoApp}">
-                <svg viewBox="0 0 40 40" width="28" height="28" aria-hidden="true"><rect width="40" height="40" rx="12" fill="#2f49e5"/><g fill="none" stroke="#fff" stroke-width="4.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 10.5v19"/><path d="M14 21.6 23.4 13.4"/><path d="M18.6 18.4 25.6 29.5"/></g><circle cx="28" cy="10.6" r="3.3" fill="#ffc463"/></svg>
-                <span>kido</span>
+            <a class="kc-logo-mobile" href="${kidoApp}/">
+                <img src="${url.resourcesPath}/img/kido-mark.png?v=1" alt="">
+                <span>KIDO</span>
             </a>
-            <a class="kc-back" href="${(client.baseUrl)!kidoApp}">&larr; ${msg("kidoVolver")}</a>
+            <a class="kc-back" href="${kidoApp}/">&larr; ${msg("kidoVolver")}</a>
             <#if realm.internationalizationEnabled && locale.supported?size gt 1>
                 <nav class="kc-locales" aria-label="${msg("kidoIdiomas")}">
                     <#list locale.supported as l>

@@ -76,6 +76,7 @@ services:
     ports:
       - "127.0.0.1:19090:8080"
     environment:
+      KC_PROXY_HEADERS: xforwarded
       KC_DB: postgres
       KC_DB_URL: jdbc:postgresql://postgres-keycloak:5432/kido_keycloak
       KC_DB_USERNAME: kido_keycloak
@@ -193,6 +194,8 @@ services:
   kido-inscripcion-ms:
     build: ./services/kido-inscripcion-ms
     environment:
+      EUREKA_INSTANCE_HOSTNAME: kido-inscripcion-ms
+      EUREKA_INSTANCE_INSTANCE_ID: kido-inscripcion-ms:8080
       SPRING_PROFILES_ACTIVE: prod
       CONFIG_SERVER_URL: http://kido-config:8888
       DB_HOST: postgres-inscripcion
@@ -259,6 +262,8 @@ services:
       KEYCLOAK_JWK_SET_URI: http://kido-keycloak:8080/realms/kido/protocol/openid-connect/certs
       KEYCLOAK_SERVER_URL: http://kido-keycloak:8080
       KEYCLOAK_ISSUER_URI: ${KEYCLOAK_ISSUER_URI:-http://localhost:19090/realms/kido}
+      KIDO_PUBLIC_ORIGIN: ${KIDO_PUBLIC_ORIGIN:-}
+      KIDO_PUBLIC_UNTIL: ${KIDO_PUBLIC_UNTIL:-}
       KIDO_CATALOGO_BASE_URL: http://kido-curso-1:8080
       KIDO_USUARIO_ADMIN_SECRET: ${KIDO_USUARIO_ADMIN_SECRET:?Define KIDO_USUARIO_ADMIN_SECRET en .env}
       SPRING_MAIL_HOST: ${RECUPERACION_SMTP_HOST:-kido-mailpit}
@@ -344,6 +349,8 @@ services:
       MERCADO_PAGO_ACCESS_TOKEN: ${MERCADO_PAGO_ACCESS_TOKEN:-}
       MERCADO_PAGO_PUBLIC_KEY: ${MERCADO_PAGO_PUBLIC_KEY:-}
       KEYCLOAK_ISSUER_URI: ${KEYCLOAK_ISSUER_URI:-http://localhost:19090/realms/kido}
+      KIDO_PUBLIC_ORIGIN: ${KIDO_PUBLIC_ORIGIN:-}
+      KIDO_PUBLIC_UNTIL: ${KIDO_PUBLIC_UNTIL:-}
       MERCADO_PAGO_NOTIFICATION_URL: ${MERCADO_PAGO_NOTIFICATION_URL:-}
       MERCADO_PAGO_RETURN_URL: ${MERCADO_PAGO_RETURN_URL:-http://localhost:4300/pago/resultado}
       MERCADO_PAGO_AUTO_RETURN: ${MERCADO_PAGO_AUTO_RETURN:-false}
@@ -370,6 +377,8 @@ services:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://kido-eureka:8761/eureka
       KEYCLOAK_JWK_SET_URI: http://kido-keycloak:8080/realms/kido/protocol/openid-connect/certs
       KEYCLOAK_ISSUER_URI: ${KEYCLOAK_ISSUER_URI:-http://localhost:19090/realms/kido}
+      KIDO_PUBLIC_ORIGIN: ${KIDO_PUBLIC_ORIGIN:-}
+      KIDO_PUBLIC_UNTIL: ${KIDO_PUBLIC_UNTIL:-}
     depends_on:
       kido-keycloak: {condition: service_started}
       kido-eureka: {condition: service_started}

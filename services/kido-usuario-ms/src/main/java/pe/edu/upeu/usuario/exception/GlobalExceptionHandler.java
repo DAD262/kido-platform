@@ -80,7 +80,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MaxUploadSizeExceededException.class)
     ResponseEntity<Map<String, Object>> archivoGrande(MaxUploadSizeExceededException e) {
         String mensaje = "El PDF puede pesar como máximo 5 MB.";
-        return cuerpo(HttpStatus.PAYLOAD_TOO_LARGE, mensaje, Map.of("documento", mensaje));
+        return cuerpo(HttpStatus.CONTENT_TOO_LARGE, mensaje, Map.of("documento", mensaje));
     }
 
     @ExceptionHandler({HttpMessageNotReadableException.class, MissingServletRequestPartException.class})

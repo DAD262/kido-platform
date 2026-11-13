@@ -1,7 +1,7 @@
 # KIDO · Frontend
 
 Angular 20 (componentes standalone y señales) + Keycloak 26 (`keycloak-js`, PKCE) contra el API Gateway.
-La guía completa para levantar todo el proyecto está en [`../docs/guias/GUIA_LEVANTAR_KIDO.md`](../docs/guias/GUIA_LEVANTAR_KIDO.md).
+La guía completa para levantar todo el proyecto está en [`../otros/documentacion/docs/guias/GUIA_LEVANTAR_KIDO.md`](../otros/documentacion/docs/guias/GUIA_LEVANTAR_KIDO.md).
 
 ## Ejecutar
 

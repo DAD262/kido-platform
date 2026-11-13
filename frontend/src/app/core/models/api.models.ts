@@ -65,6 +65,8 @@ export interface Progreso {
   fechaCompletada?: string;
 }
 export interface Inscripcion {
+  estudianteNombre?: string;
+  cursoTitulo?: string;
   id: number;
   estudianteId: number;
   cursoId: number;
@@ -99,6 +101,7 @@ export interface Certificado {
   fechaEmision: string;
 }
 export interface Orden {
+  estudianteNombre?: string;
     compraCarritoId?:number|null;
   id: number;
   estudianteId: number;

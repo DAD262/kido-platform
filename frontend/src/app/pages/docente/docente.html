@@ -37,8 +37,9 @@
           <small>{{ publicados() }} publicados</small>
         </div>
         <div class="stat">
-          <span class="stat-label">Órdenes registradas</span>
-          <strong>{{ ordenes().length }}</strong>
+          <span class="stat-label">Compras aprobadas</span>
+          <strong>{{ comprasAprobadas().length }}</strong>
+          <small>{{ estudiantesTotal() }} estudiantes · incluye historial de pruebas</small>
         </div>
         <div class="stat">
           <span class="stat-label">Saldo disponible</span>
@@ -59,7 +60,7 @@
           role="tab"
           [attr.aria-selected]="tab() === 'alumnos'"
           [class.active]="tab() === 'alumnos'"
-          (click)="tab.set('alumnos')"
+          (click)="abrirAlumnos()"
         >
           Estudiantes
         </button>
@@ -71,6 +72,7 @@
         >
           Ingresos
         </button>
+        <button role="tab" [attr.aria-selected]="tab() === 'compras'" [class.active]="tab() === 'compras'" (click)="abrirCompras()">Historial de compras</button>
         <button
           class="tab-action"
           (click)="cargar()"
@@ -575,36 +577,47 @@
         <label class="field">
           <span class="sr-only">Curso</span>
           <select
-            [ngModel]="seleccionado()?.id ?? null"
+            [ngModel]="filtroCursoAlumno()"
             (ngModelChange)="seleccionarAlumnos($event)"
           >
-            <option [ngValue]="null">Elige un curso</option>
-            @for (c of cursos(); track c.id) {
+            <option [ngValue]="null">Todos mis cursos</option>
+            @for (c of cursosAlumnos(); track c.id) {
               <option [ngValue]="c.id">{{ c.titulo }}</option>
             }
           </select>
         </label>
         <label class="field">
           <span class="sr-only">Buscar</span>
-          <input [(ngModel)]="busquedaAlumno" placeholder="Buscar por n.º o estado" />
+          <input [(ngModel)]="busquedaAlumno" placeholder="Buscar estudiante, curso o estado" />
         </label>
         <button class="btn btn-outline" (click)="exportarAlumnos()" [disabled]="!alumnos().length">
           <app-icon name="download" [size]="16" />Exportar CSV
         </button>
       </div>
-      @if (!seleccionado()) {
-        <div class="empty">Elige un curso para ver a sus estudiantes.</div>
+      <p class="note">{{ estudiantesTotal() }} estudiantes · {{ matriculas().length }} matrículas en tus cursos.</p>
+      @if(nombresHistoricosIncompletos()){<p class="note">Algunos registros históricos no tienen un perfil con nombre asociado; se muestran con su identificador.</p>}
+      @for(aviso of avisosSeguimiento();track aviso){<p class="alert warn" role="alert">{{aviso}}</p>}
+      @if (cargandoAlumnos()) {
+        <div class="empty" role="status">Cargando estudiantes…</div>
+      } @else if (errorAlumnos()) {
+        <div class="alert error" role="alert">
+          <span>{{ errorAlumnos() }}</span>
+          <button class="btn btn-small btn-outline" (click)="cargarSeguimiento()">Reintentar</button>
+        </div>
       } @else if (!alumnos().length) {
         <div class="empty">
           <strong>Sin estudiantes todavía</strong>Comparte el curso para recibir tus primeras
           inscripciones.
         </div>
+      } @else if (!alumnosFiltrados().length) {
+        <div class="empty">No hay estudiantes que coincidan con la búsqueda.</div>
       } @else {
         <div class="table-wrap">
           <table>
             <thead>
               <tr>
                 <th>Estudiante</th>
+                <th>Curso</th>
                 <th>Inscrito</th>
                 <th>Avance</th>
                 <th>Estado</th>
@@ -614,9 +627,10 @@
               @for (a of alumnosFiltrados(); track a.id) {
                 <tr>
                   <td>
-                    n.º {{ a.estudianteId }}
-                    <span class="cell-caption">Inscripción {{ a.id }}</span>
+                    <strong>{{ a.estudianteNombre || ('Estudiante #' + a.estudianteId) }}</strong>
+                    <span class="cell-caption">n.º {{ a.estudianteId }} · Inscripción {{ a.id }}</span>
                   </td>
+                  <td>{{ a.cursoTitulo }}</td>
                   <td>{{ a.fechaInscripcion | fecha }}</td>
                   <td class="progress-cell">
                     <span class="progress"
@@ -633,6 +647,26 @@
           </table>
         </div>
       }
+    } @else if (tab() === 'compras') {
+      <section class="panel">
+        <h2>Historial de compras de tus cursos</h2>
+        <p class="note">{{historial().length}} órdenes registradas · {{comprasAprobadas().length}} compras aprobadas. Las operaciones de prueba e históricas se identifican por separado y no aumentan tu saldo real.</p>
+        @if(nombresHistoricosIncompletos()){<p class="note">Los compradores históricos sin perfil conservan su identificador; no hay un nombre registrado para mostrar.</p>}
+        @if(cargandoAlumnos()){<p role="status">Cargando historial…</p>}
+        @if(errorAlumnos()){<p class="alert error" role="alert">{{errorAlumnos()}}</p><button class="btn btn-outline" (click)="cargarSeguimiento()">Reintentar</button>}
+        @for(aviso of avisosSeguimiento();track aviso){<p class="alert warn" role="alert">{{aviso}}</p>}
+        <h3>Cursos comprados por estudiante</h3>
+        <div class="table-wrap"><table><thead><tr><th>Estudiante</th><th>Cursos distintos</th><th>Cursos comprados</th></tr></thead><tbody>
+        @for(e of comprasPorEstudiante();track e.id){<tr><td><strong>{{e.nombre}}</strong><span class="cell-caption">n.º {{e.id}}</span></td><td>{{e.cursos.size}}</td><td>@for(titulo of e.titulos;track titulo){<span class="cell-caption">{{titulo}}</span>}</td></tr>}
+        @empty{<tr><td colspan="3">Aún no hay compras aprobadas registradas.</td></tr>}
+        </tbody></table></div>
+        <h3>Detalle de las órdenes</h3>
+        <label class="field"><span>Buscar en el historial</span><input [(ngModel)]="busquedaCompra" placeholder="Estudiante, curso, estado o ambiente" /></label>
+        <div class="table-wrap"><table><thead><tr><th>Fecha</th><th>Estudiante</th><th>Curso</th><th>Estado</th><th>Ambiente</th><th>Importe</th></tr></thead><tbody>
+        @for(o of comprasFiltradas();track o.id){<tr><td>{{o.fechaCreacion|fecha}}<span class="cell-caption">Orden {{o.id}}@if(o.compraCarritoId){ · Compra conjunta {{o.compraCarritoId}}}</span></td><td>{{o.estudianteNombre || ('Estudiante #' + o.estudianteId)}}</td><td>{{o.cursoTitulo}}</td><td>{{o.estado|estado}}</td><td>{{o.ambiente || 'DESCONOCIDO'}}@if(o.simulada){ · Simulada}</td><td>{{o.montoTotal|soles}}</td></tr>}
+        @empty{<tr><td colspan="6">No hay órdenes que coincidan con la búsqueda.</td></tr>}
+        </tbody></table></div>
+      </section>
     } @else {
       <app-liquidaciones-panel [docenteId]="account.id()" />
       <section class="panel"><h2>Tu saldo conciliado</h2>@if((saldo()?.disponible ?? 0)<0){<p class="alert warn">Hay un saldo deudor por una devolución o contracargo posterior a un pago. Se compensará con las siguientes ventas antes de generar otra liquidación.</p>}<p class="note">Solo incluye cobros verificados. Los importes retenidos esperan disponibilidad del proveedor y el plazo de devolución.</p><div class="list-row"><span>Disponible para próxima liquidación</span><strong>{{saldo()?.disponible | soles}}</strong></div><div class="list-row"><span>Pendiente o retenido</span><strong>{{saldo()?.pendiente | soles}}</strong></div><div class="list-row"><span>Reservado en liquidaciones</span><strong>{{saldo()?.reservado | soles}}</strong></div><div class="list-row"><span>Transferencias registradas</span><strong>{{saldo()?.retirado | soles}}</strong></div></section>

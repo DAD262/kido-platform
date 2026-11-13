@@ -13,5 +13,6 @@ import java.util.List;
 class AdminOrdenesTest {
  @Mock OrdenCompraRepository repo;@InjectMocks PagoService service;
  @Test void listaOperativaIncluyeTodosLosAmbientes(){var real=orden(1L,AmbientePago.PRODUCCION);var prueba=orden(2L,AmbientePago.PRUEBAS);var historica=orden(3L,AmbientePago.DESCONOCIDO);when(repo.findAll()).thenReturn(List.of(real,prueba,historica));var resultado=service.listar();assertEquals(3,resultado.size());assertEquals(List.of("DESCONOCIDO","PRUEBAS","PRODUCCION"),resultado.stream().map(x->x.ambiente()).toList());}
+ @Test void historialDocenteIncluyePruebasSinMezclarlasConVentasReales(){var real=orden(1L,AmbientePago.PRODUCCION);var prueba=orden(2L,AmbientePago.PRUEBAS);var historica=orden(3L,AmbientePago.DESCONOCIDO);when(repo.findByDocenteIdOrderByIdDesc(7L)).thenReturn(List.of(real,prueba,historica));assertEquals(3,service.historialDocente(7L).size());assertEquals(1,service.porDocente(7L).size());assertEquals("PRODUCCION",service.porDocente(7L).getFirst().ambiente());}
  private OrdenCompra orden(Long id,AmbientePago ambiente){var o=new OrdenCompra();o.setId(id);o.setEstado(OrdenCompra.EstadoOrden.PENDIENTE);o.setAmbiente(ambiente);return o;}
 }

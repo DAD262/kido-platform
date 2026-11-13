@@ -1,4 +1,4 @@
-﻿# Repara SOLO las tres cuentas demo tras cambiar de realm Keycloak.
+# Repara SOLO las tres cuentas demo tras cambiar de realm Keycloak.
 # Valida cada identidad mediante login y conserva los ids de cursos e inscripciones.
 $ErrorActionPreference = 'Stop'
 $info = (docker inspect kido-postgres-usuario | ConvertFrom-Json)[0]
@@ -10,9 +10,9 @@ $backupPath = Join-Path $env:TEMP ('kido-enlaces-demo-' + (Get-Date -Format 'yyy
 $backup | Set-Content $backupPath -Encoding utf8
 $sql = @('BEGIN;')
 foreach ($demo in @(
-    @{ Name='estudiante'; Password='Estudiante123!'; Id=1001 },
-    @{ Name='docente'; Password='Docente123!'; Id=1 },
-    @{ Name='admin'; Password='Admin123!'; Id=900 }
+    @{ Name='estudiante'; Password=$env:KIDO_DEMO_ESTUDIANTE_PASSWORD; Id=1001 },
+    @{ Name='docente'; Password=$env:KIDO_DEMO_DOCENTE_PASSWORD; Id=1 },
+    @{ Name='admin'; Password=$env:KIDO_DEMO_ADMIN_PASSWORD; Id=900 }
 )) {
     $token = Invoke-RestMethod -Method Post -Uri 'http://localhost:19090/realms/kido/protocol/openid-connect/token' -ContentType 'application/x-www-form-urlencoded' -Body @{client_id='kido-cli';grant_type='password';username=$demo.Name;password=$demo.Password}
     $payload = $token.access_token.Split('.')[1].Replace('-', '+').Replace('_', '/')

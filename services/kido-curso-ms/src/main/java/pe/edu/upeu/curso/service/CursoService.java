@@ -27,6 +27,7 @@ public class CursoService {
     }
 
     @Transactional(readOnly = true) public List<CursoResponse> porDocente(Long docenteId){ return cursoRepository.findByDocenteIdOrderByIdDesc(docenteId).stream().filter(c->!c.isRetiradoCatalogo()).map(mapper::toResponse).toList(); }
+    @Transactional(readOnly = true) public List<CursoResponse> historialDocente(Long docenteId){ return cursoRepository.findByDocenteIdOrderByIdDesc(docenteId).stream().map(mapper::toResponse).toList(); }
     @Transactional(readOnly = true) public List<CursoResponse> publicados(){ return cursoRepository.findByEstadoOrderByIdDesc(Curso.EstadoCurso.PUBLICADO).stream().filter(c->!c.isRetiradoCatalogo()).map(mapper::toResponse).toList(); }
 
     @Transactional(readOnly = true)

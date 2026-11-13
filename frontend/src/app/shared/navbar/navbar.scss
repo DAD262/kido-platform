@@ -16,7 +16,10 @@
   display: inline-flex;
   align-items: center;
   flex: none;
+  height: 40px;
+  overflow: visible;
 }
+.brand app-logo { height: 40px !important; max-height: 40px; }
 nav {
   display: flex;
   gap: 4px;

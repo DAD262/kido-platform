@@ -80,6 +80,6 @@
       }
     }
     @if(compraConjunta();as compra){<div class="group-items"><h2>{{compra.ordenes.length}} cursos · {{compra.total|soles}} · un solo pago</h2>@for(linea of compra.ordenes;track linea.id){<div class="group-line"><strong>{{linea.cursoTitulo}}</strong><span>{{linea.estado==='APROBADA'?(linea.inscripcionSincronizada?'Acceso habilitado':'Activando acceso'):linea.estado}}</span></div>}</div>}
-    <div class="actions"><a class="btn btn-outline" routerLink="/carrito">Volver a mi carrito</a><a class="btn btn-outline" routerLink="/">Ir a mi Kido app</a></div>
+    <div class="actions"><a class="btn btn-primary" routerLink="/estudiante">Volver al portal del estudiante</a><a class="btn btn-outline" routerLink="/carrito">Volver a mi carrito</a></div>
   </section>
 </div>

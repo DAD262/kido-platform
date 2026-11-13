@@ -77,7 +77,7 @@ $EstudianteFallo = Valor-Env "KIDO_SAGA_ESTUDIANTE_FALLO_DEMO"
 if ($EstudianteFallo -ne "999999") {
     throw "Para esta demo define KIDO_SAGA_ESTUDIANTE_FALLO_DEMO=999999 en .env y recrea kido-inscripcion-ms"
 }
-if (-not $AdminPassword) { $AdminPassword = "Admin123!" } # Only the imported TEST realm (never production).
+if (-not $AdminPassword) { throw "Define KIDO_DEMO_ADMIN_PASSWORD en tu .env local antes de ejecutar la demo." }
 
 Write-Host "=== KIDO S09 | Saga coreografiada, duplicados, compensación ===" -ForegroundColor Cyan
 Renovar-Sesion

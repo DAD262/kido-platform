@@ -11,7 +11,7 @@ describe('Formulario de lección renderizado',()=>{
   const curso={id:17,titulo:'Aplicaciones distribuidas',docenteId:1,estado:'BORRADOR'} as Curso;
   const contenido={cursoId:17,titulo:curso.titulo,modulos:[{id:46,cursoId:17,titulo:'Infraestructura Cloud',orden:1,lecciones:[]}],configuracion:{cursoId:17,progresoMinimo:100,asistenciaMinima:0,certificadoHabilitado:false,certificadoCosto:0}} as ContenidoCurso;
   const respuesta=new Subject<{id:number}>();
-  const api={contenido:()=>of(contenido),crearLeccion:jasmine.createSpy().and.returnValue(respuesta),cursosDocente:()=>of([curso]),ordenesDocente:()=>of([]),saldoDocente:()=>of(null),retirosDocente:()=>of([])};
+  const api={seguimientoDocente:()=>of({inscripciones:[],compras:[],fallos:[]}),contenido:()=>of(contenido),crearLeccion:jasmine.createSpy().and.returnValue(respuesta),cursosDocente:()=>of([curso]),ordenesDocente:()=>of([]),saldoDocente:()=>of(null),retirosDocente:()=>of([])};
   const account={id:()=>1,estado:()=> 'listo',esManual:()=>false,asegurar:()=>Promise.resolve(null)};
   TestBed.configureTestingModule({imports:[Docente],providers:[provideRouter([]),{provide:Api,useValue:api},{provide:Auth,useValue:{nombre:'Docente'}},{provide:AccountContext,useValue:account}]});
   const fixture=TestBed.createComponent(Docente);const page=fixture.componentInstance;page.enEditor.set(true);page.seleccionado.set(curso);page.editorPaso.set(2);page.verContenido(17);fixture.detectChanges();await fixture.whenStable();

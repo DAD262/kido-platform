@@ -27,7 +27,7 @@ export class PagoInterno implements OnInit, OnDestroy {
    const pedido=this.route.snapshot.queryParamMap.get('medio');const inicial=c.medios.find(m=>m.id===pedido)??c.medios[0];if(inicial)await this.elegir(inicial.id);
   }catch(e){this.error.set(mensajeError(e));}finally{this.cargando.set(false);}
  }
- logo(id:string){const logos:Record<string,string>={visa:'visa.svg',debvisa:'debvisa.svg',master:'master.svg',debmaster:'debmaster.svg',amex:'amex.gif',diners:'diners.gif',yape:'yape.png',pagoefectivo_atm:'pagoefectivo_atm.gif'};return logos[id]?'/payment-logos/'+logos[id]:null;}
+  logo(id:string){const logos:Record<string,string>={visa:'visa.svg',debvisa:'debvisa.svg',master:'master.svg',debmaster:'debmaster.svg',amex:'amex.svg',diners:'diners.svg',yape:'yape-official-cropped.png',pagoefectivo_atm:'pagoefectivo-official.png'};return logos[id]?'/payment-logos/'+logos[id]:null;}
  esTarjeta(){return !['yape','pagoefectivo_atm',''].includes(this.medio());}
  nombre(){return this.config()?.medios.find(m=>m.id===this.medio())?.nombre??'';}
  async elegir(id:string){

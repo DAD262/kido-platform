@@ -7,13 +7,14 @@
 *.log
 .DS_Store
 
-/backups/
-
 # Archivos privados y evidencias locales
-/.backups/
 /.design-review/
-/respaldos/
-/tmp/
+/otros/
+/otros/logs/
+/otros/respaldos/
+/otros/revisiones-visuales/
+/otros/temporales/
+/otros/documentacion/site-generado/
 *.bak*
 
 # Credenciales y configuracion privada (solo plantillas publicas)

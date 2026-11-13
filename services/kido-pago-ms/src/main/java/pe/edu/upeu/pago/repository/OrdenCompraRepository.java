@@ -7,6 +7,7 @@ public interface OrdenCompraRepository extends JpaRepository<OrdenCompra,Long>{
  List<OrdenCompra> findByCompraCarritoIdOrderByIdAsc(Long id);
  List<OrdenCompra> findByDocenteIdOrderByIdDesc(Long docenteId);
  List<OrdenCompra> findByEstudianteIdOrderByIdDesc(Long estudianteId);
+ List<OrdenCompra> findTop50ByEstadoAndInscripcionSincronizadaFalseOrderByIdAsc(OrdenCompra.EstadoOrden estado);
  Optional<OrdenCompra> findFirstByEstudianteIdAndCursoIdAndEstadoInOrderByIdDesc(Long estudianteId, Long cursoId, Collection<OrdenCompra.EstadoOrden> estados);
  boolean existsByEstudianteIdAndCursoIdAndEstado(Long estudianteId, Long cursoId, OrdenCompra.EstadoOrden estado);
  @org.springframework.data.jpa.repository.Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)

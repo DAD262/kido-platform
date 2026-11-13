@@ -10,6 +10,10 @@ import pe.edu.upeu.curso.service.CursoService;
 @RequiredArgsConstructor
 public class CursoInternalController {
     private final CursoService service;
+    @GetMapping("/docente/{id}")
+    public java.util.List<pe.edu.upeu.curso.dto.CursoResponse> seguimientoDocente(@PathVariable Long id) {
+        return service.historialDocente(id);
+    }
 
     @GetMapping("/{id}/resumen-compra")
     public CursoCompraResponse resumenCompra(@PathVariable Long id) {

@@ -9,6 +9,10 @@ import org.springframework.kafka.config.TopicBuilder;
 @Configuration
 public class KafkaTopicsConfig {
     @Bean
+    public NewTopic pagoEventos(@Value("${app.kafka.topic.pagos:kido-pago-eventos}") String nombre) {
+        return TopicBuilder.name(nombre).partitions(3).replicas(1).build();
+    }
+    @Bean
     public NewTopic academicoEventos(@Value("${app.kafka.topic.academico:kido-academico-eventos}") String nombre) {
         return TopicBuilder.name(nombre).partitions(3).replicas(1).build();
     }

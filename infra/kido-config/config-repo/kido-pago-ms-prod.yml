@@ -51,6 +51,7 @@ spring:
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
       properties:
+        metadata.max.age.ms: 10000
         spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JacksonJsonDeserializer
         spring.json.value.default.type: pe.edu.upeu.pago.event.AcademicoResultadoEvento
         spring.json.trusted.packages: pe.edu.upeu.pago.event

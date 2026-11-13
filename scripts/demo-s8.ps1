@@ -11,7 +11,7 @@ function Get-KidoToken([string]$User, [string]$Password) {
 }
 
 Write-Host "=== S08 KIDO - FLUJO NORMAL CON KAFKA ===" -ForegroundColor Cyan
-$admin = Get-KidoToken "admin" "Admin123!"
+$admin = Get-KidoToken "admin" $env:KIDO_DEMO_ADMIN_PASSWORD
 $headers = @{ Authorization = "Bearer $admin" }
 $curso = Invoke-RestMethod -Method Get -Uri "$Base/api/v1/cursos/2"
 $student = Get-Random -Minimum 20000 -Maximum 90000

@@ -1,9 +1,10 @@
 import { LiquidacionesPanel } from '../../shared/liquidaciones-panel/liquidaciones-panel';
 import { ComercioAdmin } from './comercio-admin/comercio-admin';
 import { CuentasAdmin } from './cuentas-admin/cuentas-admin';
-import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, OnInit, signal, ChangeDetectionStrategy, DestroyRef } from '@angular/core';
 
-import { forkJoin, catchError, of, Observable } from 'rxjs';
+import { forkJoin, catchError, of, Observable, timeout, TimeoutError, finalize } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { Auth } from '../../core/services/auth';
@@ -31,6 +32,9 @@ import { SolicitudesDocentes } from './solicitudes-docentes/solicitudes-docentes
 export class Admin implements OnInit {
   readonly auth = inject(Auth);
   private readonly api = inject(Api);
+  private readonly destroyRef = inject(DestroyRef);
+  readonly verificandoOrden = signal<number|null>(null);
+  readonly resultadosPago = signal<Record<number,{texto:string;error:boolean}>>({});
   hostActual() {
     return window.location.hostname;
   }
@@ -185,7 +189,25 @@ export class Admin implements OnInit {
       (o) => (this.filtroFinanzas() === 'TODAS' || o.estado === this.filtroFinanzas()) && (this.filtroAmbiente()==='TODOS'||o.ambiente===this.filtroAmbiente()),
     );
   }
-  verificarCompra(o:Orden){if(this.procesando())return;this.procesando.set(true);this.error.set('');this.api.verificarOrden(o.id).subscribe({next:n=>{this.ordenes.update(xs=>xs.map(x=>x.id===n.id?n:x));this.procesando.set(false);this.mensaje.set(n.estado==='APROBADA'?'Pago verificado con Mercado Pago.':'Mercado Pago todavía no registra un pago aprobado.');},error:e=>{this.procesando.set(false);this.error.set(mensajeError(e));}});}
+  verificarCompra(o:Orden){
+    if(this.procesando())return;
+    this.procesando.set(true);this.verificandoOrden.set(o.id);this.error.set('');this.mensaje.set('');
+    this.resultadosPago.update(v=>({...v,[o.id]:{texto:'Consultando a Mercado Pago…',error:false}}));
+    this.api.verificarOrden(o.id).pipe(timeout(30000),takeUntilDestroyed(this.destroyRef),finalize(()=>{this.procesando.set(false);this.verificandoOrden.set(null);})).subscribe({
+      next:n=>{
+        this.ordenes.update(xs=>xs.map(x=>x.id===n.id?n:x));
+        const cantidad=n.pagosAprobadosDetectados??0;
+        const texto=cantidad>1?`Se detectaron ${cantidad} operaciones aprobadas para esta orden. Revisa los cobros repetidos; se mantiene un solo acceso al curso.`:
+          n.estado==='APROBADA'?'La orden está aprobada. La verificación no realiza un nuevo cobro.':
+          'Consulta completada: Mercado Pago todavía no registra un pago aprobado para esta orden. El estado no cambia y no se realiza un nuevo cobro.';
+        this.resultadosPago.update(v=>({...v,[o.id]:{texto,error:false}}));this.mensaje.set(texto);
+      },
+      error:e=>{
+        const texto=e instanceof TimeoutError?'La consulta tardó demasiado. Puedes volver a verificar; no se ha iniciado otro cobro.':mensajeError(e);
+        this.resultadosPago.update(v=>({...v,[o.id]:{texto,error:true}}));this.error.set(texto);
+      },
+    });
+  }
   estadosOrden() {
     return [...new Set(this.ordenes().map((o) => o.estado))].sort();
   }

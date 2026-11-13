@@ -1,7 +1,6 @@
 import { LiquidacionesPanel } from '../../shared/liquidaciones-panel/liquidaciones-panel';
 import { Component, computed, inject, OnInit, signal, ChangeDetectionStrategy,DestroyRef } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
 import { forkJoin, catchError, of, Observable,finalize,timeout,TimeoutError,Subscription } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HttpEventType } from '@angular/common/http';
@@ -27,7 +26,7 @@ import { PerfilEstado } from '../../shared/perfil-estado/perfil-estado';
 @Component({
   selector: 'app-docente',
   standalone: true,
-  imports: [LiquidacionesPanel, FormsModule, RouterLink, Icon, KIDO_PIPES, PerfilEstado],
+  imports: [LiquidacionesPanel, FormsModule, Icon, KIDO_PIPES, PerfilEstado],
   templateUrl: './docente.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './docente.scss',
@@ -40,10 +39,27 @@ export class Docente implements OnInit {
   readonly auth = inject(Auth);
   readonly account = inject(AccountContext);
   private readonly api = inject(Api);
-  readonly tab = signal<'cursos' | 'alumnos' | 'finanzas'>('cursos');
+  readonly tab = signal<'cursos' | 'alumnos' | 'compras' | 'finanzas'>('cursos');
   readonly cursos = signal<Curso[]>([]);
   readonly seleccionado = signal<Curso | null>(null);
   readonly alumnos = signal<Inscripcion[]>([]);
+  readonly matriculas = signal<Inscripcion[]>([]);
+  readonly historial = signal<Orden[]>([]);
+  readonly avisosSeguimiento = signal<string[]>([]);
+  readonly filtroCursoAlumno = signal<number|null>(null);
+  readonly cursosAlumnos = computed(() => {
+    const cursos = new Map(this.cursos().map(c => [c.id, {id:c.id,titulo:c.titulo}]));
+    for (const a of this.matriculas()) if (!cursos.has(a.cursoId)) cursos.set(a.cursoId,{id:a.cursoId,titulo:(a.cursoTitulo ?? `Curso #${a.cursoId}`)+' (histórico)'});
+    return Array.from(cursos.values());
+  });
+  readonly estudiantesTotal = computed(() => new Set(this.matriculas().map(a => a.estudianteId)).size);
+  readonly comprasAprobadas = computed(() => this.historial().filter(o => o.estado === 'APROBADA'));
+  readonly nombresHistoricosIncompletos = computed(() => [...this.matriculas(), ...this.historial()].some(r => !r.estudianteNombre || r.estudianteNombre.startsWith('Estudiante #')));
+  busquedaCompra = '';
+  readonly cargandoAlumnos = signal(false);
+  readonly errorAlumnos = signal('');
+  private solicitudAlumnos?: Subscription;
+  private lecturaAlumnos = 0;
   readonly contenido = signal<ContenidoCurso | null>(null);
   readonly saldo = signal<Saldo | null>(null);
   readonly ordenes = signal<Orden[]>([]);
@@ -118,10 +134,22 @@ export class Docente implements OnInit {
   }
   alumnosFiltrados() {
     return this.alumnos().filter((a) =>
-      `${a.id} ${a.estudianteId} ${a.estado}`
+      `${a.id} ${a.estudianteId} ${a.estudianteNombre ?? ''} ${a.cursoTitulo ?? ''} ${a.estado}`
         .toLowerCase()
         .includes(this.busquedaAlumno.toLowerCase()),
     );
+  }
+  comprasFiltradas() {
+    const busqueda = this.busquedaCompra.trim().toLowerCase();
+    return this.historial().filter(o => `${o.id} ${o.estudianteNombre ?? ''} ${o.cursoTitulo} ${o.estado} ${o.ambiente ?? ''}`.toLowerCase().includes(busqueda));
+  }
+  comprasPorEstudiante() {
+    const estudiantes = new Map<number, {id:number;nombre:string;cursos:Set<number>;titulos:Set<string>;compras:number}>();
+    for (const o of this.comprasAprobadas()) {
+      const e = estudiantes.get(o.estudianteId) ?? {id:o.estudianteId,nombre:o.estudianteNombre ?? `Estudiante #${o.estudianteId}`,cursos:new Set<number>(),titulos:new Set<string>(),compras:0};
+      e.cursos.add(o.cursoId); e.titulos.add(o.cursoTitulo); e.compras++; estudiantes.set(e.id,e);
+    }
+    return Array.from(estudiantes.values()).sort((a,b)=>a.nombre.localeCompare(b.nombre));
   }
   leccionesTotal() {
     return this.contenido()?.modulos.reduce((n, m) => n + m.lecciones.length, 0) ?? 0;
@@ -145,17 +173,17 @@ export class Docente implements OnInit {
   }
   exportarAlumnos() {
     const filas = [
-      ['Inscripcion', 'Estudiante', 'Progreso', 'Estado'],
-      ...this.alumnosFiltrados().map((a) => [a.id, a.estudianteId, a.porcentajeProgreso, a.estado]),
+      ['Inscripcion', 'Estudiante', 'Nombre', 'Curso', 'Progreso', 'Estado'],
+      ...this.alumnosFiltrados().map((a) => [a.id, a.estudianteId, a.estudianteNombre ?? '', a.cursoTitulo ?? '', a.porcentajeProgreso, a.estado]),
     ];
     const csv =
       '\uFEFF' +
       filas
-        .map((f) => f.map((v) => '"' + String(v).replace(/"/g, '""') + '"').join(';'))
+        .map((f) => f.map((v) => { const texto=String(v);return '"'+(/^[=+\-@\t\r]/.test(texto)?"'":'')+texto.replace(/"/g,'""')+'"'; }).join(';'))
         .join('\r\n');
     this.descargarBlob(
       new Blob([csv], { type: 'text/csv;charset=utf-8' }),
-      `inscritos-curso-${this.seleccionado()?.id}.csv`,
+      `inscritos-${this.filtroCursoAlumno() ?? 'todos-los-cursos'}.csv`,
     );
   }
   private descargarBlob(blob: Blob, nombre: string) {
@@ -289,6 +317,7 @@ export class Docente implements OnInit {
       this.saldo.set(v.saldo);
       this.retiros.set(v.retiros);
       this.cargando.set(false);
+      this.cargarSeguimiento();
     });
   }
   nuevo() {
@@ -541,19 +570,16 @@ export class Docente implements OnInit {
   }
   verAlumnos(c: Curso) {
     if (this.procesando()) return;
-    this.enEditor.set(false);
-    ++this.lectura;
-    this.contenido.set(null);
-    this.alumnos.set([]);
-    this.seleccionado.set(c);
     this.tab.set('alumnos');
-    this.error.set('');
-    this.api.inscripcionesCurso(c.id).subscribe({
-      next: (r) => {
-        if (this.seleccionado()?.id === c.id) this.alumnos.set(r);
-      },
-      error: (e) => this.error.set(mensajeError(e)),
-    });
+    this.seleccionarAlumnos(c.id);
+  }
+  abrirAlumnos() {
+    this.tab.set('alumnos');
+    this.seleccionarAlumnos(null);
+  }
+  abrirCompras() {
+    this.tab.set('compras');
+    this.cargarSeguimiento();
   }
   elegirArchivo(event: Event): void {
     const input = event.target as HTMLInputElement;
@@ -612,6 +638,7 @@ export class Docente implements OnInit {
   }
 
   seleccionarAlumnos(cursoId: number | null): void {
+    this.filtroCursoAlumno.set(cursoId === null ? null : Number(cursoId));
     this.enEditor.set(false);
     const curso = this.cursos().find((c) => c.id === Number(cursoId)) ?? null;
     ++this.lectura;
@@ -619,14 +646,30 @@ export class Docente implements OnInit {
     this.seleccionado.set(curso);
     this.alumnos.set([]);
     this.error.set('');
-    if (!curso) return;
-
-    this.api.inscripcionesCurso(curso.id).subscribe({
-      next: (alumnos) => {
-        if (this.seleccionado()?.id === curso.id) this.alumnos.set(alumnos);
+    this.busquedaAlumno = '';
+    this.cargarSeguimiento();
+  }
+  cargarSeguimiento(): void {
+    const version = ++this.lecturaAlumnos;
+    this.solicitudAlumnos?.unsubscribe();
+    this.errorAlumnos.set('');
+    this.avisosSeguimiento.set([]);
+    this.cargandoAlumnos.set(true);
+    this.solicitudAlumnos = this.api.seguimientoDocente().pipe(
+      timeout(30000),
+      takeUntilDestroyed(this.destroyRef),
+      finalize(() => { if (version === this.lecturaAlumnos) this.cargandoAlumnos.set(false); }),
+    ).subscribe({
+      next: (datos) => {
+        if (version !== this.lecturaAlumnos) return;
+        this.matriculas.set(datos.inscripciones);
+        this.historial.set(datos.compras);
+        this.avisosSeguimiento.set(datos.fallos);
+        const curso = this.filtroCursoAlumno();
+        this.alumnos.set(curso ? datos.inscripciones.filter(a => a.cursoId === curso) : datos.inscripciones);
       },
       error: (e: unknown) => {
-        if (this.seleccionado()?.id === curso.id) this.error.set(mensajeError(e));
+        if (version === this.lecturaAlumnos) this.errorAlumnos.set(e instanceof TimeoutError ? 'La lista tardó demasiado en cargar. Vuelve a intentarlo.' : mensajeError(e));
       },
     });
   }

@@ -118,7 +118,10 @@ public final class ValidadorRegistro {
         if (tamano > MAX_DOCUMENTO_BYTES) {
             throw new IllegalArgumentException("documento: el PDF puede pesar como máximo 5 MB.");
         }
-        boolean firma = inicio != null && inicio.length >= FIRMA_PDF.length;
+        if (inicio == null || inicio.length < FIRMA_PDF.length) {
+            throw new IllegalArgumentException("documento: el archivo debe ser un PDF válido.");
+        }
+        boolean firma = true;
         for (int i = 0; firma && i < FIRMA_PDF.length; i++) {
             firma = inicio[i] == FIRMA_PDF[i];
         }
