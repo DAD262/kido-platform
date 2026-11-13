@@ -1,5 +1,21 @@
 package pe.edu.upeu.curso.controller;
-import jakarta.validation.Valid; import lombok.RequiredArgsConstructor; import org.springframework.core.io.Resource; import org.springframework.http.*; import org.springframework.web.bind.annotation.*; import org.springframework.web.multipart.MultipartFile; import pe.edu.upeu.curso.dto.*; import pe.edu.upeu.curso.service.*;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.Resource;
+import org.springframework.http.*;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import pe.edu.upeu.curso.dto.ConfiguracionCursoRequest;
+import pe.edu.upeu.curso.dto.ConfiguracionCursoResponse;
+import pe.edu.upeu.curso.dto.ContenidoCursoResponse;
+import pe.edu.upeu.curso.dto.LeccionDetalleResponse;
+import pe.edu.upeu.curso.dto.LeccionRequest;
+import pe.edu.upeu.curso.dto.MaterialRequest;
+import pe.edu.upeu.curso.dto.MaterialResponse;
+import pe.edu.upeu.curso.dto.ModuloDetalleResponse;
+import pe.edu.upeu.curso.dto.ModuloRequest;
+import pe.edu.upeu.curso.service.ContenidoCursoService;
+import pe.edu.upeu.curso.service.MaterialStorageService;
 @RestController @RequestMapping("/api/v1") @RequiredArgsConstructor
 public class ContenidoCursoController { private final ContenidoCursoService service; private final MaterialStorageService storage;
  @GetMapping("/cursos/{cursoId}/contenido") public ContenidoCursoResponse contenido(@PathVariable Long cursoId){return service.contenido(cursoId);} 

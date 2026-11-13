@@ -182,7 +182,7 @@ export class Estudiante implements OnInit {
     ).subscribe({next:r=>{this.inscripciones.set(r.inscripciones);this.ordenes.set(r.ordenes);this.actualizarAccesosPendientes(intentos-1);},error:()=>{this.actualizandoAccesos.set(false);this.mensaje.set('No se pudo actualizar el acceso automáticamente. Usa Actualizar para volver a consultar tus cursos; no vuelvas a pagar.');}});
   }
   verificarCompra(o:Orden){if(this.procesando())return;this.procesando.set(true);this.error.set('');this.api.verificarOrden(o.id).subscribe({next:()=>{this.procesando.set(false);this.mensaje.set('Estado consultado directamente con Mercado Pago.');this.cargar();},error:e=>{this.procesando.set(false);this.error.set(mensajeError(e));}});}
-  portada(cursoId:number){return portadaCurso(this.cursos().find(c=>c.id===cursoId)?.titulo);}
+  portada(cursoId:number){const c=this.cursos().find(c=>c.id===cursoId);return portadaCurso(c?.titulo,c?.portadaUrl);}
   titulo(cursoId: number) {
     return this.cursos().find((c) => c.id === cursoId)?.titulo || `Curso #${cursoId}`;
   }

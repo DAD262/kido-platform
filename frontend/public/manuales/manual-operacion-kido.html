@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Manual operativo de KIDO: inicio, microservicios, enlaces, rutas, pagos, Keycloak y apagado seguro.">
+  <title>KIDO · Manual de operación local</title>
+  <link rel="icon" href="/brand/kido-mark.png">
+  <style>
+    :root{--blue:#2448ed;--cyan:#19a8ef;--ink:#10131a;--muted:#5f6878;--line:#dfe4ec;--paper:#fff;--soft:#f5f7fb;--nav:#0d1630;--green:#087f5b;--orange:#d97706;--red:#c92a2a;--code:#101827;--shadow:0 10px 30px rgba(16,24,40,.08)}
+    *{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:84px}body{margin:0;background:var(--soft);color:var(--ink);font:16px/1.65 Inter,Segoe UI,Arial,sans-serif}
+    a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}.top{position:sticky;top:0;z-index:20;height:68px;background:linear-gradient(110deg,#142c92,var(--blue));color:#fff;display:flex;align-items:center;padding:0 28px;box-shadow:0 2px 14px #0b1d6644}
+    .brand{display:flex;align-items:center;gap:12px;font-weight:800;font-size:21px}.brand img{width:36px;height:36px;object-fit:contain}.top small{opacity:.78;font-weight:500}.search{margin-left:auto;max-width:390px;width:38%;position:relative}.search input{width:100%;padding:11px 16px 11px 40px;border:1px solid #ffffff33;border-radius:10px;background:#112571aa;color:#fff;outline:none}.search input::placeholder{color:#dce3ff}.search span{position:absolute;left:14px;top:9px;font-size:18px}
+    .layout{display:grid;grid-template-columns:270px minmax(0,900px) 240px;gap:30px;max-width:1480px;margin:auto;padding:30px 28px 80px}.side,.toc{position:sticky;top:96px;align-self:start;max-height:calc(100vh - 120px);overflow:auto}.side{background:var(--nav);color:#dce5ff;border-radius:16px;padding:22px;box-shadow:var(--shadow)}.side h2{color:#fff;font-size:15px;margin:0 0 14px}.side a{display:block;color:#cbd7ff;padding:7px 9px;border-radius:8px;font-size:14px}.side a:hover{background:#ffffff12;color:#fff;text-decoration:none}.side .group{color:#6fd1ff;text-transform:uppercase;letter-spacing:.08em;font-size:11px;font-weight:800;margin:17px 9px 5px}
+    main{min-width:0}.hero,.section{background:var(--paper);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow)}.hero{padding:38px;margin-bottom:24px;background:linear-gradient(145deg,#fff 55%,#edf3ff)}.eyebrow{color:var(--blue);font-weight:800;text-transform:uppercase;letter-spacing:.1em;font-size:12px}.hero h1{font-size:42px;line-height:1.08;margin:10px 0 15px}.hero p{font-size:18px;color:var(--muted);max-width:720px}.badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px}.badge{background:#e9efff;color:#1738c2;border:1px solid #cbd7ff;border-radius:99px;padding:6px 12px;font-size:13px;font-weight:700}
+    .section{padding:32px;margin:0 0 24px}.section h2{font-size:28px;margin:0 0 8px}.section h3{font-size:20px;margin:28px 0 10px}.lead{color:var(--muted);margin-top:0}.callout{border-left:5px solid var(--blue);background:#eff3ff;padding:15px 18px;border-radius:0 12px 12px 0;margin:18px 0}.callout.warning{border-color:var(--orange);background:#fff7e6}.callout.danger{border-color:var(--red);background:#fff1f1}.callout.success{border-color:var(--green);background:#eafaf4}
+    .steps{counter-reset:step;display:grid;gap:13px;margin:18px 0}.step{position:relative;padding:17px 18px 17px 58px;border:1px solid var(--line);border-radius:13px}.step:before{counter-increment:step;content:counter(step);position:absolute;left:17px;top:16px;width:27px;height:27px;border-radius:50%;display:grid;place-items:center;background:var(--blue);color:#fff;font-weight:800}
+    pre{position:relative;margin:12px 0 20px;background:var(--code);color:#e7efff;border-radius:12px;padding:18px 54px 18px 18px;overflow:auto;font:13.5px/1.65 Consolas,monospace;white-space:pre}.copy{position:absolute;top:9px;right:9px;border:1px solid #ffffff30;border-radius:8px;background:#ffffff12;color:#fff;padding:6px 9px;cursor:pointer}.copy:hover{background:#ffffff20}code:not(pre code){font:13.5px Consolas,monospace;background:#edf0f5;border-radius:5px;padding:2px 5px}
+    table{width:100%;border-collapse:separate;border-spacing:0;margin:16px 0;border:1px solid var(--line);border-radius:12px;overflow:hidden}th,td{padding:12px 14px;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}th{background:#edf2ff;color:#1c327e;font-size:13px;text-transform:uppercase;letter-spacing:.04em}tr:last-child td{border-bottom:0}tbody tr:hover{background:#fafbff}.status{font-weight:800;color:var(--green)}
+    .cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.card{border:1px solid var(--line);border-radius:13px;padding:17px}.card h3{margin:0 0 6px;font-size:17px}.card p{margin:0;color:var(--muted);font-size:14px}.toc{font-size:13px}.toc h2{font-size:14px}.toc a{display:block;border-left:2px solid var(--line);padding:6px 0 6px 12px;color:var(--muted)}.toc a:hover{border-color:var(--blue);color:var(--blue);text-decoration:none}.dim{display:none}.search-hit{outline:3px solid #ffd43b;border-radius:5px}.footer{text-align:center;color:var(--muted);font-size:13px;padding-top:15px}
+    @media(max-width:1150px){.layout{grid-template-columns:240px minmax(0,1fr)}.toc{display:none}}@media(max-width:760px){.top{padding:0 15px}.top small{display:none}.search{width:52%}.layout{display:block;padding:18px 12px 60px}.side{position:static;max-height:none;margin-bottom:18px}.hero,.section{padding:23px}.hero h1{font-size:33px}.cards{grid-template-columns:1fr}table{display:block;overflow-x:auto}}
+  </style>
+</head>
+<body>
+  <header class="top">
+    <div class="brand"><img src="/brand/kido-mark.png" alt="KIDO"><span>KIDO <small>Manual de operación local</small></span></div>
+    <label class="search"><span>⌕</span><input id="search" type="search" placeholder="Buscar comando, servicio o ruta…" aria-label="Buscar en el manual"></label>
+  </header>
+
+  <div class="layout">
+    <nav class="side" aria-label="Navegación principal">
+      <h2>Manual KIDO</h2>
+      <div class="group">Inicio</div>
+      <a href="#resumen">1. Qué inicia KIDO</a><a href="#requisitos">2. Requisitos</a><a href="#completo">3. Sistema completo</a>
+      <div class="group">Operación</div>
+      <a href="#uno-por-uno">4. Uno por uno</a><a href="#java">5. Ejecución con Java</a><a href="#enlaces">6. Enlaces</a><a href="#diagnostico">7. Diagnóstico</a><a href="#apagar">8. Apagar KIDO</a>
+      <div class="group">Código</div>
+      <a href="#rutas">9. Rutas del proyecto</a><a href="#keycloak">10. Keycloak</a><a href="#pagos">11. Pagos actuales</a><a href="#seguridad">12. Seguridad</a>
+    </nav>
+
+    <main id="manual">
+      <section class="hero">
+        <div class="eyebrow">Guía operativa · Windows + PowerShell</div>
+        <h1>Cómo iniciar, revisar y apagar KIDO</h1>
+        <p>Manual práctico para ejecutar el frontend, la infraestructura y cada microservicio sin perderse entre carpetas, puertos o dependencias.</p>
+        <div class="badges"><span class="badge">Frontend :4300</span><span class="badge">Gateway :18080</span><span class="badge">Keycloak :19090</span><span class="badge">Docker Compose</span><span class="badge">Mercado Pago en pruebas</span></div>
+      </section>
+
+      <section class="section" id="resumen"><h2>1. Qué inicia KIDO</h2><p class="lead">El navegador entra por Angular. Las llamadas de negocio pasan por el Gateway y este localiza los microservicios registrados en Eureka.</p>
+        <div class="callout success"><strong>Flujo principal:</strong> Navegador → Angular <code>:4300</code> → Gateway <code>:18080</code> → microservicios → PostgreSQL/Kafka. El inicio de sesión se realiza mediante Keycloak <code>:19090</code>.</div>
+        <div class="cards"><div class="card"><h3>Infraestructura</h3><p>Config Server, Eureka, Keycloak, Kafka, Mailpit, PostgreSQL, Prometheus y Grafana.</p></div><div class="card"><h3>Negocio</h3><p>Cursos, inscripciones, pagos, usuarios y notificaciones, detrás del Gateway.</p></div></div>
+      </section>
+
+      <section class="section" id="requisitos"><h2>2. Antes de iniciar</h2><div class="steps"><div class="step"><strong>Abre Docker Desktop.</strong> Espera hasta que el motor indique que está listo.</div><div class="step"><strong>Abre PowerShell.</strong> Define una variable para no repetir la ruta.</div><div class="step"><strong>Comprueba <code>.env</code>.</strong> Debe existir en la raíz, pero nunca debe compartirse ni subirse a GitHub.</div></div>
+        <pre><button class="copy">Copiar</button><code>$KIDO = "C:\Users\ASUS\OneDrive\Documentos\KIDO_Acceso_v4\kido-platform"
+Set-Location $KIDO
+docker version
+node --version
+java --version</code></pre>
+        <div class="callout warning"><strong>Si Docker responde que no encuentra <code>dockerDesktopLinuxEngine</code>:</strong> Docker Desktop todavía no está iniciado.</div>
+      </section>
+
+      <section class="section" id="completo"><h2>3. Iniciar el sistema completo</h2><h3>3.1 Backend e infraestructura</h3>
+        <pre><button class="copy">Copiar</button><code>Set-Location $KIDO
+docker compose up -d --build
+docker compose ps</code></pre>
+        <p>La primera ejecución puede tardar porque Docker descarga imágenes y Maven instala dependencias.</p><h3>3.2 Frontend Angular</h3><p>Ejecuta esto en una segunda terminal:</p>
+        <pre><button class="copy">Copiar</button><code>Set-Location "$KIDO\frontend"
+npm.cmd install
+npm.cmd start</code></pre>
+        <div class="callout success">Cuando Angular muestre que compiló correctamente, abre <a href="http://localhost:4300">http://localhost:4300</a>.</div>
+      </section>
+
+      <section class="section" id="uno-por-uno"><h2>4. Iniciar servicios uno por uno</h2><p class="lead">Usa este orden cuando quieras observar cada pieza. Docker también levantará las dependencias declaradas cuando sean necesarias.</p>
+        <h3>4.1 Infraestructura básica</h3><pre><button class="copy">Copiar</button><code>Set-Location $KIDO
+docker compose up -d kido-mailpit
+docker compose up -d kido-kafka
+docker compose up -d kido-kafka-ui
+docker compose up -d postgres-keycloak
+docker compose up -d kido-keycloak
+docker compose up -d kido-config
+docker compose up -d kido-eureka</code></pre>
+        <h3>4.2 Microservicios</h3><pre><button class="copy">Copiar</button><code>docker compose up -d postgres-curso
+docker compose up -d --build kido-curso-1 kido-curso-2
+
+docker compose up -d postgres-inscripcion
+docker compose up -d --build kido-inscripcion-ms
+
+docker compose up -d postgres-notificacion
+docker compose up -d --build kido-notificacion-ms
+
+docker compose up -d postgres-usuario
+docker compose up -d --build kido-usuario-ms
+
+docker compose up -d postgres-pago
+docker compose up -d --build kido-pago-ms
+
+docker compose up -d --build kido-gateway</code></pre>
+        <h3>4.3 Monitoreo opcional</h3><pre><button class="copy">Copiar</button><code>docker compose up -d kido-prometheus kido-grafana</code></pre>
+      </section>
+
+      <section class="section" id="java"><h2>5. Ejecutar microservicios directamente con Java</h2><p class="lead">Recomendado solamente para depurar. Cada comando debe ejecutarse en una terminal distinta. Mantén las bases de datos, Kafka y Keycloak disponibles mediante Docker.</p>
+        <pre><button class="copy">Copiar</button><code>Set-Location $KIDO
+docker compose up -d kido-kafka postgres-keycloak kido-keycloak `
+  postgres-curso postgres-inscripcion postgres-pago `
+  postgres-usuario postgres-notificacion</code></pre>
+        <table><thead><tr><th>Orden</th><th>Componente</th><th>Carpeta</th><th>Comando</th></tr></thead><tbody>
+          <tr><td>1</td><td>Config Server</td><td><code>infra\kido-config</code></td><td><code>.\mvnw.cmd spring-boot:run</code></td></tr>
+          <tr><td>2</td><td>Eureka</td><td><code>infra\kido-eureka</code></td><td><code>.\mvnw.cmd spring-boot:run</code></td></tr>
+          <tr><td>3</td><td>Cursos</td><td><code>services\kido-curso-ms</code></td><td><code>.\mvnw.cmd spring-boot:run</code></td></tr>
+          <tr><td>4</td><td>Inscripciones</td><td><code>services\kido-inscripcion-ms</code></td><td><code>.\mvnw.cmd spring-boot:run</code></td></tr>
+          <tr><td>5</td><td>Notificaciones</td><td><code>services\kido-notificacion-ms</code></td><td><code>.\mvnw.cmd spring-boot:run</code></td></tr>
+          <tr><td>6</td><td>Usuarios</td><td><code>services\kido-usuario-ms</code></td><td><code>.\mvnw.cmd spring-boot:run</code></td></tr>
+          <tr><td>7</td><td>Pagos</td><td><code>services\kido-pago-ms</code></td><td><code>.\mvnw.cmd spring-boot:run</code></td></tr>
+          <tr><td>8</td><td>Gateway</td><td><code>infra\kido-gateway</code></td><td>Usa el bloque especial siguiente</td></tr>
+        </tbody></table>
+        <p>El Config Server local usa <code>18888</code>, mientras el Gateway tiene <code>18889</code> como valor predeterminado. Para desarrollo manual:</p>
+        <pre><button class="copy">Copiar</button><code>Set-Location "$KIDO\infra\kido-gateway"
+$env:CONFIG_SERVER_URL = "http://localhost:18888"
+.\mvnw.cmd spring-boot:run</code></pre>
+        <p>Para detener una aplicación Java, pulsa <strong>Ctrl + C</strong> en su terminal.</p>
+      </section>
+
+      <section class="section" id="enlaces"><h2>6. Enlaces y puertos</h2><table><thead><tr><th>Componente</th><th>Enlace / puerto</th><th>Uso</th></tr></thead><tbody>
+        <tr><td>KIDO Angular</td><td><a href="http://localhost:4300">localhost:4300</a></td><td>Aplicación principal</td></tr><tr><td>Gateway</td><td><a href="http://localhost:18080">localhost:18080</a></td><td>Entrada del API</td></tr>
+        <tr><td>Keycloak</td><td><a href="http://localhost:19090">localhost:19090</a></td><td>Autenticación</td></tr><tr><td>Administración Keycloak</td><td><a href="http://localhost:19090/admin/master/console/">Consola</a></td><td>Realm, usuarios, clientes y roles</td></tr>
+        <tr><td>Eureka</td><td><a href="http://localhost:18761">localhost:18761</a></td><td>Servicios registrados</td></tr><tr><td>Config Server en Docker</td><td><a href="http://localhost:18889">localhost:18889</a></td><td>Configuración centralizada</td></tr>
+        <tr><td>Kafka UI</td><td><a href="http://localhost:18085">localhost:18085</a></td><td>Tópicos y eventos</td></tr><tr><td>Mailpit</td><td><a href="http://localhost:18025">localhost:18025</a></td><td>Correos de desarrollo</td></tr>
+        <tr><td>Prometheus</td><td><a href="http://localhost:19091">localhost:19091</a></td><td>Métricas</td></tr><tr><td>Grafana</td><td><a href="http://localhost:13000/d/kido-overview/kido-platform-overview">Panel KIDO</a></td><td>Panel principal aprovisionado</td></tr>
+      </tbody></table>
+        <h3>Bases PostgreSQL publicadas localmente</h3><table><thead><tr><th>Base</th><th>Puerto</th></tr></thead><tbody><tr><td>Cursos</td><td>15432</td></tr><tr><td>Inscripciones</td><td>15434</td></tr><tr><td>Pagos</td><td>15435</td></tr><tr><td>Notificaciones</td><td>15436</td></tr><tr><td>Usuarios</td><td>15437</td></tr></tbody></table>
+      </section>
+
+      <section class="section" id="diagnostico"><h2>7. Diagnóstico y registros</h2><h3>Estado general</h3><pre><button class="copy">Copiar</button><code>Set-Location $KIDO
+docker compose ps
+docker compose config --services</code></pre><h3>Registros</h3><pre><button class="copy">Copiar</button><code>docker compose logs -f
+docker compose logs -f kido-config
+docker compose logs -f kido-eureka
+docker compose logs -f kido-keycloak
+docker compose logs -f kido-pago-ms
+docker compose logs -f kido-gateway</code></pre>
+        <div class="callout"><strong>Ctrl + C en <code>docker compose logs -f</code></strong> solamente deja de seguir los registros; no apaga los contenedores.</div>
+        <h3>Errores comunes</h3><table><thead><tr><th>Mensaje</th><th>Causa probable</th><th>Acción</th></tr></thead><tbody><tr><td>Connection refused al Config Server</td><td>Config Server apagado o puerto incorrecto</td><td>Inicia <code>kido-config</code>; usa 18889 en Docker y 18888 en Java local.</td></tr><tr><td>Docker engine no encontrado</td><td>Docker Desktop apagado</td><td>Inicia Docker Desktop.</td></tr><tr><td>Puerto 4300 ocupado</td><td>Otro frontend KIDO ya está activo</td><td>Detén el proceso anterior; KIDO no cambia automáticamente de puerto.</td></tr><tr><td>Servicio no aparece en Eureka</td><td>No inició o no obtuvo configuración</td><td>Revisa sus logs y luego los de Config/Eureka.</td></tr></tbody></table>
+      </section>
+
+      <section class="section" id="apagar"><h2>8. Apagar KIDO correctamente</h2><h3>Conservar bases y contenedores</h3><pre><button class="copy">Copiar</button><code>Set-Location $KIDO
+docker compose stop</code></pre><h3>Retirar contenedores conservando los datos</h3><pre><button class="copy">Copiar</button><code>docker compose down</code></pre><h3>Detener o reiniciar una sola pieza</h3><pre><button class="copy">Copiar</button><code>docker compose stop kido-pago-ms
+docker compose restart kido-gateway
+docker compose restart kido-keycloak</code></pre>
+        <div class="callout danger"><strong>Operación destructiva:</strong> <code>docker compose down -v</code> elimina los volúmenes locales: usuarios, cursos, pagos y demás datos. Úsalo únicamente si deseas reiniciar KIDO desde cero.</div>
+      </section>
+
+      <section class="section" id="rutas"><h2>9. Rutas principales del proyecto</h2><table><thead><tr><th>Componente</th><th>Ruta desde kido-platform</th></tr></thead><tbody>
+        <tr><td>Frontend</td><td><code>frontend</code></td></tr><tr><td>Config Server</td><td><code>infra\kido-config</code></td></tr><tr><td>Configuraciones</td><td><code>infra\kido-config\config-repo</code></td></tr><tr><td>Eureka</td><td><code>infra\kido-eureka</code></td></tr><tr><td>Gateway</td><td><code>infra\kido-gateway</code></td></tr><tr><td>Keycloak</td><td><code>infra\keycloak</code></td></tr><tr><td>Cursos</td><td><code>services\kido-curso-ms</code></td></tr><tr><td>Inscripciones</td><td><code>services\kido-inscripcion-ms</code></td></tr><tr><td>Pagos</td><td><code>services\kido-pago-ms</code></td></tr><tr><td>Usuarios</td><td><code>services\kido-usuario-ms</code></td></tr><tr><td>Notificaciones</td><td><code>services\kido-notificacion-ms</code></td></tr><tr><td>Scripts</td><td><code>scripts</code></td></tr><tr><td>Docker</td><td><code>compose.yml</code></td></tr><tr><td>Variables privadas</td><td><code>.env</code></td></tr><tr><td>Plantilla pública</td><td><code>.env.example</code></td></tr>
+      </tbody></table></section>
+
+      <section class="section" id="keycloak"><h2>10. Dónde está Keycloak</h2><table><thead><tr><th>Contenido</th><th>Ruta</th></tr></thead><tbody><tr><td>Definición del realm KIDO</td><td><code>infra\keycloak\kido-realm.json</code></td></tr><tr><td>Tema visual</td><td><code>infra\keycloak\themes\kido\login</code></td></tr><tr><td>CSS</td><td><code>infra\keycloak\themes\kido\login\resources\css\kido.css</code></td></tr><tr><td>Logo del login</td><td><code>infra\keycloak\themes\kido\login\resources\img\kido-mark.png</code></td></tr><tr><td>Mensajes en español</td><td><code>infra\keycloak\themes\kido\login\messages\messages_es.properties</code></td></tr></tbody></table>
+        <pre><button class="copy">Copiar</button><code>docker compose up -d --force-recreate kido-keycloak
+docker compose logs -f kido-keycloak</code></pre>
+      </section>
+
+      <section class="section" id="pagos"><h2>11. Dónde están los pagos actuales</h2><h3>Backend</h3><table><thead><tr><th>Función</th><th>Ruta</th></tr></thead><tbody><tr><td>Microservicio</td><td><code>services\kido-pago-ms</code></td></tr><tr><td>Cliente Mercado Pago</td><td><code>...\client\MercadoPagoClient.java</code></td></tr><tr><td>Validación de webhooks</td><td><code>...\webhook\ValidadorWebhookMercadoPago.java</code></td></tr><tr><td>Migraciones de base</td><td><code>services\kido-pago-ms\src\main\resources\db\migration</code></td></tr><tr><td>Configuración DEV</td><td><code>infra\kido-config\config-repo\kido-pago-ms-dev.yml</code></td></tr><tr><td>Configuración PROD</td><td><code>infra\kido-config\config-repo\kido-pago-ms-prod.yml</code></td></tr></tbody></table>
+        <h3>Frontend</h3><table><thead><tr><th>Función</th><th>Ruta</th></tr></thead><tbody><tr><td>Checkout</td><td><code>frontend\src\app\shared\checkout-compra</code></td></tr><tr><td>Pago interno</td><td><code>frontend\src\app\pages\pago-interno</code></td></tr><tr><td>Resultado</td><td><code>frontend\src\app\pages\pago-resultado</code></td></tr><tr><td>SDK Mercado Pago</td><td><code>frontend\src\app\core\services\mercado-pago-sdk.ts</code></td></tr><tr><td>Redirección segura</td><td><code>frontend\src\app\core\utils\checkout.ts</code></td></tr></tbody></table>
+        <div class="callout warning">KIDO está configurado para Mercado Pago en ambiente de pruebas. No cambies el modelo de recaudación ni actives producción sin revisar credenciales, webhooks, HTTPS y conciliación.</div>
+      </section>
+
+      <section class="section" id="seguridad"><h2>12. Seguridad y archivos privados</h2><ul><li>No publiques <code>.env</code>.</li><li>No pegues tokens, claves de Mercado Pago ni contraseñas en capturas.</li><li>No incluyas secretos en archivos YAML versionados.</li><li>Usa <code>.env.example</code> solamente como plantilla sin valores reales.</li><li>Antes de subir a GitHub, ejecuta <code>git status</code> y revisa exactamente qué archivos se incluirán.</li></ul>
+        <pre><button class="copy">Copiar</button><code>Set-Location $KIDO
+git status --short
+git check-ignore .env</code></pre>
+      </section>
+      <p class="footer">Manual generado para KIDO · Operación local segura · 2026</p>
+    </main>
+
+    <aside class="toc"><h2>En esta página</h2><a href="#completo">Inicio completo</a><a href="#uno-por-uno">Servicios individuales</a><a href="#java">Java local</a><a href="#enlaces">Puertos</a><a href="#diagnostico">Diagnóstico</a><a href="#apagar">Apagado</a><a href="#keycloak">Keycloak</a><a href="#pagos">Pagos</a></aside>
+  </div>
+  <script>
+    document.querySelectorAll('.copy').forEach(button=>button.addEventListener('click',async()=>{const code=button.parentElement.querySelector('code').innerText;try{await navigator.clipboard.writeText(code);button.textContent='Copiado';setTimeout(()=>button.textContent='Copiar',1300)}catch{button.textContent='Selecciona'}}));
+    const input=document.getElementById('search');input.addEventListener('input',()=>{const q=input.value.trim().toLocaleLowerCase();document.querySelectorAll('#manual .section').forEach(section=>{section.classList.toggle('dim',q.length>1&&!section.innerText.toLocaleLowerCase().includes(q))})});
+  </script>
+</body>
+</html>

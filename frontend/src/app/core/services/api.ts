@@ -127,6 +127,17 @@ export class Api {
   actualizarCurso(id: number, curso: CursoRequest) {
     return this.put<Curso>(`/cursos/${id}`, curso);
   }
+  subirPortadaCurso(id: number, archivo: File) {
+    const data = new FormData();
+    data.append('archivo', archivo, archivo.name);
+    return this.http.post<Curso>(`${this.root}/cursos/${id}/portada`, data, {
+      observe: 'events',
+      reportProgress: true,
+    });
+  }
+  eliminarPortadaCurso(id: number) {
+    return this.http.delete<Curso>(`${this.root}/cursos/${id}/portada`);
+  }
   revision(id: number) {
     return this.post<Curso>(`/cursos/${id}/enviar-revision`);
   }

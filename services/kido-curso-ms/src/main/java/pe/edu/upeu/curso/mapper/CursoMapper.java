@@ -14,6 +14,7 @@ public interface CursoMapper {
     @Mapping(target = "fechaPublicacion", ignore = true)
     @Mapping(target = "motivoRechazo", ignore = true)
     @Mapping(target = "retiradoCatalogo", ignore = true)
+    @Mapping(target = "portadaUrl", ignore = true)
     Curso toEntity(CursoRequest request);
 
     @Mapping(target = "tipo", expression = "java(curso.getTipo().name())")

@@ -22,7 +22,7 @@ describe('App', () => {
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
     const el = fixture.nativeElement as HTMLElement;
-    expect(el.querySelector('.brand')?.textContent).toContain('kido');
+    expect(el.querySelector('.brand')?.textContent).toContain('KIDO');
   });
 });
 

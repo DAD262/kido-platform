@@ -1,4 +1,5 @@
-export function portadaCurso(titulo:string|undefined|null):string|null {
+export function portadaCurso(titulo:string|undefined|null, personalizada?:string|null):string|null {
+ if(personalizada?.trim())return personalizada;
  const t=(titulo??'').toLocaleLowerCase('es');
  if(t.includes('javascript')||t.includes('typescript'))return '/course-covers/spring.jpg?v=photo-1';
  if(t.includes('angular')||t.includes('html'))return '/course-covers/python-2.jpg?v=photo-1';

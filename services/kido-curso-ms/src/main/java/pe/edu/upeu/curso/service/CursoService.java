@@ -67,6 +67,13 @@ public class CursoService {
     }
 
     @Transactional
+    public CursoResponse actualizarPortada(Long id, String portadaUrl) {
+        Curso curso = buscar(id);
+        curso.setPortadaUrl(portadaUrl);
+        return mapper.toResponse(cursoRepository.save(curso));
+    }
+
+    @Transactional
     public CursoResponse enviarRevision(Long id) {
         Curso c=buscar(id);
         if(c.getEstado()!=Curso.EstadoCurso.BORRADOR && c.getEstado()!=Curso.EstadoCurso.RECHAZADO)

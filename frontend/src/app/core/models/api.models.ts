@@ -11,6 +11,7 @@ export interface Curso {
   fechaCreacion?: string;
   fechaPublicacion?: string;
   motivoRechazo?: string;
+  portadaUrl?: string | null;
 }
 export interface CursoRequest {
   titulo: string;

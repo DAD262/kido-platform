@@ -21,7 +21,7 @@ export class CursoCard implements OnInit {
   readonly deseados = inject(Deseados);
   ngOnInit(): void { this.deseados.cargar();this.docentes.cargar();this.carrito.cargar(); }
   readonly curso = input.required<Curso>();
-  readonly portada = computed(() => portadaCurso(this.curso().titulo));
+  readonly portada = computed(() => portadaCurso(this.curso().titulo, this.curso().portadaUrl));
   /** Respaldo para cursos que todavía no tienen una portada temática. */
   readonly inicial = computed(() => (this.curso().titulo?.trim()[0] ?? 'K').toUpperCase());
   readonly tono = computed(() => Math.abs(this.curso().id ?? 0) % 4);

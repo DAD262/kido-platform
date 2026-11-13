@@ -215,6 +215,40 @@
                   ></textarea>
                   <small class="note">{{ formulario.descripcion.length }}/1000</small>
                 </label>
+                <section class="course-cover-field field full" aria-labelledby="portada-curso-titulo">
+                  <div class="cover-copy">
+                    <strong id="portada-curso-titulo">Portada del curso</strong>
+                    <span class="note">PNG, JPG o WebP · hasta 25 MB. Recomendado: 1600 × 900 px.</span>
+                  </div>
+                  <div class="cover-editor" [class.empty]="!portadaVista()">
+                    @if (portadaVista(); as portada) {
+                      <img [src]="portada" alt="Vista previa de la portada del curso" />
+                    } @else {
+                      <div class="cover-placeholder"><app-icon name="upload" [size]="28" /><span>Tu imagen aparecerá aquí</span></div>
+                    }
+                  </div>
+                  @if (seleccionado()?.estado === 'PUBLICADO') {
+                    <div class="cover-actions">
+                      <input #portadaInput class="visually-hidden-file" type="file" accept="image/png,image/jpeg,image/webp" (change)="seleccionarPortada($event)" />
+                      <button class="btn btn-outline" type="button" (click)="portadaInput.click()" [disabled]="procesando()">
+                        {{ portadaVista() ? 'Elegir otra imagen' : 'Elegir imagen' }}
+                      </button>
+                      @if (archivoPortada) {
+                        <button class="btn btn-primary" type="button" (click)="subirPortada()" [disabled]="procesando()">Guardar portada</button>
+                      }
+                      @if (seleccionado()?.portadaUrl && !archivoPortada) {
+                        <button class="btn btn-quiet" type="button" (click)="eliminarPortada()" [disabled]="procesando()">Eliminar portada</button>
+                      }
+                    </div>
+                    @if (avancePortada() !== null) {
+                      <div class="cover-progress" role="status"><progress max="100" [value]="avancePortada()"></progress><span>{{ avancePortada() }}%</span></div>
+                    }
+                  } @else if (seleccionado()) {
+                    <p class="note cover-save-note">Cuando el administrador apruebe y publique el curso, podrás adjuntar su portada aquí.</p>
+                  } @else {
+                    <p class="note cover-save-note">Primero crea el borrador y completa el proceso de publicación.</p>
+                  }
+                </section>
                 <label class="field">
                   Precio
                   <select [(ngModel)]="formulario.tipo" name="tipo">

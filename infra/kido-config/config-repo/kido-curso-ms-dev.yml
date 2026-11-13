@@ -57,4 +57,6 @@ eureka:
 kido:
   storage:
     materiales-dir: ${MATERIALES_DIR:/app/uploads}
+    portadas-dir: ${PORTADAS_DIR:/app/uploads/portadas}
+    portadas-max-bytes: 26214400
     max-bytes: 52428800

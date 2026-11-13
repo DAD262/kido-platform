@@ -21,6 +21,7 @@ import {
   Saldo,
 } from '../../core/models/api.models';
 import { KIDO_PIPES } from '../../core/pipes/estado.pipe';
+import { portadaCurso } from '../../core/utils/curso-portada';
 import { Icon } from '../../shared/icon/icon';
 import { PerfilEstado } from '../../shared/perfil-estado/perfil-estado';
 @Component({
@@ -280,6 +281,9 @@ export class Docente implements OnInit {
   leccionOrden = 1;
   leccionUrl = '';
   archivo: File | null = null;
+  archivoPortada: File | null = null;
+  readonly portadaVista = signal<string | null>(null);
+  readonly avancePortada = signal<number | null>(null);
   archivoLeccionId: number | null = null;
   moduloId: number | null = null;
   retiroMonto = 50;
@@ -328,6 +332,9 @@ export class Docente implements OnInit {
     this.moduloId = null;
     this.archivoLeccionId = null;
     this.archivo = null;
+    this.limpiarPortadaTemporal();
+    this.archivoPortada = null;
+    this.portadaVista.set(null);
     this.moduloTitulo = '';
     this.leccionTitulo = '';
     this.editar.set(false);
@@ -351,6 +358,11 @@ export class Docente implements OnInit {
     this.moduloId = null;
     this.archivoLeccionId = null;
     this.archivo = null;
+    this.limpiarPortadaTemporal();
+    this.archivoPortada = null;
+    // El editor debe mostrar exactamente la misma portada que el catálogo:
+    // la personalizada cuando existe o la temática de respaldo en cursos antiguos.
+    this.portadaVista.set(portadaCurso(c.titulo, c.portadaUrl));
     this.seleccionado.set(c);
     this.editar.set(true);
     this.formulario = {
@@ -363,6 +375,71 @@ export class Docente implements OnInit {
       estado: c.estado,
     };
     this.verContenido(c.id);
+  }
+  seleccionarPortada(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const archivo = input.files?.[0] ?? null;
+    input.value = '';
+    if (!archivo) return;
+    if (!['image/png', 'image/jpeg', 'image/webp'].includes(archivo.type)) {
+      this.error.set('Selecciona una imagen PNG, JPG, JPEG o WebP.');
+      return;
+    }
+    if (archivo.size > 25 * 1024 * 1024) {
+      this.error.set('La portada puede pesar hasta 25 MB.');
+      return;
+    }
+    this.limpiarPortadaTemporal();
+    this.archivoPortada = archivo;
+    this.portadaVista.set(URL.createObjectURL(archivo));
+    this.error.set('');
+  }
+  subirPortada() {
+    const curso = this.seleccionado();
+    if (!curso || !this.archivoPortada || this.procesando()) return;
+    this.procesando.set(true);
+    this.avancePortada.set(0);
+    this.error.set('');
+    this.api.subirPortadaCurso(curso.id, this.archivoPortada).subscribe({
+      next: (evento) => {
+        if (evento.type === HttpEventType.UploadProgress)
+          this.avancePortada.set(evento.total ? Math.round((evento.loaded / evento.total) * 100) : null);
+        if (evento.type === HttpEventType.Response && evento.body) {
+          const actualizado = evento.body;
+          this.limpiarPortadaTemporal();
+          this.archivoPortada = null;
+          this.avancePortada.set(null);
+          this.procesando.set(false);
+          this.portadaVista.set(`${actualizado.portadaUrl}?v=${Date.now()}`);
+          this.seleccionado.set(actualizado);
+          this.cursos.update(lista => lista.map(c => c.id === actualizado.id ? actualizado : c));
+          this.mensaje.set('Portada actualizada. Ya se verá en el catálogo.');
+        }
+      },
+      error: (e) => { this.procesando.set(false); this.avancePortada.set(null); this.error.set(mensajeError(e)); },
+    });
+  }
+  eliminarPortada() {
+    const curso = this.seleccionado();
+    if (!curso || this.procesando()) return;
+    this.procesando.set(true);
+    this.error.set('');
+    this.api.eliminarPortadaCurso(curso.id).subscribe({
+      next: (actualizado) => {
+        this.limpiarPortadaTemporal();
+        this.archivoPortada = null;
+        this.portadaVista.set(null);
+        this.seleccionado.set(actualizado);
+        this.cursos.update(lista => lista.map(c => c.id === actualizado.id ? actualizado : c));
+        this.procesando.set(false);
+        this.mensaje.set('Portada eliminada. Se usará la imagen temática de respaldo.');
+      },
+      error: (e) => { this.procesando.set(false); this.error.set(mensajeError(e)); },
+    });
+  }
+  private limpiarPortadaTemporal() {
+    const actual = this.portadaVista();
+    if (actual?.startsWith('blob:')) URL.revokeObjectURL(actual);
   }
   guardarCurso() {
     const id = this.account.id();
@@ -391,19 +468,55 @@ export class Docente implements OnInit {
         : this.api.crearCurso(this.formulario);
     op.subscribe({
       next: (r) => {
-        this.procesando.set(false);
-        this.mensaje.set(
-          `Curso #${r.id} guardado. Agrega módulos y lecciones antes de enviarlo a revisión.`,
-        );
-        this.editarCurso(r);
-        this.editorPaso.set(1);
-        this.api.cursosDocente(id).subscribe({ next: (c) => this.cursos.set(c) });
+        const portadaPendiente = this.archivoPortada;
+        if (portadaPendiente && r.estado === 'PUBLICADO') {
+          this.avancePortada.set(0);
+          this.api.subirPortadaCurso(r.id, portadaPendiente).subscribe({
+            next: (evento) => {
+              if (evento.type === HttpEventType.UploadProgress) {
+                this.avancePortada.set(
+                  evento.total ? Math.round((evento.loaded / evento.total) * 100) : null,
+                );
+              }
+              if (evento.type === HttpEventType.Response && evento.body) {
+                this.completarGuardadoCurso(evento.body, id, true);
+              }
+            },
+            error: (e) => {
+              this.procesando.set(false);
+              this.avancePortada.set(null);
+              this.seleccionado.set(r);
+              this.cursos.update((lista) =>
+                lista.some((c) => c.id === r.id)
+                  ? lista.map((c) => (c.id === r.id ? r : c))
+                  : [r, ...lista],
+              );
+              this.error.set(
+                `El curso #${r.id} se guardó, pero no se pudo guardar la portada: ${mensajeError(e)}. La imagen sigue seleccionada para reintentar.`,
+              );
+            },
+          });
+          return;
+        }
+        this.completarGuardadoCurso(r, id, false);
       },
       error: (e) => {
         this.procesando.set(false);
         this.error.set(mensajeError(e));
       },
     });
+  }
+  private completarGuardadoCurso(curso: Curso, docenteId: number, portadaGuardada: boolean) {
+    this.procesando.set(false);
+    this.avancePortada.set(null);
+    this.editarCurso(curso);
+    this.editorPaso.set(1);
+    this.mensaje.set(
+      portadaGuardada
+        ? `Curso #${curso.id} y portada guardados. La imagen ya se verá en el catálogo.`
+        : `Curso #${curso.id} guardado. Agrega módulos y lecciones antes de enviarlo a revisión.`,
+    );
+    this.api.cursosDocente(docenteId).subscribe({ next: (c) => this.cursos.set(c) });
   }
   accion(id: number, accion: 'revision' | 'archivar') {
     if (this.procesando()) return;

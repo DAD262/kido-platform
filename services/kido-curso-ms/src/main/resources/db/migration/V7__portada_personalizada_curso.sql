@@ -1,0 +1,1 @@
+ALTER TABLE cursos ADD COLUMN portada_url VARCHAR(500);

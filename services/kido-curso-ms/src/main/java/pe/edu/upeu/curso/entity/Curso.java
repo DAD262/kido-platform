@@ -49,6 +49,9 @@ public class Curso {
     @Column(name="fecha_publicacion")
     private LocalDateTime fechaPublicacion;
 
+    @Column(name="portada_url", length=500)
+    private String portadaUrl;
+
     public enum TipoCurso { GRATUITO, PAGO }
     public enum EstadoCurso { BORRADOR, PENDIENTE_REVISION, PUBLICADO, RECHAZADO, ARCHIVADO }
 }

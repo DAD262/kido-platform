@@ -129,6 +129,15 @@
 .align-end {
   justify-content: flex-end;
 }
+.course-cover-field { display: grid; gap: 12px; padding: 16px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface-2); }
+.cover-copy { display: grid; gap: 3px; }
+.cover-editor { overflow: hidden; width: min(100%, 560px); aspect-ratio: 16 / 9; border: 1px solid var(--line-strong); border-radius: 13px; background: var(--surface); }
+.cover-editor img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.cover-placeholder { display: grid; place-content: center; justify-items: center; gap: 8px; width: 100%; height: 100%; color: var(--muted); }
+.cover-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.cover-progress { display: flex; align-items: center; gap: 10px; width: min(100%, 560px); font-size: 12px; color: var(--muted); }
+.cover-progress progress { width: 100%; accent-color: var(--accent); }
+.cover-save-note { margin: 0; }
 .wizard-bottom {
   display: flex;
   justify-content: space-between;

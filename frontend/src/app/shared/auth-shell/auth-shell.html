@@ -17,24 +17,18 @@
       </ul>
     </div>
 
-    <!-- Muestra del producto: una tarjeta de avance y un certificado -->
+    <!-- Credencial digital verificable -->
     <div class="showcase" aria-hidden="true">
-      <div class="glass progress-card">
-        <div class="pc-head">
-          <span class="pc-cover">x²</span>
-          <div>
-            <strong>Álgebra desde cero</strong>
-            <small>Módulo 3 · Ecuaciones lineales</small>
-          </div>
+      <div class="glass digital-credential">
+        <div class="credential-head">
+          <span class="credential-seal"><app-icon name="award" [size]="21" /></span>
+          <span class="verified"><app-icon name="check" [size]="12" /> Verificado</span>
         </div>
-        <div class="pc-bar"><span></span></div>
-        <div class="pc-foot"><span>68% completado</span><span>Continuar →</span></div>
-      </div>
-      <div class="glass cert-card">
-        <app-icon name="award" [size]="18" />
-        <div>
-          <strong>Certificado emitido</strong>
-          <small>KIDO-7F3A-2026</small>
+        <strong>Certificado digital KIDO</strong>
+        <p>Una credencial segura, verificable y lista para compartir.</p>
+        <div class="credential-foot">
+          <span><small>ID DE CREDENCIAL</small>KIDO · 7F3A · 2026</span>
+          <span class="mini-qr" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>
         </div>
       </div>
     </div>
