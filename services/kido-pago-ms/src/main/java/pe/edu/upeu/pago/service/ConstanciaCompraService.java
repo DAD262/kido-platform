@@ -48,7 +48,7 @@ public class ConstanciaCompraService {
    c.setOrdenId(canon);c.setNumero("KIDO-"+canon+"-"+p.id());c.setOperacion(p.id());c.setAmbiente(o.getAmbiente().name());
    c.setAlumnoNombre(persona.nombre());c.setAlumnoEmail(persona.email());c.setAlumnoDocumento(persona.documento());
    c.setCursoTitulo(o.getCursoTitulo());c.setDocenteId(o.getDocenteId());c.setTotal(o.getMontoTotal());
-   if(o.getCompraCarritoId()!=null){var grupo=carritos.findById(o.getCompraCarritoId()).orElseThrow();c.setCompraCarritoId(grupo.getId());c.setNumero("KIDO-CARRITO-"+grupo.getId()+"-"+p.id());c.setCursoTitulo("Compra de "+ordenes.findByCompraCarritoIdOrderByIdAsc(grupo.getId()).size()+" cursos");c.setTotal(grupo.getTotal());for(var linea:ordenes.findByCompraCarritoIdOrderByIdAsc(grupo.getId()))c.getDetalles().add(new DetalleConstancia(linea.getId(),linea.getCursoId(),linea.getDocenteId(),linea.getCursoTitulo(),linea.getMontoTotal()));}
+   if(o.getCompraCarritoId()!=null){var grupo=carritos.findById(o.getCompraCarritoId()).orElseThrow();var lineas=ordenes.findByCompraCarritoIdOrderByIdAsc(grupo.getId());c.setCompraCarritoId(grupo.getId());c.setNumero("KIDO-CARRITO-"+grupo.getId()+"-"+p.id());c.setCursoTitulo("Compra de "+lineas.size()+(lineas.size()==1?" curso":" cursos"));c.setTotal(grupo.getTotal());for(var linea:lineas)c.getDetalles().add(new DetalleConstancia(linea.getId(),linea.getCursoId(),linea.getDocenteId(),linea.getCursoTitulo(),linea.getMontoTotal()));}
    c.setFechaPago(OffsetDateTime.parse(p.fechaAprobada()).atZoneSameInstant(ZoneId.of("America/Lima")).toLocalDateTime());
    c.setMedioPago(p.medioPago());c.setDetalleEstado(p.detalleEstado());
    c.setSoporte(comercio.findById(1L).map(ConfiguracionComercial::getEmailSoporte).orElse(""));

@@ -53,6 +53,7 @@ export interface ConfigCurso {
   certificadoHabilitado: boolean;
   certificadoCosto: number;
 }
+export interface ValoracionCurso { cursoId: number; promedio: number; total: number; }
 export interface ContenidoCurso {
   cursoId: number;
   titulo: string;
@@ -80,6 +81,8 @@ export interface Inscripcion {
   asistenciaMinima: number;
   certificadoHabilitado: boolean;
   certificadoCosto: number;
+  puntuacion?: number | null;
+  fechaPuntuacion?: string | null;
 }
 export interface EstadoAcademico {
   inscripcionId: number;
@@ -117,6 +120,7 @@ export interface Orden {
   inscripcionSincronizada: boolean;
     fechaAprobacion?: string;
   pagosAprobadosDetectados?: number;
+  yapeOperacion?: string | null; yapeReportadoEn?: string | null;
   porcentajeComision?: number; costoProcesamiento?: number | null; netoRecibido?: number | null; utilidadKido?: number | null; fondosEstado?: string | null; fechaConciliacion?: string | null; simulada?: boolean; ambiente?: string;
 }
 export interface ConstanciaCompra {

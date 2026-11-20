@@ -20,8 +20,15 @@ public class IntentoCheckoutStore {
    return new Intento(clave,huella,"ENVIANDO",null);
   }
   if(i.paymentId()!=null)return i;
-  if(!i.clave().equals(clave)||!i.huella().equals(huella))throw new IllegalStateException("Existe un intento sin resolver. Verifica tu compra antes de iniciar otro pago.");
+  if(!i.clave().equals(clave)||!i.huella().equals(huella))throw new IllegalStateException("Tu pago anterior aún se está verificando con Mercado Pago. Revisa Mis compras o vuelve a intentarlo en unos minutos.");
   return i;
+ }
+ /** Intento enviado al proveedor que nunca recibió respuesta (timeout), con su antigüedad en segundos. */
+ public record Atascado(String clave,long segundos) {}
+ @Transactional(propagation=Propagation.REQUIRES_NEW,readOnly=true)
+ public java.util.Optional<Atascado> sinResolver(String referencia){
+  return jdbc.query("SELECT clave, CAST(EXTRACT(EPOCH FROM (CURRENT_TIMESTAMP - actualizado)) AS BIGINT) FROM intentos_checkout_interno WHERE referencia=? AND estado='ENVIANDO' AND payment_id IS NULL",
+   (r,n)->new Atascado(r.getString(1),r.getLong(2)),referencia).stream().findFirst();
  }
  @Transactional(propagation=Propagation.REQUIRES_NEW)
  public void guardar(String referencia,String clave,String estado,String paymentId){jdbc.update("UPDATE intentos_checkout_interno SET estado=?,payment_id=?,actualizado=CURRENT_TIMESTAMP WHERE referencia=? AND clave=?",estado,paymentId,referencia,clave);}

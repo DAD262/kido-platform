@@ -26,6 +26,7 @@ import {
   Reembolso,
   Retiro,
   Saldo,
+  ValoracionCurso,
 } from '../models/api.models';
 
 /** Errores por campo que devuelve kido-usuario-ms ({ campos: { email: '…' } }). */
@@ -215,6 +216,12 @@ export class Api {
       `/inscripciones/${inscripcionId}/lecciones/${leccionId}/completar`,
     );
   }
+  puntuarCurso(inscripcionId: number, puntuacion: number) {
+    return this.put<Inscripcion>(`/inscripciones/${inscripcionId}/puntuacion`, { puntuacion });
+  }
+  valoracionesCursos() {
+    return this.get<ValoracionCurso[]>('/inscripciones/valoraciones');
+  }
   estadoAcademico(id: number) {
     return this.get<EstadoAcademico>(`/inscripciones/${id}/estado-academico`);
   }
@@ -254,6 +261,24 @@ export class Api {
   }
   ordenes() {
     return this.get<Orden[]>('/pagos/ordenes');
+  }
+  disponibilidadYape(cursoId: number) {
+    return this.get<{disponible: boolean}>(`/pagos/ordenes/yape/disponibilidad/${cursoId}`);
+  }
+  crearOrdenYape(estudianteId: number, cursoId: number) {
+    return this.post<Orden>('/pagos/ordenes/yape', {estudianteId, cursoId});
+  }
+  convertirCarritoAYape(compraId: number) {
+    return this.post<Orden>(`/pagos/ordenes/yape/carrito/${compraId}`);
+  }
+  reportarOrdenYape(id:number, operacion:string) {
+    return this.post<Orden>(`/pagos/ordenes/yape/${id}/reportar`, {operacion});
+  }
+  reintentarInscripcionYape(id: number) {
+    return this.post<Orden>(`/pagos/ordenes/${id}/reintentar-inscripcion`);
+  }
+  confirmarOrdenYape(id: number, operacion: string, importe: string) {
+    return this.post<Orden>(`/pagos/admin/yape/${id}/confirmar`, {operacion, importe});
   }
   crearOrden(estudianteId: number, cursoId: number) {
     return this.post<Orden>('/pagos/ordenes', { estudianteId, cursoId });

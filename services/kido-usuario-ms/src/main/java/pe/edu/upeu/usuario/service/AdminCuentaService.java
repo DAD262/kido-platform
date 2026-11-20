@@ -33,8 +33,10 @@ public class AdminCuentaService {
         return resultado.stream().sorted(Comparator.comparing(CuentaAdminResponse::username,String.CASE_INSENSITIVE_ORDER)).toList();
     }
     private CuentaAdminResponse respuesta(Map<String,Object> u, List<String> roles) {
+        var perfil = perfiles.findByKeycloakId(texto(u,"id")).orElse(null);
         return new CuentaAdminResponse(texto(u,"id"), texto(u,"username"), texto(u,"email"),
-            texto(u,"firstName"), texto(u,"lastName"), Boolean.TRUE.equals(u.get("enabled")), roles, false, null, perfiles.findByKeycloakId(texto(u,"id")).map(p -> p.getDni()).orElse(null));
+            texto(u,"firstName"), texto(u,"lastName"), Boolean.TRUE.equals(u.get("enabled")), roles, false,
+            perfil == null ? null : perfil.getId(), perfil == null ? null : perfil.getDni());
     }
     private Map<String,Object> persona(String id) {
         Map<String,Object> u = keycloak.cuenta(id);

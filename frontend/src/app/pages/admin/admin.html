@@ -269,19 +269,34 @@
                 <tr>
                   <td>
                     <strong>{{ o.cursoTitulo }}</strong>
-                    <span class="cell-caption">Orden n.º {{ o.id }} · {{o.ambiente==='PRUEBAS'?'Prueba':o.ambiente==='PRODUCCION'?'Producción':'Ambiente sin verificar'}} @if(o.simulada){ · Simulada }</span>
+                    <span class="cell-caption">Orden n.º {{ o.id }} · {{o.ambiente==='PRUEBAS'?'Prueba':o.ambiente==='PRODUCCION'?'Producción':o.ambiente==='YAPE_MANUAL'?'Yape por QR':'Ambiente sin verificar'}} @if(o.simulada){ · Simulada }</span>
                     @if((o.pagosAprobadosDetectados??0)>1){<span class="cell-caption">{{o.pagosAprobadosDetectados}} operaciones aprobadas: revisar cobros repetidos</span>}
                   </td>
                   <td>n.º {{ o.estudianteId }}</td>
                   <td>{{ o.fechaCreacion | fecha }}</td>
                   <td class="num">{{ o.montoTotal | soles }} @if(o.ambiente!=='PRODUCCION'){<span class="cell-caption">Fuera de ingresos reales</span>}</td>
                   @if(o.ambiente==='PRODUCCION') {<td><strong>{{o.comisionKido | soles}} KIDO</strong><span class="cell-caption">{{o.porcentajeComision}} % · {{o.montoDocente | soles}} docente</span></td><td>@if(o.costoProcesamiento != null){ {{o.costoProcesamiento | soles}} }@else{ Por conciliar }</td><td>@if(o.netoRecibido != null){ {{o.netoRecibido | soles}} }@else{ Por conciliar }</td><td>@if(o.utilidadKido != null){ {{o.utilidadKido | soles}} }@else{ Por conciliar }</td>}
+                  @else if(o.ambiente==='YAPE_MANUAL') {<td colspan="4">Abono externo. Liquidación fuera de Kido.</td>}
                   @else {<td colspan="4">Operación {{o.ambiente==='PRUEBAS'?'de prueba':'sin ambiente verificado'}}. No genera saldo ni liquidación real.</td>}
                   <td>
                     <span class="pill" [class]="o.estado | tono">{{ o.estado | estado }}</span>
-                    @if(o.ambiente!=='DESCONOCIDO' && (o.estado==='PAGO_INICIADO'||o.estado==='APROBADA')){<button class="btn btn-small btn-outline" [disabled]="procesando()" [attr.aria-busy]="verificandoOrden()===o.id" (click)="verificarCompra(o)">{{verificandoOrden()===o.id?'Verificando…':'Verificar pago'}}</button>}
+                    @if (o.ambiente === 'YAPE_MANUAL' && o.estado === 'PENDIENTE') {
+                      <p>Verifica el abono en tu app de Yape antes de confirmar.</p>
+                      @if(o.yapeReportadoEn){<p><strong>Alumno reportó:</strong> operación {{o.yapeOperacion}} · {{o.yapeReportadoEn | fecha}}</p>}@else{<p>El alumno todavía no reportó el pago.</p>}
+                      <label>Número de operación recibido <input #operacionYape maxlength="48" [value]="o.yapeOperacion??''"></label>
+                      <label>Importe recibido <input #importeYape inputmode="decimal" placeholder="0.00"></label>
+                      <button type="button" class="btn btn-small btn-outline"
+                              [disabled]="verificandoOrden() !== null"
+                              (click)="confirmarYape(o, operacionYape.value, importeYape.value.replace(',', '.'))">Confirmar abono Yape</button>
+                    }
+                    @if(o.ambiente!=='YAPE_MANUAL' && o.ambiente!=='DESCONOCIDO' && (o.estado==='PAGO_INICIADO'||o.estado==='APROBADA')){<button class="btn btn-small btn-outline" [disabled]="procesando()" [attr.aria-busy]="verificandoOrden()===o.id" (click)="verificarCompra(o)">{{verificandoOrden()===o.id?'Verificando…':'Verificar pago'}}</button>}
+                    @if (o.ambiente === 'YAPE_MANUAL' && o.estado === 'APROBADA' && !o.inscripcionSincronizada) {
+                      <button type="button" class="btn btn-small btn-outline"
+                              [disabled]="verificandoOrden() !== null"
+                              (click)="reintentarYape(o)">Reintentar inscripción</button>
+                    }
                     @if(resultadosPago()[o.id];as resultado){<p class="payment-result" [class.payment-error]="resultado.error" role="status" aria-live="polite">{{resultado.texto}}</p>}
-                    @if(o.estado==='APROBADA' && o.ambiente!=='DESCONOCIDO'){<a class="btn btn-small btn-outline" [routerLink]="['/compras',o.id,'constancia']">Constancia</a>}
+                    @if(o.estado==='APROBADA' && o.ambiente!=='DESCONOCIDO' && o.ambiente!=='YAPE_MANUAL'){<a class="btn btn-small btn-outline" [routerLink]="['/compras',o.id,'constancia']">Constancia</a>}
                   </td>
                 </tr>
               }

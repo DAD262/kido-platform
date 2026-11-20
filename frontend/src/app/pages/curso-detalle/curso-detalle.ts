@@ -49,6 +49,7 @@ export class CursoDetalle implements OnInit {
   );
   readonly portada = computed(() => portadaCurso(this.curso()?.titulo, this.curso()?.portadaUrl));
   readonly tono = computed(() => Math.abs(this.curso()?.id ?? 0) % 4);
+
   ngOnInit() {
     this.docentes.cargar();this.carrito.cargar();
     this.deseados.cargar();

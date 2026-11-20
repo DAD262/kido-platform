@@ -1,4 +1,4 @@
 package pe.edu.upeu.pago.entity;
 
 /** DESCONOCIDO no debe considerarse producción sin evidencia verificable. */
-public enum AmbientePago { DESCONOCIDO, PRUEBAS, PRODUCCION }
+public enum AmbientePago { DESCONOCIDO, PRUEBAS, PRODUCCION, YAPE_MANUAL }

@@ -1,6 +1,6 @@
 <main class="container internal-payment">
  <a routerLink="/estudiante" [queryParams]="{seccion:'compras'}">← Mis compras</a>
- <header><span class="eyebrow">PAGO SEGURO EN KIDO</span><h1>Completa tu compra</h1><p>Elige tu medio y paga aquí. Mercado Pago procesa la operación.</p></header>
+ <header><span class="eyebrow">PAGO SEGURO EN KIDO</span><h1>Completa tu compra</h1><p>@if(config()?.ambiente==='YAPE_MANUAL'){Paga con el QR y reporta la operación para que el administrador la verifique.}@else{Elige tu medio y paga aquí. Mercado Pago procesa la operación.}</p></header>
  @if(cargando()){<p role="status">Preparando tu formulario seguro…</p>}
  @if(config();as c){<div class="total"><span>Total de tu compra</span><strong>{{c.total|soles}}</strong></div>
   @if(c.ambiente==='PRUEBAS'){<p class="testing">Operación de prueba. Usa únicamente cuentas y datos de prueba.</p>}
@@ -11,7 +11,7 @@
  @if(error()){<p class="alert warn" role="alert">{{error()}}</p>}
  @if(resultado();as r){<section class="result" aria-live="polite">
   @if(r.confirmado){<h2>Pago confirmado</h2><p>Tu compra se ha acreditado. Puedes consultar tus accesos y constancia en Mis compras.</p>}
-  @else if(r.estado==='rejected'||r.estado==='cancelled'){<h2>Pago no aprobado</h2><p>El proveedor no aprobó esta operación. Revisa tus datos o utiliza otro medio.</p><button class="btn btn-outline" type="button" (click)="reintentar()">Elegir otro medio</button>}
+  @else if(r.estado==='rejected'||r.estado==='cancelled'){<h2>Pago no aprobado</h2><p>{{mensajeRechazo(r.detalle)}}</p><button class="btn btn-outline" type="button" (click)="reintentar()">Elegir otro medio</button>}
   @else{<h2>{{r.codigo?'Tu código de PagoEfectivo está listo':'Operación pendiente de confirmación'}}</h2>@if(r.codigo){<p>Utiliza este código para pagar el importe indicado:</p><strong class="code">{{r.codigo}}</strong><p>El acceso se habilita cuando Mercado Pago confirme el pago.</p>}@else{<p>Consulta el estado antes de iniciar otro pago.</p>}}
   <p>Operación: {{r.id}}</p>@if(instrucciones();as url){<a class="btn btn-outline" [href]="url" target="_blank" rel="noopener noreferrer">Ver instrucciones del proveedor</a>}
   <a class="btn btn-primary" routerLink="/estudiante">Volver al portal del estudiante</a>
@@ -24,19 +24,40 @@
   @if(!esTarjeta()&&medio()){
    <form (ngSubmit)="pagarAlternativo()">
     <label>Correo del pago<input type="email" name="email" [(ngModel)]="email" autocomplete="email" required [disabled]="procesando()"></label>
-    @if(medio()==='yape'){
-     <p>Genera el código de aprobación de compra en tu aplicación Yape e introdúcelo aquí.</p>
-     <label>Celular Yape<input type="tel" name="celular" [(ngModel)]="celular" maxlength="9" inputmode="numeric" required [disabled]="procesando()"></label>
-     <label>Código de aprobación de 6 dígitos<input type="password" name="otp" [(ngModel)]="otp" maxlength="6" inputmode="numeric" autocomplete="off" required [disabled]="procesando()"></label>
+    @if(medio()==='yape'&&!yapeManual()){
+     <div class="yape-otp">
+      <p>Abre tu app <strong>Yape</strong>, entra a <strong>Código de aprobación</strong> y escríbelo aquí junto con tu celular. El código dura poco y sirve una sola vez.</p>
+      <label>Celular registrado en Yape<input name="celular" [(ngModel)]="celular" inputmode="numeric" autocomplete="tel-national" maxlength="9" placeholder="9XXXXXXXX" required [disabled]="procesando()"></label>
+      <label>Código de aprobación<input name="otp" [(ngModel)]="otp" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="6 dígitos" required [disabled]="procesando()"></label>
+      @if((config()?.total??0)>500){<p class="testing">Yape tiene un límite diario (S/ 500, S/ 900 o S/ 2000 según tu app). Si tu límite es menor que el total, usa tarjeta.</p>}
+      @if(config()?.ambiente==='PRUEBAS'){<p class="testing">Prueba: celular 111111111 y código 123456 aprueban; 111111112 simula un rechazo.</p>}
+     </div>
+    }@else if(medio()==='yape'){
+     <div class="yape-manual">
+      <img src="/yape-qr.png" alt="QR de Yape de la cuenta receptora de KIDO">
+      @if(ordenYape();as orden){
+       <h3>Orden n.º {{orden.id}}</h3>
+       <p>Yapea exactamente <strong>{{orden.montoTotal|soles}}</strong>. Verifica en Yape el nombre del receptor antes de confirmar.</p>
+       @if(orden.yapeReportadoEn){
+        <div class="payment-reported" role="status"><strong>Pago reportado</strong><span>Operación {{orden.yapeOperacion}}</span><span>Pendiente de verificación por el administrador.</span></div>
+       }@else{
+        <label class="operation">Número de operación de Yape<input name="operacionYape" [(ngModel)]="operacionYape" maxlength="48" autocomplete="off" placeholder="Ejemplo: 12345678"></label>
+        <button class="btn btn-primary" type="button" [disabled]="reportandoYape()" (click)="reportarPagoYape()">{{reportandoYape()?'Reportando…':'Ya pagué · Enviar para verificar'}}</button>
+        <p class="testing"><strong>No se habilita automáticamente.</strong> El administrador comparará la operación, el importe, el remitente y la hora con el movimiento recibido en Yape.</p>
+       }
+      }@else{
+       <p>Escanea el QR desde otro celular. KIDO no te pedirá número de celular ni código de aprobación.</p>
+      }
+     </div>
     }@else{
      <label>Nombres<input name="nombres" [(ngModel)]="nombres" autocomplete="given-name" required [disabled]="procesando()"></label>
      <label>Apellidos<input name="apellidos" [(ngModel)]="apellidos" autocomplete="family-name" required [disabled]="procesando()"></label>
      <label>Tipo de documento<select name="tipoDocumento" [(ngModel)]="tipoDocumento" [disabled]="procesando()"><option>DNI</option><option>CE</option><option>RUC</option></select></label>
      <label>Número de documento<input name="documento" [(ngModel)]="documento" maxlength="20" required [disabled]="procesando()"></label>
     }
-    <button class="btn btn-primary" type="submit" [disabled]="procesando()||!acepta||!formularioListo()">{{procesando()?'Procesando…':medio()==='yape'?'Pagar con Yape':'Generar código PagoEfectivo'}}</button>
+    @if(!ordenYape()){<button class="btn btn-primary" type="submit" [disabled]="procesando()||!acepta||!formularioListo()">{{procesando()?'Procesando…':medio()==='yape'?(yapeManual()?'Preparar pago por Yape':'Pagar con Yape'):'Generar código PagoEfectivo'}}</button>}
    </form>
   }
-  <p class="note">Los datos de tarjeta se introducen en el formulario seguro de Mercado Pago. KIDO no guarda números de tarjeta ni códigos de seguridad.</p>
+  <p class="note">Tarjetas, Yape y PagoEfectivo se procesan mediante Mercado Pago; KIDO no ve tu tarjeta ni tu código de Yape.@if(yapeManual()){ Los pagos con QR quedan pendientes hasta la verificación manual del administrador.}</p>
  </section>
 </main>

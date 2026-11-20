@@ -39,6 +39,14 @@ class AdminCuentaServiceTest {
         assertThrows(IllegalArgumentException.class,()->service.restablecer("admin","service",new RestablecerPasswordRequest("ClavePrueba!927",false)));
         verify(kc,never()).restablecerPassword(anyString(),anyString(),anyBoolean());
     }
+    @Test void cuentaActivaConservaPerfilIdParaConsultasEntreServicios(){
+        var perfil=new pe.edu.upeu.usuario.entity.Perfil("user","persona","persona@example.invalid","Ana","Rojas",pe.edu.upeu.usuario.entity.TipoCuenta.ESTUDIANTE);
+        org.springframework.test.util.ReflectionTestUtils.setField(perfil,"id",2003L);
+        when(kc.listarCuentas()).thenReturn(List.of(cuenta()));when(kc.rolesCuenta("user")).thenReturn(List.of("ESTUDIANTE"));
+        when(perfiles.findByKeycloakId("user")).thenReturn(Optional.of(perfil));when(perfiles.findAll()).thenReturn(List.of(perfil));
+        var resultado=service.listar();
+        assertEquals(1,resultado.size());assertEquals(2003L,resultado.getFirst().perfilId());
+    }
     @Test void compensaEdicionSiFallaPerfil(){
         when(kc.cuenta("user")).thenReturn(cuenta());when(kc.rolesCuenta("user")).thenReturn(List.of("ESTUDIANTE"));
         doThrow(new IllegalStateException("Base no disponible")).when(tx).executeWithoutResult(any());

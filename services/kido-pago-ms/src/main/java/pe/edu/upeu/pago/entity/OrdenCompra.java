@@ -11,6 +11,9 @@ public class OrdenCompra {
  @Id @GeneratedValue(strategy=GenerationType.IDENTITY) private Long id;
  @Enumerated(EnumType.STRING) @Column(nullable=false,length=20) private AmbientePago ambiente = AmbientePago.DESCONOCIDO;
  @Column(name="receptor_mp",length=40) private String receptorMp;
+ @Column(name="yape_operacion",length=48) private String yapeOperacion;
+ @Column(name="yape_confirmado_por",length=200) private String yapeConfirmadoPor;
+ @Column(name="yape_reportado_en") private LocalDateTime yapeReportadoEn;
  private int pagosAprobadosDetectados;
  @Column(name="estudiante_id",nullable=false) private Long estudianteId;
  @Column(name="curso_id",nullable=false) private Long cursoId;

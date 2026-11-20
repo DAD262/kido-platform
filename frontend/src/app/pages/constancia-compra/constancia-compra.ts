@@ -3,8 +3,9 @@ import {ActivatedRoute,RouterLink} from '@angular/router';
 import {Api,mensajeError} from '../../core/services/api';
 import {ConstanciaCompra} from '../../core/models/api.models';
 import {SolesPipe} from '../../core/pipes/estado.pipe';
+import {Logo} from '../../shared/logo/logo';
 
-@Component({selector:'app-constancia-compra',standalone:true,imports:[RouterLink,SolesPipe],templateUrl:'./constancia-compra.html',styleUrl:'./constancia-compra.scss'})
+@Component({selector:'app-constancia-compra',standalone:true,imports:[RouterLink,SolesPipe,Logo],templateUrl:'./constancia-compra.html',styleUrl:'./constancia-compra.scss'})
 export class ConstanciaCompraPagina implements OnInit {
  private readonly api=inject(Api);private readonly route=inject(ActivatedRoute);
  readonly datos=signal<ConstanciaCompra|null>(null);readonly error=signal('');readonly cargando=signal(true);readonly descargando=signal(false);

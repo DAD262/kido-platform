@@ -19,4 +19,6 @@ public interface InscripcionRepository extends JpaRepository<Inscripcion,Long> {
  @Query("select i.estudianteId from Inscripcion i where i.id=:id") Optional<Long> estudianteDe(@Param("id")Long id);
  @Query("select i.cursoId from Inscripcion i where i.id=:id") Optional<Long> cursoDe(@Param("id")Long id);
  @Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE) @Query("select i from Inscripcion i where i.id=:id") Optional<Inscripcion> bloquear(@Param("id")Long id);
+ @Query("select i.cursoId, avg(i.puntuacion), count(i.puntuacion) from Inscripcion i where i.puntuacion is not null and i.estado in (pe.edu.upeu.inscripcion.entity.Inscripcion.EstadoInscripcion.ACTIVA, pe.edu.upeu.inscripcion.entity.Inscripcion.EstadoInscripcion.COMPLETADA) group by i.cursoId")
+ List<Object[]> resumenValoraciones();
 }

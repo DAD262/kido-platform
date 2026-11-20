@@ -11,6 +11,10 @@
   <div class="body">
     <h3>{{ curso().titulo }}</h3>
     <small>Docente: {{docentes.nombre(curso().docenteId)}}</small>
+    <div class="course-rating" [attr.aria-label]="valoracion() ? 'Puntuación ' + valoracion()!.promedio + ' de 5' : 'Curso sin puntuaciones todavía'">
+      <span class="stars" aria-hidden="true">@for (estrella of estrellas; track estrella) {<i [class.on]="estrella <= (valoracion()?.promedio ?? 0)">★</i>}</span>
+      @if (valoracion(); as v) {<b>{{ v.promedio | number:'1.1-1' }}</b><small>({{ v.total }})</small>} @else {<small>Nuevo</small>}
+    </div>
     <p>{{ curso().descripcion }}</p>
     <div class="foot">
       @if (curso().tipo === 'GRATUITO') {

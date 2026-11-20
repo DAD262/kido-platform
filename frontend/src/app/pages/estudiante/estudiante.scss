@@ -39,6 +39,8 @@
   display: grid;
   gap: 8px;
 }
+.enrollment-item{border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);overflow:hidden}.enrollment-item .enrollment{border:0;border-radius:0}.enrollment-item:has(.enrollment.active){border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}.enrollment-item .enrollment.active{box-shadow:none}
+.quick-score{display:flex;align-items:center;gap:10px;padding:9px 16px 11px;border-top:1px solid var(--line);color:var(--muted);font-size:12px}.quick-score>span{font-weight:650;color:var(--ink-2)}.quick-score>div{display:flex;gap:2px}.quick-score button{border:0;background:transparent;color:var(--line-strong);font-size:21px;line-height:1;padding:2px;cursor:pointer}.quick-score button:hover,.quick-score button:focus-visible,.quick-score button.selected{color:#f5a623}.quick-score small{margin-left:auto}.purchased-score{margin:16px 0 4px;padding:12px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
 .enrollment.active {
   border-color: var(--accent);
   box-shadow: 0 0 0 3px var(--accent-soft);
@@ -178,4 +180,5 @@
 .enrollment-cover{width:78px;height:78px;object-fit:cover;border-radius:10px;flex-shrink:0}.learning-cover{width:100%;height:180px;object-fit:cover;border-radius:14px;margin-bottom:22px}@media(max-width:560px){.enrollment-cover{width:58px;height:68px}.learning-cover{height:145px}}
 
 .certificate>div{flex:1;min-width:0;width:100%}
+.course-score{margin-top:24px;padding:20px;border:1px solid var(--line);border-radius:14px;background:color-mix(in srgb,var(--surface) 92%,var(--accent) 8%);display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:10px 20px}.course-score h3{margin:0 0 4px}.course-score p{margin:0}.course-score>strong{grid-column:2;color:var(--muted);font-size:12px;text-align:center}.score-buttons{display:flex;gap:4px}.score-buttons button{border:0;background:transparent;color:var(--line-strong);font-size:31px;line-height:1;padding:3px;cursor:pointer;transition:transform .15s,color .15s}.score-buttons button:hover,.score-buttons button:focus-visible,.score-buttons button.selected{color:#f5a623;transform:translateY(-2px)}.score-buttons button:disabled{cursor:wait;opacity:.65}@media(max-width:600px){.course-score{grid-template-columns:1fr}.course-score>strong{grid-column:1;text-align:left}.score-buttons{justify-content:flex-start}}
 .purchased-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,290px),1fr));gap:18px;margin:24px 0 36px}.purchased-card{padding:24px;background:var(--surface);border:1px solid var(--line);border-radius:18px}.purchased-card h3{margin:16px 0 8px}.purchased-card p,.purchased-card>span{font-size:13px;color:var(--muted)}

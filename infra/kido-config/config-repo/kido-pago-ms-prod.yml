@@ -64,6 +64,7 @@ kido:
     dias-reembolso: 7
     progreso-max-reembolso: 20
     permitir-simulacion: ${KIDO_PAGOS_PERMITIR_SIMULACION:false}
+    # Desactivado por defecto. La confirmación es manual y debe corresponder a un abono real verificado.
   mercadopago:
     modelo-recaudacion-confirmado: ${MERCADO_PAGO_MODELO_RECAUDACION_CONFIRMADO:false}
     ambiente: ${MERCADO_PAGO_AMBIENTE:pruebas}

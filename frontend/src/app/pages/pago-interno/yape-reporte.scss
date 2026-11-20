@@ -1,0 +1,22 @@
+.operation {
+  width: 100%;
+  text-align: left;
+}
+
+.payment-reported {
+  display: grid;
+  gap: 5px;
+  width: 100%;
+  padding: 16px;
+  border: 1px solid #4bbf91;
+  border-radius: 12px;
+  background: #eafaf3;
+  color: #116149;
+}
+
+.yape-otp {
+  display: grid;
+  gap: 12px;
+  width: 100%;
+  text-align: left;
+}

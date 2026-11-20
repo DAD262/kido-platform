@@ -23,7 +23,7 @@ class CheckoutCarritoTest {
   compras=mock(CompraCarritoRepository.class);ordenes=mock(OrdenCompraRepository.class);movimientos=mock(MovimientoSaldoRepository.class);mp=mock(MercadoPagoClient.class);eventos=mock(PagoEventosProducer.class);carrito=mock(CarritoService.class);disponibilidad=mock(CheckoutService.class);comercio=mock(ComercioService.class);conciliacion=mock(ConciliacionPagoService.class);
   validador=new PagoCarritoValidador(compras,ordenes,mp);
   @SuppressWarnings("unchecked") ObjectProvider<CheckoutCarritoService> provider=mock(ObjectProvider.class);
-  pagos=new PagoService(ordenes,movimientos,mock(CursoClient.class),eventos,mp,mock(CertificadoPagoService.class),mock(LiquidacionService.class),conciliacion,provider,validador);
+  pagos=new PagoService(ordenes,movimientos,mock(CursoClient.class),eventos,mp,mock(CertificadoPagoService.class),mock(LiquidacionService.class),conciliacion,provider,validador,mock(CompraCarritoRepository.class),mock(AccesoCuentaPago.class));
   ReflectionTestUtils.setField(pagos,"comision",new BigDecimal("0.20"));ReflectionTestUtils.setField(pagos,"diasRetencion",7L);
   service=new CheckoutCarritoService(carrito,compras,ordenes,pagos,mp,validador,disponibilidad,comercio,conciliacion);when(provider.getObject()).thenReturn(service);
   grupo=new CompraCarrito();grupo.setId(1L);grupo.setEstudianteId(7L);grupo.setAmbiente(AmbientePago.PRUEBAS);grupo.setReceptorMp("123");grupo.setTotal(new BigDecimal("159.80"));grupo.setEstado("PAGO_INICIADO");grupo.setMercadoPagoPreferenceId("pref");

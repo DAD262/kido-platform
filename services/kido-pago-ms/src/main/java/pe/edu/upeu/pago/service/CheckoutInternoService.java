@@ -34,6 +34,28 @@ public class CheckoutInternoService {
   acceso.verificar(d.propietario());return d;
  }
  public Configuracion configurar(String tipo,Long id){var d=destino(tipo,id);var persona=acceso.datosComprador(d.propietario());return new Configuracion(publicKey,!publicKey.isBlank(),d.total(),d.ambiente(),mp.mediosDisponibles(),persona.email(),comercio.obtener(true).datos().version());}
+ /** Espera antes de consultar un intento sin respuesta y antes de liberarlo si el proveedor no lo registró. */
+ static final long ESPERA_CONSULTA_SEG=120, ESPERA_LIBERAR_SEG=600;
+ /**
+  * Un timeout deja el intento en ENVIANDO sin payment_id. Con Yape cada código genera un token nuevo,
+  * así que el alumno quedaría bloqueado. Se consulta a Mercado Pago por external_reference:
+  * si existe la operación se adopta (aprobada primero); si no existe tras 10 minutos se libera.
+  */
+ void resolverAtascado(String referencia,String solicitud){
+  var atascado=intentos.sinResolver(referencia);
+  if(atascado.isEmpty()||atascado.get().clave().equals(solicitud)||atascado.get().segundos()<ESPERA_CONSULTA_SEG)return;
+  var a=atascado.get();
+  var operaciones=mp.pagosDeReferencia(referencia);
+  var elegida=operaciones.stream().filter(o->"approved".equals(o.status())).findFirst()
+   .or(()->operaciones.stream().filter(o->Set.of("pending","in_process","authorized").contains(o.status())).findFirst())
+   .or(()->operaciones.stream().findFirst());
+  if(elegida.isPresent()){
+   var o=elegida.get();
+   // Una operación rechazada o cancelada libera el intento; una aprobada o pendiente se conserva.
+   boolean cerrada=Set.of("rejected","cancelled").contains(o.status());
+   intentos.guardar(referencia,a.clave(),o.status(),cerrada?null:o.id());
+  }else if(a.segundos()>=ESPERA_LIBERAR_SEG)intentos.guardar(referencia,a.clave(),"cancelled",null);
+ }
  public Resultado pagar(String tipo,Long id,String sujeto,Solicitud r){
   var d=destino(tipo,id);checkout.exigirActivacion();
   if(publicKey.isBlank())throw new IllegalStateException("El formulario interno está pendiente de configurar la Public Key de Mercado Pago.");
@@ -56,6 +78,7 @@ public class CheckoutInternoService {
   Map<String,Object> body=new LinkedHashMap<>();body.put("transaction_amount",d.total());body.put("description","Compra KIDO "+d.referencia());body.put("external_reference",d.referencia());body.put("payment_method_id",medio.id());body.put("installments",r.installments());body.put("payer",pagador);if(!efectivo)body.put("token",r.token());
   if(r.issuer_id()!=null&&!r.issuer_id().isBlank()){if(!r.issuer_id().matches("[0-9]{1,20}"))throw new IllegalArgumentException("Emisor inválido");body.put("issuer_id",r.issuer_id());}
   String huella;try{huella=HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(body.toString().getBytes(StandardCharsets.UTF_8)));}catch(Exception e){throw new IllegalStateException("No se pudo preparar el intento");}
+  resolverAtascado(d.referencia(),r.solicitudId());
   var intento=intentos.iniciar(d.referencia(),r.solicitudId(),huella);
   Map<String,Object> res;
   try{res=intento.paymentId()!=null?mp.consultarPagoInterno(intento.paymentId()):mp.crearPagoInterno(body,intento.clave());}

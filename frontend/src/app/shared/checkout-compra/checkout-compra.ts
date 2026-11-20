@@ -15,6 +15,7 @@ export class CheckoutCompra implements OnInit {
  readonly comercial=signal<EstadoComercial|null>(null);
  readonly cargando=signal(true);readonly error=signal('');
  readonly medioElegido=signal('');
+ readonly mediosVisibles=()=>this.metodo()?.medios??[];
  elegirMedio(id:string){if(this.metodo()?.disponible&&(id==='mercado-pago'||this.metodo()?.medios.some(m=>m.id===id))){this.medioElegido.set(id);this.emitir();}}
  acepta=false;
   logoMedio(id:string):string|null {const logos:Record<string,string>={visa:'visa.svg',debvisa:'debvisa.svg',master:'master.svg',debmaster:'debmaster.svg',amex:'amex.svg',diners:'diners.svg',yape:'yape-official-cropped.png',pagoefectivo_atm:'pagoefectivo-official.png'};return logos[id]?'/payment-logos/'+logos[id]:null;}

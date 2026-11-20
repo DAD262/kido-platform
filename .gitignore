@@ -1,15 +1,26 @@
 .idea/
 .vscode/
 **/target/
+**/bin/
 **/logs/
+**/node_modules/
+**/.angular/
+**/.logs/
+**/dist/
+**/coverage/
 **/.env
 **/.env.backup*
 *.log
+hs_err_pid*
+replay_pid*
 .DS_Store
 
 # Archivos privados y evidencias locales
 /.design-review/
 /otros/
+/respaldo-*/
+/.codex-repair-java.ps1
+/REPARACION_TERMINADA.txt
 /otros/logs/
 /otros/respaldos/
 /otros/revisiones-visuales/
@@ -28,3 +39,6 @@
 **/credentials.json
 **/service-account*.json
 **/secrets/
+
+# Recursos personales de cobro (solo instalación local)
+/frontend/public/yape-qr.png

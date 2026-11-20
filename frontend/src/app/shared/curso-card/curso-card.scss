@@ -120,6 +120,12 @@ p {
   -webkit-line-clamp: 2;
   overflow: hidden;
 }
+.course-rating { display:flex;align-items:center;gap:6px;margin:9px 0 10px;min-height:20px;color:var(--muted);font-size:12px; }
+.course-rating .stars { display:inline-flex;gap:1px;font-size:16px;line-height:1;color:var(--line-strong); }
+.course-rating .stars i { font-style:normal; }
+.course-rating .stars i.on { color:#f5a623; }
+.course-rating b { color:var(--ink);font-size:12px; }
+.course-rating small { font-size:11px; }
 .foot {
   margin-top: auto;
   display: flex;

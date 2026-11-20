@@ -27,6 +27,7 @@ import { irACheckout } from '../../core/utils/checkout';
 import { Icon } from '../../shared/icon/icon';
 import { CheckoutCompra, EstadoCheckout } from '../../shared/checkout-compra/checkout-compra';
 import { PerfilEstado } from '../../shared/perfil-estado/perfil-estado';
+import { Valoraciones } from '../../core/services/valoraciones';
 @Component({
   selector: 'app-estudiante',
   standalone: true,
@@ -36,6 +37,8 @@ import { PerfilEstado } from '../../shared/perfil-estado/perfil-estado';
   styleUrl: './estudiante.scss',
 })
 export class Estudiante implements OnInit {
+  readonly valoraciones=inject(Valoraciones);
+  readonly estrellas=[1,2,3,4,5];
   readonly docentes=inject(Docentes);
   private readonly route=inject(ActivatedRoute,{optional:true});
   private readonly destroy=inject(DestroyRef);
@@ -242,6 +245,19 @@ export class Estudiante implements OnInit {
         this.procesando.set(false);
         this.error.set(mensajeError(e));
       },
+    });
+  }
+  puntuar(puntuacion:number) {
+    const ins=this.seleccionada();
+    if(ins)this.puntuarInscripcion(ins,puntuacion);
+  }
+  inscripcionCurso(cursoId:number){return this.inscripciones().find(i=>i.cursoId===cursoId&&(i.estado==='ACTIVA'||i.estado==='COMPLETADA'));}
+  puntuarInscripcion(ins:Inscripcion,puntuacion:number) {
+    if(this.procesando())return;
+    this.procesando.set(true);this.error.set('');this.mensaje.set('');
+    this.api.puntuarCurso(ins.id,puntuacion).subscribe({
+      next:nuevo=>{this.procesando.set(false);if(this.seleccionada()?.id===nuevo.id)this.seleccionada.set(nuevo);this.inscripciones.update(lista=>lista.map(i=>i.id===nuevo.id?nuevo:i));this.valoraciones.cargar(true);this.mensaje.set(`Guardamos tu puntuación de ${puntuacion} ${puntuacion===1?'estrella':'estrellas'}.`);},
+      error:e=>{this.procesando.set(false);this.error.set(mensajeError(e));},
     });
   }
   completada(leccionId: number) {

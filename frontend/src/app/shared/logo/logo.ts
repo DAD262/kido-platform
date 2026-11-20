@@ -10,6 +10,7 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
   host: {
     class: 'kido-logo',
     '[class.on-dark]': 'sobreOscuro()',
+    '[class.on-light]': 'sobreClaro()',
     '[style.height.px]': 'tamano()',
   },
   template: `
@@ -63,9 +64,23 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
       border-radius: 22%;
       background: #f7f8fa;
     }
+    :host(.on-light),
+    :host-context([data-theme='dark']).on-light {
+      color: #111318;
+    }
+    :host(.on-light) .word,
+    :host-context([data-theme='dark']).on-light .word {
+      color: #111318;
+    }
+    :host(.on-light) img,
+    :host-context([data-theme='dark']).on-light img {
+      padding: 0;
+      background: transparent;
+    }
   `,
 })
 export class Logo {
   readonly tamano = input(30);
   readonly sobreOscuro = input(false);
+  readonly sobreClaro = input(false);
 }

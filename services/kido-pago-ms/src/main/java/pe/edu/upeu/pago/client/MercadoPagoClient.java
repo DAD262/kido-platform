@@ -202,6 +202,28 @@ public class MercadoPagoClient {
         .distinct().sorted(java.util.Comparator.comparing(java.math.BigInteger::new)).toList();
   }
 
+  /** Operación encontrada en Mercado Pago para una referencia, sin importar su estado. */
+  public record OperacionReferencia(String id, String status) {}
+
+  /**
+   * Busca los pagos creados para una referencia (más reciente primero). Sirve para resolver un
+   * intento que quedó sin respuesta por un timeout, sin arriesgar un segundo cobro.
+   */
+  @SuppressWarnings("unchecked")
+  public List<OperacionReferencia> pagosDeReferencia(String referencia) {
+    requireToken();
+    Map<String,Object> resultado=mercadoPagoRestClient.get().uri(b->b.path("/v1/payments/search")
+        .queryParam("external_reference",referencia).queryParam("sort","date_created")
+        .queryParam("criteria","desc").queryParam("limit",20).build())
+        .header("Authorization","Bearer "+token).retrieve().body(Map.class);
+    if(resultado==null||!(resultado.get("results") instanceof List<?> filas))
+      throw new IllegalStateException("No se pudo consultar la operación en Mercado Pago");
+    return filas.stream().filter(Map.class::isInstance).map(x->(Map<String,Object>)x)
+        .filter(x->referencia.equals(str(x,"external_reference")))
+        .map(x->new OperacionReferencia(str(x,"id"),str(x,"status")))
+        .filter(x->x.id()!=null&&x.id().matches("[0-9]{1,40}")&&x.status()!=null).toList();
+  }
+
   public void reembolsar(String paymentId, BigDecimal amount, String idempotencyKey) {
     requireToken();
     mercadoPagoRestClient

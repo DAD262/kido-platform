@@ -21,7 +21,7 @@ class CheckoutInternoServiceTest {
  final String clave="6c104d0c-8dde-4bc2-b595-1aba98456893";
  @BeforeEach void preparar(){
   ReflectionTestUtils.setField(servicio,"publicKey","PUBLIC_KEY_DE_PRUEBA");
-  when(carritos.propietario(7L)).thenReturn(3L);
+  lenient().when(carritos.propietario(7L)).thenReturn(3L);
  }
  void compra(){
   var c=mock(CheckoutCarritoService.Resultado.class);when(carritos.obtener(7L)).thenReturn(c);
@@ -50,5 +50,28 @@ class CheckoutInternoServiceTest {
   when(intentos.iniciar(eq("CARRITO-7"),eq(clave),anyString())).thenReturn(new IntentoCheckoutStore.Intento(clave,"huella","approved","123"));
   when(mp.consultarPagoInterno("123")).thenReturn(Map.of("id",123,"status","approved"));
   assertTrue(servicio.pagar("carrito",7L,"sujeto",solicitud("yape")).confirmado());verify(mp,never()).crearPagoInterno(anyMap(),anyString());verify(carritos).confirmar(7L,"123");
+ }
+ @Test void intentoRecienteNoConsultaAlProveedor(){
+  when(intentos.sinResolver("CARRITO-7")).thenReturn(Optional.of(new IntentoCheckoutStore.Atascado("otra-clave",30)));
+  servicio.resolverAtascado("CARRITO-7",clave);
+  verify(mp,never()).pagosDeReferencia(anyString());verify(intentos,never()).guardar(anyString(),anyString(),anyString(),any());
+ }
+ @Test void intentoAtascadoAdoptaPagoAprobadoSinCobrarOtraVez(){
+  when(intentos.sinResolver("CARRITO-7")).thenReturn(Optional.of(new IntentoCheckoutStore.Atascado("otra-clave",180)));
+  when(mp.pagosDeReferencia("CARRITO-7")).thenReturn(List.of(new MercadoPagoClient.OperacionReferencia("200","rejected"),new MercadoPagoClient.OperacionReferencia("150","approved")));
+  servicio.resolverAtascado("CARRITO-7",clave);
+  verify(intentos).guardar("CARRITO-7","otra-clave","approved","150");
+ }
+ @Test void intentoAtascadoRechazadoSeLiberaParaUnNuevoCodigoYape(){
+  when(intentos.sinResolver("CARRITO-7")).thenReturn(Optional.of(new IntentoCheckoutStore.Atascado("otra-clave",180)));
+  when(mp.pagosDeReferencia("CARRITO-7")).thenReturn(List.of(new MercadoPagoClient.OperacionReferencia("200","rejected")));
+  servicio.resolverAtascado("CARRITO-7",clave);
+  verify(intentos).guardar("CARRITO-7","otra-clave","rejected",null);
+ }
+ @Test void intentoSinOperacionSeLiberaTrasDiezMinutos(){
+  when(intentos.sinResolver("CARRITO-7")).thenReturn(Optional.of(new IntentoCheckoutStore.Atascado("otra-clave",700)));
+  when(mp.pagosDeReferencia("CARRITO-7")).thenReturn(List.of());
+  servicio.resolverAtascado("CARRITO-7",clave);
+  verify(intentos).guardar("CARRITO-7","otra-clave","cancelled",null);
  }
 }

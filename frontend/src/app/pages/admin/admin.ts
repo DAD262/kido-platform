@@ -35,6 +35,41 @@ export class Admin implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   readonly verificandoOrden = signal<number|null>(null);
   readonly resultadosPago = signal<Record<number,{texto:string;error:boolean}>>({});
+  confirmarYape(orden: Orden, operacion: string, importe: string) {
+    if (this.verificandoOrden() !== null || !operacion.trim() || !importe.trim()) return;
+    this.verificandoOrden.set(orden.id);
+    this.api.confirmarOrdenYape(orden.id, operacion, importe).pipe(
+      takeUntilDestroyed(this.destroyRef),
+      finalize(() => this.verificandoOrden.set(null)),
+    ).subscribe({
+      next: actualizada => {
+        this.ordenes.update(xs => xs.map(x => x.id === orden.id ? actualizada : x));
+        this.resultadosPago.update(xs => ({...xs, [orden.id]: {
+          texto: 'Abono confirmado. Kido está sincronizando la inscripción.', error: false,
+        }}));
+      },
+      error: e => this.resultadosPago.update(xs => ({...xs, [orden.id]: {
+        texto: mensajeError(e), error: true,
+      }})),
+    });
+  }
+
+  reintentarYape(orden: Orden) {
+    if (this.verificandoOrden() !== null) return;
+    this.verificandoOrden.set(orden.id);
+    this.api.reintentarInscripcionYape(orden.id).pipe(
+      takeUntilDestroyed(this.destroyRef),
+      finalize(() => this.verificandoOrden.set(null)),
+    ).subscribe({
+      next: () => this.resultadosPago.update(xs => ({...xs, [orden.id]: {
+        texto: 'Se solicitó la sincronización. Actualiza la lista para comprobar el estado.', error: false,
+      }})),
+      error: e => this.resultadosPago.update(xs => ({...xs, [orden.id]: {
+        texto: mensajeError(e), error: true,
+      }})),
+    });
+  }
+
   hostActual() {
     return window.location.hostname;
   }

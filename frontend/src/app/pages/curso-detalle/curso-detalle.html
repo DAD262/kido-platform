@@ -114,7 +114,10 @@
             @else{<button type="button" class="btn btn-quiet btn-block" [disabled]="carrito.ocupado()" (click)="carrito.agregar(c.id)">＋ Agregar al carrito</button>}
             @if(carrito.error() && carrito.errorCurso() === c.id){<p role="alert">{{carrito.error()}}</p>}
           }
-          @if(c.tipo !== 'GRATUITO') { <app-checkout-compra (cambio)="checkout.set($event)" /> }
+          @if(c.tipo !== 'GRATUITO' && auth.tieneRol('ESTUDIANTE')) {
+            <app-checkout-compra (cambio)="checkout.set($event)" />
+          }
+          @if(!auth.autenticado || auth.tieneRol('ESTUDIANTE')) {
           <button
             class="btn btn-primary btn-block big"
             [disabled]="enviando() || (c.tipo !== 'GRATUITO' && auth.autenticado && (!checkout().disponible || !checkout().acepta))"
@@ -128,6 +131,9 @@
               {{ auth.autenticado ? 'Continuar con Mercado Pago' : 'Ingresar para comprar' }}
             }
           </button>
+          } @else {
+            <div class="alert warn">Las compras e inscripciones solo están disponibles para cuentas con rol Estudiante.</div>
+          }
           @if (c.tipo !== 'GRATUITO') {
             <p class="note center">El pago se confirma antes de habilitar el acceso a tu curso.</p>
           }

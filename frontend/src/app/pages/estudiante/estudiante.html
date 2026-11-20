@@ -134,6 +134,7 @@
           }
           <div class="enrollments">
             @for (ins of inscripcionesFiltradas(); track ins.id) {
+              <article class="enrollment-item">
               <button
                 type="button"
                 class="enrollment"
@@ -154,6 +155,16 @@
                 </span>
                 <b>{{ ins.porcentajeProgreso }}%</b>
               </button>
+              <div class="quick-score">
+                <span>{{ ins.puntuacion ? 'Tu puntuación' : 'Puntuar curso' }}</span>
+                <div role="group" [attr.aria-label]="'Puntuar ' + titulo(ins.cursoId)">
+                  @for (estrella of estrellas; track estrella) {
+                    <button type="button" [class.selected]="estrella <= (ins.puntuacion ?? 0)" [disabled]="procesando()" (click)="puntuarInscripcion(ins,estrella)" [attr.aria-label]="estrella + (estrella === 1 ? ' estrella' : ' estrellas')">★</button>
+                  }
+                </div>
+                <small>{{ ins.puntuacion ? ins.puntuacion + '/5' : 'Elige de 1 a 5' }}</small>
+              </div>
+              </article>
             }
           </div>
         </section>
@@ -242,6 +253,19 @@
               }
             }
 
+            <section class="course-score" aria-labelledby="puntuar-curso">
+              <div>
+                <h3 id="puntuar-curso">Puntúa este curso</h3>
+                <p class="note">Tu experiencia ayuda a otros estudiantes. Puedes cambiar tu puntuación cuando quieras.</p>
+              </div>
+              <div class="score-buttons" role="group" aria-label="Puntuación de 1 a 5 estrellas">
+                @for (estrella of estrellas; track estrella) {
+                  <button type="button" [class.selected]="estrella <= (ins.puntuacion ?? 0)" [disabled]="procesando()" (click)="puntuar(estrella)" [attr.aria-label]="estrella + (estrella === 1 ? ' estrella' : ' estrellas')" [attr.aria-pressed]="ins.puntuacion === estrella">★</button>
+                }
+              </div>
+              <strong>{{ ins.puntuacion ? 'Tu puntuación: ' + ins.puntuacion + '/5' : 'Aún no has puntuado' }}</strong>
+            </section>
+
             <section class="certificate">
               <app-icon name="award" [size]="22" />
               <div>
@@ -291,6 +315,9 @@
             <strong>{{o.montoTotal | soles}}</strong><span> · Orden #{{o.id}} · {{(o.fechaAprobacion || o.fechaCreacion) | fecha}}</span>
             @if(o.ambiente==='PRUEBAS'){<p class="note">Operación de prueba · sin validez tributaria</p>}
             <p>{{puedeAbrirCurso(o) ? 'Acceso habilitado en tu aprendizaje' : 'Pago aprobado · inscripción en proceso'}}</p>
+            @if(inscripcionCurso(o.cursoId);as insCompra){
+              <div class="quick-score purchased-score"><span>{{insCompra.puntuacion?'Tu puntuación':'Puntuar curso'}}</span><div role="group" [attr.aria-label]="'Puntuar '+o.cursoTitulo">@for(estrella of estrellas;track estrella){<button type="button" [class.selected]="estrella <= (insCompra.puntuacion ?? 0)" [disabled]="procesando()" (click)="puntuarInscripcion(insCompra,estrella)" [attr.aria-label]="estrella + (estrella===1?' estrella':' estrellas')">★</button>}</div><small>{{insCompra.puntuacion?insCompra.puntuacion+'/5':'Elige de 1 a 5'}}</small></div>
+            }
             @if(!puedeAbrirCurso(o)&&actualizandoAccesos()){<p class="note" role="status">Estamos activando el acceso. Esta página se actualiza automáticamente.</p>}
             <div class="dashboard-actions"><button class="btn btn-primary btn-small" type="button" [disabled]="!puedeAbrirCurso(o)" (click)="irAlCurso(o)">Ir a mi curso</button>@if(o.ambiente!=='DESCONOCIDO'){<a class="btn btn-outline btn-small" [routerLink]="['/compras',o.id,'constancia']">Ver constancia</a>}</div>
           </article>

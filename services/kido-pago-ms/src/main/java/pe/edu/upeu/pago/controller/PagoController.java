@@ -6,6 +6,30 @@ import jakarta.validation.Valid; import lombok.RequiredArgsConstructor; import o
  private final pe.edu.upeu.pago.service.CheckoutService checkout;
  private void verificarOrden(Long id){acceso.verificar(service.obtener(id).estudianteId());}
  private void verificarCertificado(Long id){acceso.verificar(certificadoService.obtener(id).estudianteId());}
+ public record ConfirmacionYape(String operacion, java.math.BigDecimal importe) {}
+ public record ReporteYape(String operacion) {}
+ @GetMapping("/ordenes/yape/disponibilidad/{cursoId}")
+ public Map<String,Boolean> disponibilidadYape(@PathVariable Long cursoId) {
+   return Map.of("disponible",service.yapeDisponible(cursoId));
+ }
+ @PostMapping("/ordenes/yape")
+ public ResponseEntity<OrdenResponse> crearYape(@Valid @RequestBody CrearOrdenRequest r) {
+   acceso.verificar(r.estudianteId());
+   return ResponseEntity.status(201).body(service.crearYape(r));
+ }
+ @PostMapping("/ordenes/yape/carrito/{compraId}")
+ public OrdenResponse convertirCarritoAYape(@PathVariable Long compraId) {
+   return service.convertirCarritoAYape(compraId);
+ }
+ @PostMapping("/ordenes/yape/{id}/reportar")
+ public OrdenResponse reportarYape(@PathVariable Long id, @RequestBody ReporteYape r) {
+   return service.reportarYape(id, r.operacion());
+ }
+ @PostMapping("/admin/yape/{id}/confirmar")
+ public OrdenResponse confirmarYape(@PathVariable Long id, @RequestBody ConfirmacionYape r,
+     org.springframework.security.core.Authentication administrador) {
+   return service.confirmarYape(id,r.operacion(),r.importe(),administrador.getName());
+ }
  @GetMapping("/metodos") public List<MetodoPagoResponse> metodos(){return checkout.metodos();}
  @GetMapping("/ordenes") public List<OrdenResponse> listar(){return service.listar();}
  @GetMapping("/ordenes/{id}") public OrdenResponse obtener(@PathVariable Long id){verificarOrden(id);return service.obtener(id);}

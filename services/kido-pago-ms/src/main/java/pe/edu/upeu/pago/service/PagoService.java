@@ -27,9 +27,127 @@ public class PagoService {
  private final ConciliacionPagoService conciliacion;
  private final org.springframework.beans.factory.ObjectProvider<CheckoutCarritoService> checkoutCarrito;
  private final PagoCarritoValidador validadorCarrito;
+ private final CompraCarritoRepository compraCarritoRepo;
+ private final AccesoCuentaPago accesoCuenta;
  @Value("${kido.pagos.comision:0.20}") private BigDecimal comision;
  @Value("${kido.pagos.dias-retencion:7}") private long diasRetencion;
  @Value("${kido.pagos.permitir-simulacion:false}") private boolean permitirSimulacion;
+
+ @Value("${kido.pagos.yape-curso-id:0}") private long yapeCursoId;
+
+ public boolean yapeDisponible(Long cursoId) {
+   return cursoId != null && yapeCursoId > 0 && cursoId == yapeCursoId;
+ }
+
+ public boolean yapeCarritoDisponible(Long compraId) {
+   if (compraId == null) return false;
+   var ordenes = ordenRepo.findByCompraCarritoIdOrderByIdAsc(compraId);
+   return ordenes.size() == 1 && yapeDisponible(ordenes.getFirst().getCursoId());
+ }
+
+ @Transactional
+ public OrdenResponse convertirCarritoAYape(Long compraId) {
+   var compra = compraCarritoRepo.bloquear(compraId)
+       .orElseThrow(() -> new ResourceNotFoundException("Compra de carrito no encontrada"));
+   accesoCuenta.verificar(compra.getEstudianteId());
+   var ordenes = ordenRepo.findByCompraCarritoIdOrderByIdAsc(compraId);
+   if ("REEMPLAZADA_YAPE".equals(compra.getEstado()) && ordenes.size() == 1
+       && ordenes.getFirst().getAmbiente() == AmbientePago.YAPE_MANUAL)
+     return map(ordenes.getFirst());
+   if (!Set.of("PENDIENTE", "PAGO_INICIADO").contains(compra.getEstado()))
+     throw new IllegalStateException("Esta compra ya no puede cambiarse a Yape por QR");
+   if (compra.getMercadoPagoPaymentId() != null)
+     throw new IllegalStateException("La compra ya tiene una operación de Mercado Pago");
+   if (ordenes.size() != 1 || !yapeDisponible(ordenes.getFirst().getCursoId()))
+     throw new IllegalStateException("Yape por QR solo está disponible para el curso de demostración seleccionado");
+   var orden = ordenRepo.bloquear(ordenes.getFirst().getId()).orElseThrow();
+   if (!Set.of(OrdenCompra.EstadoOrden.PENDIENTE, OrdenCompra.EstadoOrden.PAGO_INICIADO).contains(orden.getEstado())
+       || orden.getMercadoPagoPaymentId() != null)
+     throw new IllegalStateException("La orden ya inició otro medio de pago");
+   orden.setAmbiente(AmbientePago.YAPE_MANUAL);
+   orden.setEstado(OrdenCompra.EstadoOrden.PENDIENTE);
+   orden.setReceptorMp(null);
+   orden.setMercadoPagoPreferenceId(null);
+   compra.setEstado("REEMPLAZADA_YAPE");
+   compraCarritoRepo.save(compra);
+   return map(ordenRepo.save(orden));
+ }
+
+ @Transactional
+ public OrdenResponse crearYape(CrearOrdenRequest req) {
+   if (!yapeDisponible(req.cursoId())) throw new IllegalStateException("Yape por QR no está habilitado para este curso");
+   var curso = cursoClient.obtener(req.cursoId());
+   if (curso == null) throw new ResourceNotFoundException("Curso no encontrado");
+   if (!"PAGO".equals(curso.tipo()) || !"PUBLICADO".equals(curso.estado())
+       || curso.precio() == null || curso.precio().signum() <= 0)
+     throw new IllegalStateException("El curso no está disponible para pago");
+   var existente = ordenRepo.findFirstByEstudianteIdAndCursoIdAndEstadoInOrderByIdDesc(
+       req.estudianteId(), curso.id(), List.of(OrdenCompra.EstadoOrden.PENDIENTE,
+           OrdenCompra.EstadoOrden.PAGO_INICIADO, OrdenCompra.EstadoOrden.APROBADA));
+   if (existente.isPresent()) {
+     var orden = existente.get();
+     if (orden.getAmbiente() == AmbientePago.YAPE_MANUAL && orden.getEstado() == OrdenCompra.EstadoOrden.PENDIENTE)
+       return map(orden);
+     if (orden.getCompraCarritoId() != null && orden.getMercadoPagoPaymentId() == null
+         && Set.of(OrdenCompra.EstadoOrden.PENDIENTE, OrdenCompra.EstadoOrden.PAGO_INICIADO).contains(orden.getEstado()))
+       return convertirCarritoAYape(orden.getCompraCarritoId());
+     throw new IllegalStateException("Ya tienes una compra activa para este curso");
+   }
+   var cuenta = new MercadoPagoClient.CuentaVerificada(null, AmbientePago.YAPE_MANUAL);
+   return map(guardarNueva(req, curso, cuenta, null));
+ }
+
+ @Transactional
+ public OrdenResponse confirmarYape(Long id, String operacion, BigDecimal importe, String administrador) {
+   var orden = ordenRepo.bloquear(id).orElseThrow(() -> new ResourceNotFoundException("Orden no encontrada"));
+   if (orden.getAmbiente() != AmbientePago.YAPE_MANUAL)
+     throw new IllegalStateException("La orden no corresponde a Yape por QR");
+   String referencia = operacion == null ? "" : operacion.strip().toUpperCase(Locale.ROOT);
+   if (!referencia.matches("[A-Z0-9]{4,48}"))
+     throw new IllegalArgumentException("Escribe el número completo de operación del movimiento recibido");
+   if (importe == null || importe.compareTo(orden.getMontoTotal()) != 0)
+     throw new IllegalArgumentException("El importe recibido no coincide con la orden");
+   if (orden.getYapeReportadoEn() != null && !referencia.equals(orden.getYapeOperacion()))
+     throw new IllegalArgumentException("La operación no coincide con la reportada por el alumno");
+   if (orden.getEstado() == OrdenCompra.EstadoOrden.APROBADA && referencia.equals(orden.getYapeOperacion()))
+     return map(orden);
+   if (orden.getEstado() != OrdenCompra.EstadoOrden.PENDIENTE)
+     throw new IllegalStateException("La orden ya no está pendiente");
+   if (ordenRepo.existsByEstudianteIdAndCursoIdAndEstado(
+       orden.getEstudianteId(), orden.getCursoId(), OrdenCompra.EstadoOrden.APROBADA))
+     throw new IllegalStateException("El estudiante ya tiene una compra aprobada para este curso");
+   orden.setYapeOperacion(referencia);
+   orden.setYapeConfirmadoPor(administrador);
+   try {
+     ordenRepo.saveAndFlush(orden);
+   } catch (org.springframework.dao.DataIntegrityViolationException e) {
+     throw new IllegalStateException("No se pudo registrar el abono. Verifica si la operación ya se usó", e);
+   }
+   return aprobar(orden, null);
+ }
+
+ @Transactional
+ public OrdenResponse reportarYape(Long id, String operacion) {
+   var orden = ordenRepo.bloquear(id).orElseThrow(() -> new ResourceNotFoundException("Orden no encontrada"));
+   accesoCuenta.verificar(orden.getEstudianteId());
+   if (orden.getAmbiente() != AmbientePago.YAPE_MANUAL || orden.getEstado() != OrdenCompra.EstadoOrden.PENDIENTE)
+     throw new IllegalStateException("La orden no está pendiente de verificación Yape");
+   String referencia = operacion == null ? "" : operacion.strip().toUpperCase(Locale.ROOT);
+   if (!referencia.matches("[A-Z0-9]{4,48}"))
+     throw new IllegalArgumentException("Escribe el número completo de operación que aparece en Yape");
+   if (orden.getYapeReportadoEn() != null) {
+     if (!referencia.equals(orden.getYapeOperacion()))
+       throw new IllegalStateException("Ya reportaste otra operación; solicita revisión al administrador");
+     return map(orden);
+   }
+   orden.setYapeOperacion(referencia);
+   orden.setYapeReportadoEn(LocalDateTime.now(ZoneId.of("America/Lima")));
+   try { ordenRepo.saveAndFlush(orden); }
+   catch (org.springframework.dao.DataIntegrityViolationException e) {
+     throw new IllegalStateException("Esta operación ya fue reportada para otra orden", e);
+   }
+   return map(orden);
+ }
 
  @Transactional(readOnly=true) public List<OrdenResponse> listar(){return ordenRepo.findAll().stream().sorted(Comparator.comparing(OrdenCompra::getId).reversed()).map(this::map).toList();}
  @Transactional(readOnly=true) public OrdenResponse obtener(Long id){return map(buscar(id));}
@@ -113,6 +231,7 @@ public class PagoService {
    if(o.getCompraCarritoId()!=null){checkoutCarrito.getObject().confirmar(o.getCompraCarritoId(),paymentId);return map(o);}
    if(o.getEstado()==OrdenCompra.EstadoOrden.APROBADA){if(!Objects.equals(o.getMercadoPagoPaymentId(),paymentId))throw new IllegalArgumentException("El pago no corresponde a la orden aprobada");return map(o);}
    if(o.getEstado()==OrdenCompra.EstadoOrden.REEMBOLSADA || o.getEstado()==OrdenCompra.EstadoOrden.RECHAZADA) throw new IllegalStateException("La orden está cerrada y no admite confirmación");
+   if(o.getAmbiente()==AmbientePago.YAPE_MANUAL)throw new IllegalStateException("Esta orden requiere confirmación manual");
    MercadoPagoClient.PagoExterno p=mercadoPagoClient.obtenerPago(paymentId);
    if(!Objects.equals(paymentId,p.id()))throw new IllegalArgumentException("El identificador del pago no coincide");
    if(!"approved".equalsIgnoreCase(p.status())) throw new IllegalStateException("Mercado Pago aún no reporta el pago como approved: "+p.status());
@@ -125,7 +244,7 @@ public class PagoService {
  }
 
  @Transactional
- public OrdenResponse simularAprobacion(Long id){ if(!permitirSimulacion) throw new IllegalStateException("La simulación solo está habilitada en DEV"); var o=buscar(id);if(o.getAmbiente()==AmbientePago.PRODUCCION)throw new IllegalStateException("No se puede simular una orden de producción");o.setAmbiente(AmbientePago.PRUEBAS);return aprobar(o,"SIM-"+UUID.randomUUID()); }
+ public OrdenResponse simularAprobacion(Long id){ if(!permitirSimulacion) throw new IllegalStateException("La simulación solo está habilitada en DEV"); var o=buscar(id);if(o.getAmbiente()==AmbientePago.PRODUCCION || o.getAmbiente()==AmbientePago.YAPE_MANUAL)throw new IllegalStateException("No se puede simular una orden de pago real");o.setAmbiente(AmbientePago.PRUEBAS);return aprobar(o,"SIM-"+UUID.randomUUID()); }
 
  @Transactional
  public OrdenResponse procesarWebhook(String paymentId){
@@ -138,7 +257,7 @@ public class PagoService {
  private OrdenResponse aprobar(OrdenCompra o,String paymentId){
    if(o.getEstado()==OrdenCompra.EstadoOrden.APROBADA) return map(o);
    if(o.getEstado()==OrdenCompra.EstadoOrden.REEMBOLSADA || o.getEstado()==OrdenCompra.EstadoOrden.RECHAZADA) throw new IllegalStateException("La orden está cerrada y no puede aprobarse de nuevo");
-   ordenRepo.findByMercadoPagoPaymentId(paymentId).filter(x->!x.getId().equals(o.getId())).ifPresent(x->{throw new IllegalStateException("El paymentId ya fue utilizado");});
+   if (paymentId != null) ordenRepo.findByMercadoPagoPaymentId(paymentId).filter(x->!x.getId().equals(o.getId())).ifPresent(x->{throw new IllegalStateException("El paymentId ya fue utilizado");});
    o.setEstado(OrdenCompra.EstadoOrden.APROBADA); o.setMercadoPagoPaymentId(paymentId); o.setFechaAprobacion(LocalDateTime.now(ZoneId.of("America/Lima"))); ordenRepo.save(o);
    if(o.getAmbiente()==AmbientePago.PRODUCCION && !paymentId.startsWith("SIM-") && movimientoRepo.findByOrdenIdAndTipo(o.getId(),MovimientoSaldo.TipoMovimiento.VENTA).isEmpty()){
      MovimientoSaldo m=new MovimientoSaldo(); m.setAmbiente(AmbientePago.PRODUCCION); m.setDocenteId(o.getDocenteId()); m.setOrdenId(o.getId()); m.setTipo(MovimientoSaldo.TipoMovimiento.VENTA);m.setConciliado(!paymentId.startsWith("SIM-")&&o.getCostoProcesamiento()!=null&&o.getNetoRecibido()!=null); m.setEstado(MovimientoSaldo.EstadoMovimiento.PENDIENTE); m.setMonto(o.getMontoDocente()); m.setFechaDisponible(o.getFechaAprobacion().plusDays(diasRetencion)); m.setFechaCreacion(LocalDateTime.now(ZoneId.of("America/Lima"))); m.setDescripcion("Venta del curso "+o.getCursoTitulo()+"; neto docente S/ "+o.getMontoDocente()); movimientoRepo.save(m);
@@ -178,6 +297,8 @@ public class PagoService {
    if(o.getEstado()==OrdenCompra.EstadoOrden.REEMBOLSADA || o.getEstado()==OrdenCompra.EstadoOrden.RECHAZADA){return false;}
    if(o.getEstado()!=OrdenCompra.EstadoOrden.APROBADA){return false;}
 
+   // Un abono de Yape requiere revisión y devolución manual si no se puede entregar el curso.
+   if (o.getAmbiente() == AmbientePago.YAPE_MANUAL) return false;
    var movimiento = movimientoRepo.findByOrdenIdAndTipo(o.getId(),MovimientoSaldo.TipoMovimiento.VENTA);
    if(movimiento.isPresent()&&movimiento.get().isConciliado())liquidaciones.bloquearPendientes(o.getDocenteId(),"Compensación por fallo de inscripción");
    if(movimiento.isPresent() && (movimiento.get().getEstado()==MovimientoSaldo.EstadoMovimiento.RESERVADO
@@ -224,7 +345,7 @@ public class PagoService {
        .tipoEvento("pago.aprobado").schemaVersion(2).ordenId(o.getId()).estudianteId(o.getEstudianteId())
        .docenteId(o.getDocenteId()).cursoId(o.getCursoId()).cursoTitulo(o.getCursoTitulo())
        .montoTotal(o.getMontoTotal()).montoDocente(o.getMontoDocente()).diasRetencion(diasRetencion)
-       .compraCarritoId(o.getCompraCarritoId()).operacionPago(o.getMercadoPagoPaymentId()).estado("APROBADA").ambiente(o.getAmbiente().name()).receptorMp(o.getReceptorMp()).origen("kido-pago-ms").timestamp(Instant.now().toEpochMilli())
+       .compraCarritoId(o.getCompraCarritoId()).operacionPago(o.getAmbiente()==AmbientePago.YAPE_MANUAL ? o.getYapeOperacion() : o.getMercadoPagoPaymentId()).estado("APROBADA").ambiente(o.getAmbiente().name()).receptorMp(o.getReceptorMp()).origen("kido-pago-ms").timestamp(Instant.now().toEpochMilli())
        .leccionIds(lecciones).progresoMinimo(o.getProgresoMinimoSnapshot())
        .asistenciaMinima(o.getAsistenciaMinimaSnapshot()).certificadoHabilitado(o.isCertificadoHabilitadoSnapshot())
        .certificadoCosto(o.getCertificadoCostoSnapshot()).build();
@@ -256,5 +377,5 @@ public class PagoService {
  }
 
  private OrdenCompra buscar(Long id){return ordenRepo.findById(id).orElseThrow(()->new ResourceNotFoundException("Orden no encontrada: "+id));}
- public OrdenResponse map(OrdenCompra o){return new OrdenResponse(o.getId(),o.getEstudianteId(),o.getCursoId(),o.getDocenteId(),o.getCursoTitulo(),o.getMontoTotal(),o.getComisionKido(),o.getMontoDocente(),o.getEstado().name(),o.getMercadoPagoPreferenceId(),o.getMercadoPagoPaymentId(),o.isInscripcionSincronizada(),o.getFechaCreacion(),o.getFechaAprobacion(),o.getPorcentajeComision(),o.getCostoProcesamiento(),o.getNetoRecibido(),o.getEstado()!=OrdenCompra.EstadoOrden.APROBADA||o.getNetoRecibido()==null?null:o.getNetoRecibido().subtract(o.getMontoDocente()),o.getFondosEstado(),o.getFechaConciliacion(),o.getMercadoPagoPaymentId()!=null&&o.getMercadoPagoPaymentId().startsWith("SIM-"),o.getAmbiente().name(),o.getPagosAprobadosDetectados(),o.getCompraCarritoId());}
+ public OrdenResponse map(OrdenCompra o){return new OrdenResponse(o.getId(),o.getEstudianteId(),o.getCursoId(),o.getDocenteId(),o.getCursoTitulo(),o.getMontoTotal(),o.getComisionKido(),o.getMontoDocente(),o.getEstado().name(),o.getMercadoPagoPreferenceId(),o.getMercadoPagoPaymentId(),o.isInscripcionSincronizada(),o.getFechaCreacion(),o.getFechaAprobacion(),o.getPorcentajeComision(),o.getCostoProcesamiento(),o.getNetoRecibido(),o.getEstado()!=OrdenCompra.EstadoOrden.APROBADA||o.getNetoRecibido()==null?null:o.getNetoRecibido().subtract(o.getMontoDocente()),o.getFondosEstado(),o.getFechaConciliacion(),o.getMercadoPagoPaymentId()!=null&&o.getMercadoPagoPaymentId().startsWith("SIM-"),o.getAmbiente().name(),o.getPagosAprobadosDetectados(),o.getCompraCarritoId(),o.getYapeOperacion(),o.getYapeReportadoEn());}
 }
